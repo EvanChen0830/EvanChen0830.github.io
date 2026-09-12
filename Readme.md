@@ -70,6 +70,43 @@ Set `math: true` in a post's front matter to load KaTeX (see
 `layouts/partials/extend_head.html`). Then use standard LaTeX delimiters in
 the body: `$inline$`, `$$block$$`, `\(inline\)`, or `\[block\]`.
 
+### Password-locking part of a post
+
+Any section of any post can be hidden behind a password. It's encrypted
+(AES-256-GCM, PBKDF2-derived key, 250k iterations) at authoring time and
+decrypted entirely in the visitor's browser via the native Web Crypto API —
+no backend, no build-pipeline changes, works on any static host. Without the
+password, only ciphertext ever ships to the browser.
+
+1. Write the content you want to hide in a scratch markdown file (anywhere
+   outside `content/`, e.g. `/tmp/secret.md`).
+2. Encrypt it:
+   ```sh
+   node scripts/protect.mjs "your password" /tmp/secret.md
+   ```
+   This prints a `{{< protected ... >}}` shortcode with the ciphertext baked
+   in. The password itself is never written anywhere — only the salt, IV,
+   and ciphertext are printed, and those are safe to commit.
+3. Paste the printed shortcode into your post, in place of (or after) the
+   plaintext. Delete the scratch file.
+4. Delete your shell history entry for step 2 if it contains the real
+   password (e.g. `history -d <line>`), since it was typed as a plain CLI
+   argument.
+
+The gated content supports the same Markdown + KaTeX math as the rest of the
+site (rendered client-side via `marked.js` after a successful unlock — see
+`layouts/shortcodes/protected.html` and the decrypt logic in
+`layouts/partials/extend_head.html`). If your protected content contains
+math, also set `math: true` in the post's front matter as usual.
+
+**Threat model, honestly stated:** this deters casual visitors and keeps the
+plaintext out of "view source" / git history. It does not stop someone who
+downloads the page and brute-forces the password offline — there's no rate
+limiting on a static file. Don't use it for anything where a leak would
+actually hurt; for real access control, gate the page at the edge instead
+(e.g. Cloudflare Access or a Cloudflare Pages Function checking a password
+before the page is ever served).
+
 ### Multi-part series
 
 To turn a long write-up into a linked series (like

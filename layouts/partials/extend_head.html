@@ -24,3 +24,74 @@
   .katex-display > .katex { max-width: 100%; }
 </style>
 {{ end }}
+
+{{ if .HasShortcode "protected" }}
+<script defer src="https://cdn.jsdelivr.net/npm/marked@4.3.0/lib/marked.umd.min.js" integrity="sha384-lAsy9YfjZl3HePIkLBlBq/y1+RVllZBH2aTbGiXnmo6JVCdssfP884baorU63PdL" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function b64ToBytes(b64) {
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function deriveKey(password, salt, iterations) {
+    var enc = new TextEncoder();
+    return crypto.subtle
+      .importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"])
+      .then(function (baseKey) {
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: salt, iterations: iterations, hash: "SHA-256" },
+          baseKey,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["decrypt"]
+        );
+      });
+  }
+
+  document.querySelectorAll(".protected-block").forEach(function (block) {
+    var form = block.querySelector(".protected-form");
+    var input = block.querySelector(".protected-input");
+    var errorEl = block.querySelector(".protected-error");
+    var contentEl = block.querySelector(".protected-content");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      errorEl.style.display = "none";
+
+      var salt = b64ToBytes(block.dataset.salt);
+      var iv = b64ToBytes(block.dataset.iv);
+      var payload = b64ToBytes(block.dataset.payload);
+      var iterations = parseInt(block.dataset.iterations, 10);
+
+      deriveKey(input.value, salt, iterations)
+        .then(function (key) {
+          return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, payload);
+        })
+        .then(function (plainBuf) {
+          var markdown = new TextDecoder().decode(plainBuf);
+          contentEl.innerHTML = marked.parse(markdown);
+          contentEl.style.display = "block";
+          form.style.display = "none";
+          if (window.renderMathInElement) {
+            window.renderMathInElement(contentEl, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\[", right: "\\]", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+              ],
+              throwOnError: false,
+            });
+          }
+        })
+        .catch(function () {
+          errorEl.style.display = "inline";
+        });
+    });
+  });
+});
+</script>
+{{ end }}
