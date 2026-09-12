@@ -11,4 +11,16 @@
       ],
       throwOnError: false
     });"></script>
+<style>
+  /* KaTeX renders at 1.21em by default, which reads oversized next to
+     18px body text and inflates line-height wherever inline math appears.
+     Bring it back down to match surrounding text. */
+  .katex { font-size: 1em; line-height: normal; }
+
+  /* Long display equations (boxed sums, multi-term \qquad chains) are wider
+     than the content column and would otherwise bleed past its edge.
+     Scroll horizontally instead of overflowing. */
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.3em 0; }
+  .katex-display > .katex { max-width: 100%; }
+</style>
 {{ end }}
