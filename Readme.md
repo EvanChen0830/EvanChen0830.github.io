@@ -18,10 +18,13 @@ gets you a buildable site — nothing extra to init.
 ## Local development
 
 ```sh
-hugo server -D
+./start.sh
 ```
 
-Visit `http://localhost:1313`. Hugo live-reloads on file changes.
+Visit `http://localhost:1313`. Hugo live-reloads on file changes. The script
+adds `~/.local/bin` to `PATH` (in case Hugo was installed there without
+`sudo`) and forwards any extra flags to `hugo server`, e.g. `./start.sh
+--port 1314`.
 
 ## Content structure
 
