@@ -28,13 +28,15 @@ adds `~/.local/bin` to `PATH` (in case Hugo was installed there without
 
 ## Content structure
 
-Posts live under section folders, not a flat `posts/`. The two top-level
+Posts live under section folders, not a flat `posts/`. The top-level
 branches are:
 
+- `content/overview/` — mindset and a high-level tour of the methodology,
+  with the pipeline diagram. The entry point for a new reader.
 - `content/quant/` — the quant research pipeline, one subfolder per stage,
-  in the order a signal actually moves through it:
-  `universe/`, `features/`, `feature-selection/`, `model/`, `post-alpha/`,
-  `portfolio/`.
+  in the order a signal actually moves through it: `universe/`,
+  `feature-engineering/`, `feature-evaluation/`, `model/`, `alpha/`,
+  `alpha-evaluation/`, `final-ensemble/`.
 - `content/machine-learning/` — general ML notes, not specific to the quant
   pipeline.
 
@@ -113,7 +115,7 @@ before the page is ever served).
 ### Multi-part series
 
 To turn a long write-up into a linked series (like
-`content/quant/feature-selection/part-1-*.md` through `part-4-*.md`), give
+`content/quant/feature-evaluation/part-1-*.md` through `part-4-*.md`), give
 each post a shared `series` name and a `part` number in front matter:
 
 ```yaml

@@ -95,3 +95,17 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {{ end }}
+
+{{ if or (.HasShortcode "mermaid") (.HasShortcode "pipeline") }}
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@12.0.0/dist/mermaid.min.js" integrity="sha384-xzghz1GQ5u9HCpVskeDPqMsdogD1yvuMQbEK53+wi+G70+6J1AG0L2cfi9PHjDWI" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var isDark = document.documentElement.dataset.theme === "dark" ||
+    (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: isDark ? "dark" : "default", securityLevel: "strict" });
+});
+</script>
+<style>
+  pre.mermaid { background: none; text-align: center; overflow-x: auto; }
+</style>
+{{ end }}

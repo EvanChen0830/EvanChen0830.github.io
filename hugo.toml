@@ -63,6 +63,12 @@ pygmentsUseClasses = true
     url = "index.xml"
 
 [[menu.main]]
+  identifier = "overview"
+  name = "Overview"
+  url = "/overview/"
+  weight = 5
+
+[[menu.main]]
   identifier = "quant"
   name = "Quant"
   url = "/quant/"

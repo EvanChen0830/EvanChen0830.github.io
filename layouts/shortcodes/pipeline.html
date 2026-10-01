@@ -1,0 +1,28 @@
+{{- $highlightRaw := .Get "highlight" | default "" -}}
+{{- $highlight := split $highlightRaw "," -}}
+{{- $stages := slice
+  (dict "id" "universe" "label" "Universe")
+  (dict "id" "feature_engineering" "label" "Feature Engineering")
+  (dict "id" "feature_evaluation" "label" "Feature Evaluation")
+  (dict "id" "model" "label" "Model")
+  (dict "id" "alpha" "label" "Alpha")
+  (dict "id" "alpha_evaluation" "label" "Alpha Evaluation")
+  (dict "id" "final_ensemble" "label" "Final Ensemble")
+-}}
+<pre class="mermaid">
+graph LR
+{{- range $stages }}
+{{ .id }}["{{ .label }}"]
+{{- end }}
+{{- range $i, $s := $stages }}
+{{- if gt $i 0 }}
+{{ (index $stages (sub $i 1)).id }} --> {{ $s.id }}
+{{- end }}
+{{- end }}
+{{- range $stages }}
+{{- $slug := replace .id "_" "-" }}
+{{- if in $highlight $slug }}
+style {{ .id }} fill:#f0a500,stroke:#333,stroke-width:2px,color:#111
+{{- end }}
+{{- end }}
+</pre>
