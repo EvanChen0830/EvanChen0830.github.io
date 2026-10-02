@@ -265,7 +265,7 @@ where $P^{\mathsf D}_{\mathcal F}$ is the projection onto the subspace
 spanned by the selected features' $\mathsf D$ mechanism vectors (§38.1).
 Note that by Proposition 38.2, once $|\mathcal F|\ge K$ with linearly
 independent mechanism vectors, $\chi_\alpha\equiv1$ — so $\chi_\alpha$ is
-only informative when $|\mathcal F|<K$ or the mechanism vectors are
+only informative when $|\mathcal F|\lt K$ or the mechanism vectors are
 degenerate. This is exactly why "what did the model inherit" ultimately has
 to be answered by the linear surrogate of §54–§57, not by geometric
 projection alone.

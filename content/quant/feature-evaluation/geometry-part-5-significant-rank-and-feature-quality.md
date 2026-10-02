@@ -35,7 +35,7 @@ valid at a finite $B$.)
 An intuitively natural but actually biased alternative is **sequential
 deflation**: after accepting the first $j-1$ modes, let
 
-$$R_j=P_U^\perp CP_V^\perp,\qquad P_U^\perp=I-U_{<j}U_{<j}^\top,\quad P_V^\perp=I-V_{<j}V_{<j}^\top,$$
+$$R_j=P_U^\perp CP_V^\perp,\qquad P_U^\perp=I-U_{\lt j}U_{\lt j}^\top,\quad P_V^\perp=I-V_{\lt j}V_{\lt j}^\top,$$
 
 and use $\|R_j\|_2$ as the observed statistic, with $\|P_U^\perp
 C_b^{\rm null}P_V^\perp\|_2$ as the null.

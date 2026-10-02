@@ -1,0 +1,39 @@
+{{ define "main" }}
+<nav class="breadcrumbs"><a href="{{ "/" | absURL }}">Home</a> &rsaquo; {{ .Title }}</nav>
+<header class="book"><h1>{{ .Title }}</h1></header>
+
+<input type="text" id="search-input" placeholder="{{ .Params.placeholder | default "Search posts..." }}" autocomplete="off">
+<div class="entry-list" id="search-results"></div>
+
+<script>
+(function () {
+  var input = document.getElementById("search-input");
+  var results = document.getElementById("search-results");
+  var index = [];
+
+  fetch("{{ "index.json" | absURL }}")
+    .then(function (r) { return r.json(); })
+    .then(function (data) { index = data; });
+
+  function render(items) {
+    results.innerHTML = items.map(function (p) {
+      return '<a class="entry" href="' + p.url + '">' +
+        '<p class="entry-title">' + p.title + '</p>' +
+        (p.description ? '<p class="entry-desc">' + p.description + '</p>' : '') +
+        '</a>';
+    }).join("");
+  }
+
+  input.addEventListener("input", function () {
+    var q = input.value.trim().toLowerCase();
+    if (!q) { results.innerHTML = ""; return; }
+    var matches = index.filter(function (p) {
+      return p.title.toLowerCase().indexOf(q) !== -1 ||
+        p.description.toLowerCase().indexOf(q) !== -1 ||
+        p.tags.some(function (t) { return t.toLowerCase().indexOf(q) !== -1; });
+    });
+    render(matches.slice(0, 30));
+  });
+})();
+</script>
+{{ end }}

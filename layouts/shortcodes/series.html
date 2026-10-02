@@ -1,21 +1,6 @@
-{{- $name := .Get "name" -}}
-{{- $pages := where site.RegularPages "Params.series" "intersect" (slice $name) -}}
-{{- $pages = $pages.ByParam "part" -}}
-{{- if gt (len $pages) 1 }}
-<div style="border:1px solid var(--border); background:var(--entry); border-radius:8px; padding:12px 16px; margin:1.5em 0;">
-  <div style="font-size:0.85em; text-transform:uppercase; letter-spacing:0.04em; color:var(--secondary); margin-bottom:6px;">
-    Series: {{ $name }}
-  </div>
-  <ol style="margin:0; padding-left:1.2em;">
-    {{- range $pages }}
-    <li style="margin:2px 0;">
-      {{- if eq .RelPermalink $.Page.RelPermalink }}
-      <strong>{{ .Title }}</strong>
-      {{- else }}
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      {{- end }}
-    </li>
-    {{- end }}
-  </ol>
-</div>
-{{- end }}
+{{- /*
+  No-op: series navigation is now rendered by the sidebar (see
+  layouts/partials/sidebar.html) whenever a page's front matter sets
+  `series`. This shortcode is kept only so existing content calling
+  {{< series name="..." >}} doesn't break; it intentionally renders nothing.
+*/ -}}

@@ -39,8 +39,7 @@ Average over ticker $i$'s history in the discovery period:
 
 $$
 \boxed{
-\bar K_i^D
-=
+\bar K_i^D =
 \frac1{T_i}
 \sum_{d:i\in\mathcal U_d}
 K_{id}^D.
@@ -60,8 +59,7 @@ Define $s_i^V,s_i^L$ analogously, and directional purity:
 
 $$
 \boxed{
-p_i^D
-=
+p_i^D =
 \frac{s_i^D}{s_i^D+s_i^V+s_i^L+\epsilon}.
 }
 $$
@@ -72,8 +70,7 @@ To separate magnitude from shape:
 
 $$
 \boxed{
-\widetilde K_i^D
-=
+\widetilde K_i^D =
 \frac{\bar K_i^D}
 {\operatorname{tr}(\bar K_i^D)+\epsilon}.
 }
@@ -86,16 +83,14 @@ $\widetilde K_i^D$ describes *which* horizon combinations a ticker's directional
 An observation-level V-D outer product can also be defined:
 
 $$
-K_{id}^{VD}
-=
+K_{id}^{VD} =
 \phi^V_{id}\phi_{id}^{D\top}.
 $$
 
 with ticker-level average
 
 $$
-\bar K_i^{VD}
-=
+\bar K_i^{VD} =
 \frac1{T_i}\sum_dK_{id}^{VD}.
 $$
 
@@ -120,8 +115,7 @@ $$
 or by
 
 $$
-\text{rank by }u_i^D
-=
+\text{rank by }u_i^D =
 \log(s_i^D+\epsilon)
 -\frac12\log(s_i^V+\epsilon)
 -\frac12\log(s_i^L+\epsilon).
@@ -172,8 +166,7 @@ run discovery-only PCA on the concatenation, then cluster. This produces candida
 Within a directional-shape cluster $c$, further split by top fraction of $u_i^D$:
 
 $$
-\mathcal S_{c,q}
-=
+\mathcal S_{c,q} =
 \{i\in c:u_i^D\ge Q_q(u^D\mid c)\}.
 $$
 

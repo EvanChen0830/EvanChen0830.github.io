@@ -39,7 +39,7 @@ G_D=(0.03,\,0.07),\quad
 G_V=(0.03^2{-}1,\ \sqrt2(0.03)(0.07),\ 0.07^2{-}1)=(-0.999,\,0.00297,\,-0.995),\quad
 G_T=0.0762\times(0.03,0.07)
 $$
-Stack over all 6 rows $\to G\in\mathbb R^{6\times7}$; Gram–Schmidt $\to\Phi\in\mathbb R^{6\times7}$ (in a real run $L\gg d_\Phi$; here $L=6<d_\Phi=7$ is only illustrative of the mechanics, not a usable sample size).
+Stack over all 6 rows $\to G\in\mathbb R^{6\times7}$; Gram–Schmidt $\to\Phi\in\mathbb R^{6\times7}$ (in a real run $L\gg d_\Phi$; here $L=6\lt d_\Phi=7$ is only illustrative of the mechanics, not a usable sample size).
 
 **B5 — cross-covariance.** $C=X^{XS\top}\Phi/6\in\mathbb R^{2\times7}$. Day-decomposition check on $(f_1,\phi_{D_1})$: $C_D^{(1)}[f_1,1]=\tfrac13\big[(-1.0)(0.03)+0+(1.0)(-0.03)\big]=-0.02$, $C_D^{(2)}[f_1,1]=-0.00667$; pooled with $w_1=w_2=0.5$ gives $-0.01333$, matching the direct 6-row computation exactly — confirming (B5').
 

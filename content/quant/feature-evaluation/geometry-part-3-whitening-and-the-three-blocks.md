@@ -59,7 +59,7 @@ $\kappa=\lambda_1/\lambda_{K_{\rm eff}}$, $K_{\rm eff}$, and the horizon
 loadings $E[:,K_{\rm eff}{+}1:K]$ of the discarded directions (to see what
 was actually discarded).
 
-If $K_{\rm eff}<K$ and the discarded directions' loadings concentrate on
+If $K_{\rm eff}\lt K$ and the discarded directions' loadings concentrate on
 one or two horizons, the right fix is usually not to accept the
 truncation — it's to go back to §6 and switch to an incremental basis or
 merge horizons. Truncation is the last resort.
@@ -78,7 +78,7 @@ good interpretability. Cholesky whitening would turn the coordinates into a
 triangular structure ("horizon 1," "horizon 2 net of horizon 1," ...) that
 isn't comparable across bands.
 
-**Case two (with truncation, $K_{\rm eff}<K$)**: use the reduced-dimension
+**Case two (with truncation, $K_{\rm eff}\lt K$)**: use the reduced-dimension
 form
 
 $$B_Y=E_{1:K_{\rm eff}}\Lambda_{1:K_{\rm eff}}^{-1/2}\in\mathbb R^{K\times K_{\rm eff}}.$$

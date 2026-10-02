@@ -1,0 +1,69 @@
+<nav class="toc">
+  <div class="brand">
+    <a href="{{ "/" | absURL }}">{{ site.Title }}</a>
+    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+    </button>
+  </div>
+
+  {{- $seriesNames := .Params.series }}
+  {{- if $seriesNames }}
+  {{- $name := index $seriesNames 0 }}
+  {{- $pages := where site.RegularPages "Params.series" "intersect" $seriesNames }}
+  {{- $pages = $pages.ByParam "part" }}
+  <a class="back" href="{{ .CurrentSection.RelPermalink }}">&larr; {{ .CurrentSection.Title }}</a>
+  <div class="group">
+    <p class="group-label">{{ $name }}</p>
+    <ol>
+      {{- range $pages }}
+      <li><a href="{{ .RelPermalink }}" class="{{ if eq .RelPermalink $.RelPermalink }}on{{ end }}">
+        <span class="n">{{ .Params.part }}</span><span>{{ .LinkTitle }}</span>
+      </a></li>
+      {{- end }}
+    </ol>
+  </div>
+  {{- else }}
+
+  {{- $cur := .RelPermalink }}
+  {{- $isOn := partial "is-active.html" (dict "cur" $cur "url" "/overview/") }}
+  <div class="group">
+    <ol>
+      <li><a href="{{ "/overview/" | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" "/overview/") }}on{{ end }}">Overview</a></li>
+    </ol>
+  </div>
+
+  <div class="group">
+    <p class="group-label">Quant Research</p>
+    <ol>
+      <li><a href="{{ "/quant/" | absURL }}" class="{{ if eq $cur "/quant/" }}on{{ end }}">Quant (overview)</a></li>
+      {{- range (slice
+        (dict "slug" "universe" "label" "Universe")
+        (dict "slug" "feature-engineering" "label" "Feature Engineering")
+        (dict "slug" "feature-evaluation" "label" "Feature Evaluation")
+        (dict "slug" "model" "label" "Model")
+        (dict "slug" "alpha" "label" "Alpha")
+        (dict "slug" "alpha-evaluation" "label" "Alpha Evaluation")
+        (dict "slug" "final-ensemble" "label" "Final Ensemble")
+      ) }}
+      {{- $url := printf "/quant/%s/" .slug }}
+      <li><a href="{{ $url | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" $url) }}on{{ end }}">{{ .label }}</a></li>
+      {{- end }}
+    </ol>
+  </div>
+
+  <div class="group">
+    <ol>
+      <li><a href="{{ "/machine-learning/" | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" "/machine-learning/") }}on{{ end }}">Machine Learning</a></li>
+    </ol>
+  </div>
+
+  <div class="group">
+    <p class="group-label">Site</p>
+    <ol>
+      <li><a href="{{ "/archives/" | absURL }}" class="{{ if eq $cur "/archives/" }}on{{ end }}">Archive</a></li>
+      <li><a href="{{ "/search/" | absURL }}" class="{{ if eq $cur "/search/" }}on{{ end }}">Search</a></li>
+      <li><a href="{{ "/about/" | absURL }}" class="{{ if eq $cur "/about/" }}on{{ end }}">About</a></li>
+    </ol>
+  </div>
+  {{- end }}
+</nav>

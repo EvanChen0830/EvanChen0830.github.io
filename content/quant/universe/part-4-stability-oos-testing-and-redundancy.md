@@ -71,8 +71,7 @@ $$
 then for bootstrap draw $b$:
 
 $$
-S_{g,r}^{(b)}
-=
+S_{g,r}^{(b)} =
 \frac1r
 \|V_{g,r}^{\top}V_{g,r}^{(b)}\|_F^2.
 $$
@@ -143,8 +142,7 @@ then compute directly:
 
 $$
 \boxed{
-\rho_{g,k}^{OOS}
-=
+\rho_{g,k}^{OOS} =
 \operatorname{Corr}_{W_g^{OOS}}
 (v_{g,k}^{OOS},d_{g,k}^{OOS}).
 }
@@ -156,8 +154,7 @@ You may not rerun CCA on OOS data and then report its own top singular value —
 
 $$
 \boxed{
-D_{\rho,g,k}
-=
+D_{\rho,g,k} =
 \frac{|\rho_{g,k}^{OOS}|}
 {|\rho_{g,k}^{train}|+\epsilon}.
 }
@@ -189,8 +186,7 @@ Jaccard index:
 
 $$
 \boxed{
-J_{gh}
-=
+J_{gh} =
 \frac{|\mathcal S_g\cap\mathcal S_h|}
 {|\mathcal S_g\cup\mathcal S_h|}.
 }
@@ -212,8 +208,7 @@ the principal-angle similarity is
 
 $$
 \boxed{
-S_{gh}^{D}
-=
+S_{gh}^{D} =
 \frac1{r_*}
 \|V_g^\top V_h\|_F^2,
 \qquad

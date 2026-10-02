@@ -172,16 +172,14 @@ If universe membership updates over time, the selection rule must depend only on
 For ticker $i$:
 
 $$
-\bar K_{i,t}^{D}
-=
-\sum_{\tau<t}\omega_{t-\tau}
+\bar K_{i,t}^{D} =
+\sum_{\tau\lt t}\omega_{t-\tau}
 K_{i\tau}^{D},
 $$
 
 $$
-\bar K_{i,t}^{VD}
-=
-\sum_{\tau<t}\omega_{t-\tau}
+\bar K_{i,t}^{VD} =
+\sum_{\tau\lt t}\omega_{t-\tau}
 K_{i\tau}^{VD}.
 $$
 

@@ -39,8 +39,7 @@ $G_g$ is the Gram operator of the reference label basis, restricted to the sub-u
 The core object of this chapter isn't just directional energy $G_{g,\mathsf{DD}}$ on its own — it's the canonical coupling between activity and direction:
 
 $$
-R_{g,\mathsf{VD}}
-=
+R_{g,\mathsf{VD}} =
 G_{g,\mathsf{VV}}^{-1/2}
 G_{g,\mathsf{VD}}
 G_{g,\mathsf{DD}}^{-1/2},
@@ -50,10 +49,8 @@ and the directional explained-variance operator built from it,
 
 $$
 \boxed{
-H^{\mathsf D\leftarrow\mathsf V}_g
-=
-R_{g,\mathsf{VD}}^\top R_{g,\mathsf{VD}}
-=
+H^{\mathsf D\leftarrow\mathsf V}_g =
+R_{g,\mathsf{VD}}^\top R_{g,\mathsf{VD}} =
 G_{g,\mathsf{DD}}^{-1/2}
 G_{g,\mathsf{DV}}
 G_{g,\mathsf{VV}}^{-1}
@@ -70,8 +67,7 @@ So this chapter does not output a single best universe. It outputs a family of p
 
 $$
 \boxed{
-\mathscr S
-=
+\mathscr S =
 \{\mathcal S_1,\dots,\mathcal S_G\},
 }
 $$
@@ -122,8 +118,7 @@ Up to $G$ sub-universes may be retained simultaneously:
 
 $$
 \boxed{
-\mathscr S
-=
+\mathscr S =
 \{\mathcal S_1,\dots,\mathcal S_G\}.
 }
 $$
@@ -246,8 +241,7 @@ Once $\mathcal E_U$ begins, all of the above are frozen. Membership or threshold
 **Dynamic research universe**: at every evaluation time $t$, membership may only be decided by rolling geometry already realized before $t$:
 
 $$
-\mathcal S_{g,t}
-=
+\mathcal S_{g,t} =
 \mathcal A_g(\mathcal F_{t^-}),
 $$
 
@@ -272,8 +266,7 @@ Y^{XS}_{\mathcal U}
 \longrightarrow
 Z_{\mathcal U}
 \longrightarrow
-\Phi_{\mathcal U}
-=
+\Phi_{\mathcal U} =
 [\Phi_{\mathsf D}\mid\Phi_{\mathsf V}\mid\Phi_{\mathsf L}].
 $$
 
@@ -291,8 +284,7 @@ $$
 where
 
 $$
-W_{\mathcal U}
-=
+W_{\mathcal U} =
 \operatorname{diag}
 \left(
 \frac1{TN_d}

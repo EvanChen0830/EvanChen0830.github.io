@@ -1,0 +1,109 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+<meta name="description" content="{{ .Description | default .Summary | default site.Params.description | plainify }}">
+{{ with site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+<link rel="canonical" href="{{ .Permalink }}">
+<link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | absURL }}" title="{{ site.Title }}">
+
+<meta property="og:title" content="{{ .Title }}">
+<meta property="og:description" content="{{ .Description | default .Summary | plainify }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ "css/site.css" | absURL }}">
+
+{{ if .Params.math }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '\\[', right: '\\]', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });"></script>
+{{ end }}
+
+{{ if or (.HasShortcode "mermaid") (.HasShortcode "pipeline") }}
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@12.0.0/dist/mermaid.min.js" integrity="sha384-xzghz1GQ5u9HCpVskeDPqMsdogD1yvuMQbEK53+wi+G70+6J1AG0L2cfi9PHjDWI" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var isDark = document.documentElement.dataset.theme === "dark" ||
+    (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: isDark ? "dark" : "default", securityLevel: "strict" });
+});
+</script>
+{{ end }}
+
+{{ if .HasShortcode "protected" }}
+<script defer src="https://cdn.jsdelivr.net/npm/marked@4.3.0/lib/marked.umd.min.js" integrity="sha384-lAsy9YfjZl3HePIkLBlBq/y1+RVllZBH2aTbGiXnmo6JVCdssfP884baorU63PdL" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function b64ToBytes(b64) {
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  function deriveKey(password, salt, iterations) {
+    var enc = new TextEncoder();
+    return crypto.subtle
+      .importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"])
+      .then(function (baseKey) {
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: salt, iterations: iterations, hash: "SHA-256" },
+          baseKey,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["decrypt"]
+        );
+      });
+  }
+  document.querySelectorAll(".protected-block").forEach(function (block) {
+    var form = block.querySelector(".protected-form");
+    var input = block.querySelector(".protected-input");
+    var errorEl = block.querySelector(".protected-error");
+    var contentEl = block.querySelector(".protected-content");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      errorEl.style.display = "none";
+      var salt = b64ToBytes(block.dataset.salt);
+      var iv = b64ToBytes(block.dataset.iv);
+      var payload = b64ToBytes(block.dataset.payload);
+      var iterations = parseInt(block.dataset.iterations, 10);
+      deriveKey(input.value, salt, iterations)
+        .then(function (key) {
+          return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, payload);
+        })
+        .then(function (plainBuf) {
+          var markdown = new TextDecoder().decode(plainBuf);
+          contentEl.innerHTML = marked.parse(markdown);
+          contentEl.style.display = "block";
+          form.style.display = "none";
+          if (window.renderMathInElement) {
+            window.renderMathInElement(contentEl, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\[", right: "\\]", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+              ],
+              throwOnError: false,
+            });
+          }
+        })
+        .catch(function () {
+          errorEl.style.display = "inline";
+        });
+    });
+  });
+});
+</script>
+{{ end }}

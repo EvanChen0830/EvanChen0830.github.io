@@ -109,7 +109,7 @@ Then Gram–Schmidt, in order $D\to V\to T$, is ordinary 2D algebra:
 $$
 B_{aq}=\frac1L\Phi_a^\top G_q\in\mathbb R^{d_a\times d_q},
 \qquad
-R_q=G_q-\Phi_{<q}B_{<q,q},
+R_q=G_q-\Phi_{\lt q}B_{\lt q,q},
 \qquad
 \Phi_q=R_q\Big(\tfrac1LR_q^\top R_q\Big)_{+}^{-1/2}.
 \tag{B4b}

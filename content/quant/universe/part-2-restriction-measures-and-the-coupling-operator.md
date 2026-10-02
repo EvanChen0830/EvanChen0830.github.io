@@ -26,8 +26,7 @@ Define the renormalized row weight:
 
 $$
 \boxed{
-w^{(g)}_{id}
-=
+w^{(g)}_{id} =
 \frac{\mathbf1\{i\in\mathcal S_{g,d}\}}
 {T_gN_{g,d}},
 }
@@ -62,7 +61,7 @@ So every date is still equally weighted, and every ticker within the subset is e
 
 ### Minimum size
 
-If $N_{g,d}<d_\Phi+5$, the Gram matrices may be numerically computable but statistically very unstable. This chapter requires at minimum:
+If $N_{g,d}\lt d_\Phi+5$, the Gram matrices may be numerically computable but statistically very unstable. This chapter requires at minimum:
 
 $$
 \operatorname{median}_dN_{g,d}\ge N_{\min},
@@ -80,8 +79,7 @@ For any candidate universe $g$:
 
 $$
 \boxed{
-G_g
-=
+G_g =
 \Phi_{\mathcal U}^\top
 W_g
 \Phi_{\mathcal U}
@@ -98,8 +96,7 @@ $$
 **Proof.** For any $v\in\mathbb R^{d_\Phi}$,
 
 $$
-v^\top G_gv
-=
+v^\top G_gv =
 (\Phi_{\mathcal U}v)^\top
 W_g
 (\Phi_{\mathcal U}v)
@@ -167,8 +164,7 @@ Because block dimensions differ, traces can't be compared directly. Define
 
 $$
 \boxed{
-q_g^{\mathsf B}
-=
+q_g^{\mathsf B} =
 \frac1{d_{\mathsf B}}
 \operatorname{tr}(G_{g,\mathsf{BB}}),
 \qquad
@@ -195,8 +191,7 @@ Define
 
 $$
 \boxed{
-f_g^{\mathsf B}
-=
+f_g^{\mathsf B} =
 \frac{q_g^{\mathsf B}}
 {q_g^{\mathsf D}+q_g^{\mathsf V}+q_g^{\mathsf L}}.
 }
@@ -262,8 +257,7 @@ $v_{g,k}^{\mathsf D}$ is the $k$-th most concentrated reference directional comb
 Let
 
 $$
-p_{g,k}^{\mathsf D}
-=
+p_{g,k}^{\mathsf D} =
 \frac{\lambda_{g,k}^{\mathsf D}}
 {\sum_j\lambda_{g,j}^{\mathsf D}}.
 $$
@@ -272,8 +266,7 @@ Define the entropy effective rank:
 
 $$
 \boxed{
-r_{g,\rm eff}^{\mathsf D}
-=
+r_{g,\rm eff}^{\mathsf D} =
 \exp\left(
 -\sum_kp_{g,k}^{\mathsf D}
 \log p_{g,k}^{\mathsf D}
@@ -289,8 +282,7 @@ $$
 
 $$
 \boxed{
-C_{g,m}^{\mathsf D}
-=
+C_{g,m}^{\mathsf D} =
 \frac{\sum_{k=1}^m\lambda_{g,k}^{\mathsf D}}
 {\sum_j\lambda_{g,j}^{\mathsf D}}.
 }
@@ -300,8 +292,7 @@ and
 
 $$
 \boxed{
-r_{g,\eta}^{\mathsf D}
-=
+r_{g,\eta}^{\mathsf D} =
 \min\left\{m:C_{g,m}^{\mathsf D}\ge\eta\right\}.
 }
 $$
@@ -350,8 +341,7 @@ Define
 
 $$
 \boxed{
-G_{g,\mathsf{VD}}
-=
+G_{g,\mathsf{VD}} =
 \Phi_{\mathsf V}^\top
 W_g
 \Phi_{\mathsf D}.
@@ -424,8 +414,7 @@ $$
 
 $$
 \boxed{
-R_{g,\mathsf{VD}}
-=
+R_{g,\mathsf{VD}} =
 G_{g,\mathsf{VV}}^{-1/2}
 G_{g,\mathsf{VD}}
 G_{g,\mathsf{DD}}^{-1/2}.
@@ -542,8 +531,7 @@ From Direction's point of view, collapse all canonical coupling into a single PS
 
 $$
 \boxed{
-H_g^{\mathsf D\leftarrow\mathsf V}
-=
+H_g^{\mathsf D\leftarrow\mathsf V} =
 R_{g,\mathsf{VD}}^\top
 R_{g,\mathsf{VD}}.
 }
@@ -553,8 +541,7 @@ Expanded:
 
 $$
 \boxed{
-H_g^{\mathsf D\leftarrow\mathsf V}
-=
+H_g^{\mathsf D\leftarrow\mathsf V} =
 G_{g,\mathsf{DD}}^{-1/2}
 G_{g,\mathsf{DV}}
 G_{g,\mathsf{VV}}^{-1}
@@ -621,12 +608,10 @@ Define
 
 $$
 \boxed{
-Q_g^{\mathsf D\leftarrow\mathsf V}
-=
+Q_g^{\mathsf D\leftarrow\mathsf V} =
 \frac1{d_{D,g}^{\rm can}}
 \operatorname{tr}
-H_g^{\mathsf D\leftarrow\mathsf V}
-=
+H_g^{\mathsf D\leftarrow\mathsf V} =
 \frac1{d_{D,g}^{\rm can}}
 \sum_k\rho_{g,k}^2,
 }
@@ -647,8 +632,7 @@ A large $Q$ means a large fraction of normalized D-space energy has a systematic
 If $\sum_k\rho_k^2>0$, let
 
 $$
-p_{g,k}^{\rm can}
-=
+p_{g,k}^{\rm can} =
 \frac{\rho_{g,k}^2}
 {\sum_j\rho_{g,j}^2}.
 $$
@@ -657,8 +641,7 @@ Define
 
 $$
 \boxed{
-r_{g,\rm eff}^{\mathsf D\leftarrow\mathsf V}
-=
+r_{g,\rm eff}^{\mathsf D\leftarrow\mathsf V} =
 \exp\left(
 -\sum_kp_{g,k}^{\rm can}
 \log p_{g,k}^{\rm can}
@@ -670,8 +653,7 @@ $$
 
 $$
 \boxed{
-C_{g,m}^{\rm can}
-=
+C_{g,m}^{\rm can} =
 \frac{\sum_{k=1}^m\rho_{g,k}^2}
 {\sum_j\rho_{g,j}^2}.
 }

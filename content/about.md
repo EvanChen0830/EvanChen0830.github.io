@@ -1,8 +1,5 @@
 ---
 title: "About"
-layout: "single"
-hidemeta: true
-ShowToc: false
 ---
 
 I'm Evan Chen. I work on quantitative research — feature engineering, signal

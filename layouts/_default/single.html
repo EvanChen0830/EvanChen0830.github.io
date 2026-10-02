@@ -1,0 +1,19 @@
+{{ define "main" }}
+<nav class="breadcrumbs">
+  <a href="{{ "/" | absURL }}">Home</a>
+  {{- range .Ancestors.Reverse }}{{ if not .IsHome }} &rsaquo; <a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+  &rsaquo; {{ .Title }}
+</nav>
+<header class="book">
+  <h1>{{ .Title }}</h1>
+  {{- with .Description }}<p class="lede">{{ . }}</p>{{ end }}
+  <div class="meta">
+    {{- if not .Date.IsZero }}<span>{{ .Date.Format "January 2, 2006" }}</span>{{ end }}
+    <span>{{ .ReadingTime }} min read</span>
+    {{- range .Params.tags }}<span class="tag"><a href="{{ printf "/tags/%s/" (. | urlize) | absURL }}">{{ . }}</a></span>{{ end }}
+  </div>
+</header>
+<article class="content">
+  {{ .Content }}
+</article>
+{{ end }}

@@ -505,7 +505,7 @@ capacity analysis.
 
 | Observation | Meaning | What to do |
 |---|---|---|
-| $K_{\rm eff}<K$ | Whitening hit an ill-conditioned case; some horizon directions are unstable | Go back to §6, use the incremental basis or merge horizons; truncation is a last resort |
+| $K_{\rm eff}\lt K$ | Whitening hit an ill-conditioned case; some horizon directions are unstable | Go back to §6, use the incremental basis or merge horizons; truncation is a last resort |
 | $T_{\rm eff}/T<0.1$ | Conclusions are driven by a handful of event days | Downgrade all of that block's conclusions to exploratory |
 | $\delta_{\rm drift}>0.3$ | The coordinate system itself is drifting | Cross-period comparisons are invalid; rule out coordinate issues before discussing model decay |
 | $r_{\rm sig}=1$ | The library illuminates only one mechanism | Add a new data source, not more features of the same type |

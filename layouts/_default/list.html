@@ -1,0 +1,36 @@
+{{ define "main" }}
+<nav class="breadcrumbs">
+  <a href="{{ "/" | absURL }}">Home</a>
+  {{- range .Ancestors.Reverse }}{{ if not .IsHome }} &rsaquo; <a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+  {{- if not .IsHome }} &rsaquo; {{ .Title }}{{ end }}
+</nav>
+<header class="book">
+  <h1>{{ .Title }}</h1>
+  {{- with .Description }}<p class="lede">{{ . }}</p>{{ end }}
+</header>
+{{ if .Content }}
+<article class="content">{{ .Content }}</article>
+{{ end }}
+
+{{ $pages := .Pages }}
+{{ $paginator := .Paginate $pages }}
+<div class="entry-list">
+  {{- range $paginator.Pages }}
+  <a class="entry" href="{{ .RelPermalink }}">
+    <p class="entry-title">{{ .Title }}</p>
+    {{- with .Description }}<p class="entry-desc">{{ . }}</p>{{ end }}
+    <p class="entry-meta">
+      {{- if not .Date.IsZero }}<span>{{ .Date.Format "Jan 2, 2006" }}</span>{{ end }}
+      {{- if .IsSection }}<span>section</span>{{ end }}
+    </p>
+  </a>
+  {{- end }}
+</div>
+
+{{ if gt $paginator.TotalPages 1 }}
+<nav class="pagination">
+  {{- if $paginator.HasPrev }}<a href="{{ $paginator.Prev.URL | absURL }}">&larr; Newer</a>{{ else }}<span></span>{{ end }}
+  {{- if $paginator.HasNext }}<a href="{{ $paginator.Next.URL | absURL }}">Older &rarr;</a>{{ end }}
+</nav>
+{{ end }}
+{{ end }}

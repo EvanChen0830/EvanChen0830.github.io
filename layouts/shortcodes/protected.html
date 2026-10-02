@@ -3,11 +3,11 @@
 {{- $iterations := .Get "iterations" -}}
 {{- $data := .Get "data" -}}
 <div class="protected-block" data-salt="{{ $salt }}" data-iv="{{ $iv }}" data-iterations="{{ $iterations }}" data-payload="{{ $data }}">
-  <form class="protected-form" style="border:1px solid var(--border); background:var(--entry); border-radius:8px; padding:16px; margin:1.5em 0; display:flex; flex-wrap:wrap; align-items:center; gap:0.6em;">
-    <span style="flex-basis:100%; color:var(--secondary); font-size:0.9em;">This section is password-protected.</span>
-    <input type="password" class="protected-input" placeholder="Enter password" autocomplete="off" style="flex:1; min-width:160px; padding:0.5em 0.7em; border:1px solid var(--border); border-radius:6px; background:var(--theme); color:var(--content);">
-    <button type="submit" style="padding:0.5em 1em; border-radius:6px; border:1px solid var(--border); background:var(--theme); color:var(--content); cursor:pointer;">Unlock</button>
-    <span class="protected-error" style="flex-basis:100%; color:#c0392b; font-size:0.85em; display:none;">Incorrect password.</span>
+  <form class="protected-form">
+    <span class="protected-note">This section is password-protected.</span>
+    <input type="password" class="protected-input" placeholder="Enter password" autocomplete="off">
+    <button type="submit" class="protected-submit">Unlock</button>
+    <span class="protected-error">Incorrect password.</span>
   </form>
-  <div class="protected-content md-content" style="display:none;"></div>
+  <div class="protected-content"></div>
 </div>

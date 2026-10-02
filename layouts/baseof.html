@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="{{ site.Language.Lang | default "en" }}">
+<head>
+{{- partial "head.html" . }}
+</head>
+<body>
+<div class="layout">
+{{- partial "sidebar.html" . }}
+<main>
+{{- block "main" . }}{{- end }}
+<footer class="site">
+  <p>&copy; {{ now.Year }} {{ site.Title }}. Built with Hugo.
+  {{- with site.Params.author }} {{ . }}.{{ end }}</p>
+</footer>
+</main>
+</div>
+<script>
+(function(){
+  var btn = document.querySelector(".theme-toggle");
+  if(!btn) return;
+  var root = document.documentElement;
+  var saved = localStorage.getItem("theme");
+  if(saved) root.setAttribute("data-theme", saved);
+  btn.addEventListener("click", function(){
+    var current = root.getAttribute("data-theme");
+    var isDark = current ? current === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = isDark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  });
+})();
+</script>
+</body>
+</html>
