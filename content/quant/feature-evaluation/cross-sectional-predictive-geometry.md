@@ -21,11 +21,9 @@ aliases:
 > discipline — but derived as formal propositions with proofs rather than
 > presented as an implementation guide. Where the two overlap, this series is
 > the more rigorous statement; the implementation-guide series is the faster
-> path to code. One terminology note up front: this book labels the third
-> predictive-mechanism block $\mathsf L$ where the implementation-guide series
-> calls it $T$ (Tail) — identical definition, $G_{\mathsf L}(z) = \|z\|_2\,z$
-> either way. The letter changed because $T$ is already used here for *total
-> number of periods*.
+> path to code. The third predictive-mechanism block is labeled $\mathsf T$
+> (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$
+> to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.
 
 ## The problem this book solves
 
@@ -74,11 +72,11 @@ Chapters are ordered by logical dependency; read in order. If time is short:
 
 | Goal | Minimum chapters |
 |---|---|
-| Understand the overall idea | §1, §8, §11, §16, §67 |
-| Implement the label basis | §4–§10 |
-| Implement significance testing | §13–§18 |
-| Implement feature selection | §26–§27, §34–§39 |
-| Model diagnostics only (feature side already done) | §41–§46, §54–§60 |
+| Understand the overall idea | Section 2, Section 9, Section 12, Section 17, Alpha Evaluation Section 27 |
+| Implement the label basis | Section 5–Section 11 |
+| Implement significance testing | Section 14–Section 19 |
+| Implement feature selection | Section 27–Section 28, Selection Bridge Section 1–Selection Bridge Section 6 |
+| Model diagnostics only (feature side already done) | Alpha Evaluation Section 1–Alpha Evaluation Section 6, Alpha Evaluation Section 14–Alpha Evaluation Section 20 |
 
 Every section has a fixed structure: **motivation** (why this object is
 needed) → **definition** (exact specification) → **derivation or properties**
@@ -92,13 +90,13 @@ good feature corresponds to $Q$ on the order of $10^{-3}$, not $10^{-1}$.
 Getting this scale wrong by one or two orders of magnitude will mis-set
 every threshold downstream, deleting all real signal or keeping all noise.
 
-## §0. Notation
+## 1. Notation
 
 This book uses a disambiguated symbol set. The correspondence to earlier
 specification versions is listed at the end of this section, for comparison
 against existing implementation code.
 
-### §0.1 Indices and dimensions
+### 1.1 Indices and dimensions
 
 | Symbol | Meaning | Range |
 |---|---|---|
@@ -108,13 +106,13 @@ against existing implementation code.
 | $h$ | horizon index | $1,\dots,H$ |
 | $\beta$ | horizon band index | $1,\dots,B_{\rm band}$ |
 | $b$ | permutation / bootstrap resample index | $1,\dots,B_\bullet$ |
-| $k$ | feature transform index (§4.3) | $1,\dots,|\mathcal T_p|$ |
+| $k$ | feature transform index (Section 5.3) | $1,\dots,|\mathcal T_p|$ |
 | $\mathcal U_d$ | universe at period $d$, $N_d=|\mathcal U_d|$ | $N_d$ may vary with $d$ |
 | $T$ | total number of periods (**this** meaning only) | |
-| $K$ | label dimension retained by the current band (becomes $K_{\rm eff}$ after §7) | |
+| $K$ | label dimension retained by the current band (becomes $K_{\rm eff}$ after Section 8) | |
 | $L$ | total rows in long format, $\sum_dN_d$ | |
-| $d_{\mathsf D},d_{\mathsf V},d_{\mathsf L}$ | dimensions of the three blocks | $K,\ K(K{+}1)/2,\ K$ |
-| $d_\Phi$ | $d_{\mathsf D}+d_{\mathsf V}+d_{\mathsf L}$ (actual value after rank truncation) | |
+| $d_{\mathsf D},d_{\mathsf V},d_{\mathsf T}$ | dimensions of the three blocks | $K,\ K(K{+}1)/2,\ K$ |
+| $d_\Phi$ | $d_{\mathsf D}+d_{\mathsf V}+d_{\mathsf T}$ (actual value after rank truncation) | |
 
 The three predictive-mechanism blocks are always written in **sans-serif**
 to distinguish them from other uses of the same letters:
@@ -122,59 +120,59 @@ to distinguish them from other uses of the same letters:
 $$
 \mathsf D\ (\text{Direction}),\qquad
 \mathsf V\ (\text{Volatility / Activity}),\qquad
-\mathsf L\ (\text{Large-move directional}).
+\mathsf T\ (\text{Tail / Large-move directional}).
 $$
 
-### §0.2 Data, bases, and transforms
+### 1.2 Data, bases, and transforms
 
 | Symbol | Meaning |
 |---|---|
 | $X_d\in\mathbb R^{N_d\times P}$ | raw feature panel |
-| $X^{XS}$ | feature after within-date standardization and global normalization (§4) |
+| $X^{XS}$ | feature after within-date standardization and global normalization (Section 5) |
 | $Y_d^{raw}\in\mathbb R^{N_d\times H}$ | raw future return |
-| $Y^{XS}$ | label after within-date demeaning (§5) |
-| $W=\operatorname{diag}(w_{id})$ | row weights, $w_{id}=1/(TN_d)$ (§3); never materialized |
-| $\Sigma_Y$ | weighted label covariance (§7) |
+| $Y^{XS}$ | label after within-date demeaning (Section 6) |
+| $W=\operatorname{diag}(w_{id})$ | row weights, $w_{id}=1/(TN_d)$ (Section 4); never materialized |
+| $\Sigma_Y$ | weighted label covariance (Section 8) |
 | $E,\Lambda$ | eigendecomposition $\Sigma_Y=E\Lambda E^\top$ |
-| $B_Y$ | whitening matrix (§7), $Z_d=Y_d^{(\beta)}B_Y$ |
+| $B_Y$ | whitening matrix (Section 8), $Z_d=Y_d^{(\beta)}B_Y$ |
 | $Z$ | whitened label, satisfying $Z^\top WZ=I_K$ (**exactly**) |
-| $G_{\mathsf D},G_{\mathsf V},G_{\mathsf L}$ | outputs of the three lifting maps (§8), all within-date demeaned |
-| $\Theta_{\mathsf V},\Theta_{\mathsf L}$ | orthogonalization matrices (§9) |
-| $\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DL}},\Gamma_{\mathsf{VL}}$ | Gram–Schmidt projection coefficients (§9) |
-| $\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf L}]$ | label-mechanism basis, $\Phi^\top W\Phi=I_{d_\Phi}$ |
+| $G_{\mathsf D},G_{\mathsf V},G_{\mathsf T}$ | outputs of the three lifting maps (Section 9), all within-date demeaned |
+| $\Theta_{\mathsf V},\Theta_{\mathsf T}$ | orthogonalization matrices (Section 10) |
+| $\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DT}},\Gamma_{\mathsf{VT}}$ | Gram–Schmidt projection coefficients (Section 10) |
+| $\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf T}]$ | label-mechanism basis, $\Phi^\top W\Phi=I_{d_\Phi}$ |
 
-### §0.3 Core statistics
+### 1.3 Core statistics
 
 | Symbol | Meaning |
 |---|---|
-| $C=X^\top W\Phi$ | predictive operator (§11) |
-| $C=USV^\top$ | SVD; $V_r$ is the significant right-singular subspace (§12, §14) |
+| $C=X^\top W\Phi$ | predictive operator (Section 12) |
+| $C=USV^\top$ | SVD; $V_r$ is the significant right-singular subspace (Section 13, Section 15) |
 | $P_V=V_rV_r^\top$ | projection onto the significant mechanism subspace |
 | $r_{\rm sig},r_{\rm eff}$ | significant rank, effective spectral rank |
-| $c_s^{\rm full}=s^\top W\Phi$ | full representation of signal $s$ (§43) |
+| $c_s^{\rm full}=s^\top W\Phi$ | full representation of signal $s$ (Alpha Evaluation Section 3) |
 | $c_s=c_s^{\rm full}P_V$ | representation projected onto the significant subspace |
-| $Q_s=\|c_s\|^2$ | quality (energy); $Q^{\mathsf D},Q^{\mathsf V},Q^{\mathsf L}$ are the per-block components |
-| $f_s,\tilde f_s$ | raw fingerprint, null-adjusted enrichment fingerprint (§19) |
+| $Q_s=\|c_s\|^2$ | quality (energy); $Q^{\mathsf D},Q^{\mathsf V},Q^{\mathsf T}$ are the per-block components |
+| $f_s,\tilde f_s$ | raw fingerprint, null-adjusted enrichment fingerprint (Section 20) |
 | $a,\ y^*$ | intended target's horizon weights, target signal $y_d^*=Y_d^{(\beta)}a$ |
-| $r_{\mathsf D}$ | the target's unit direction in $\Phi_{\mathsf D}$ coordinates (§20) |
+| $r_{\mathsf D}$ | the target's unit direction in $\Phi_{\mathsf D}$ coordinates (Section 21) |
 | $A_s^{\rm tgt},\ \eta_s^{\mathsf D}$ | signed target alignment, directional target efficiency |
-| $A^{\rm mech}_{pq},S^{\rm mech}_{pq}$ | signed / unsigned mechanism similarity (§23) |
-| $S^{raw}_{pq}$ | raw Spearman redundancy (§25) |
-| $\pi^{\rm time},\pi^{\rm XS},M^{\rm time},M^{\rm XS}$ | stability measures (§27, §29) |
-| $N^{\rm eff}_{d,p},\ b_{d,p},\ \tilde b_p$ | effective number of contributors, normalized breadth, relative breadth (§30–§31) |
-| $R^{\rm canc}_{d,p},\ \tilde R_p$ | cancellation ratio, relative cancellation (§32) |
-| $\tilde p_\bullet$ | multiple-testing-adjusted p-value (§18) |
+| $A^{\rm mech}_{pq},S^{\rm mech}_{pq}$ | signed / unsigned mechanism similarity (Section 24) |
+| $S^{raw}_{pq}$ | raw Spearman redundancy (Section 26) |
+| $\pi^{\rm time},\pi^{\rm XS},M^{\rm time},M^{\rm XS}$ | stability measures (Section 28, Section 30) |
+| $N^{\rm eff}_{d,p},\ b_{d,p},\ \tilde b_p$ | effective number of contributors, normalized breadth, relative breadth (Section 31–Section 32) |
+| $R^{\rm canc}_{d,p},\ \tilde R_p$ | cancellation ratio, relative cancellation (Section 33) |
+| $\tilde p_\bullet$ | multiple-testing-adjusted p-value (Section 19) |
 | $\gamma_{\rm mode},\gamma_{\rm FWER},\gamma_{\rm FDR}$ | significance levels for each testing layer |
 | $\hat\alpha,\tilde\alpha$ | model's raw / standardized prediction |
-| $\varepsilon_\alpha$ | OOS linear-surrogate residual (§58) |
-| $\nu_s$ | novelty fraction (§43) |
+| $\varepsilon_\alpha$ | OOS linear-surrogate residual (Alpha Evaluation Section 18) |
+| $\nu_s$ | novelty fraction (Alpha Evaluation Section 3) |
 | $\epsilon$ | pure numerical floor (denominator protection), default $10^{-12}$ |
 
-### §0.4 Correspondence to earlier notation
+### 1.4 Correspondence to earlier notation
 
 | This book | Earlier spec | Reason for change |
 |---|---|---|
-| $\mathsf L$ block | $T$ block | $T$ is now used for total period count and transpose |
+| $\mathsf T$ block | $T$ block | $\mathsf T$ is typeset in sans-serif to distinguish it from total period count $T$ and transpose $^\top$ |
 | $E$ (eigenvectors of $\Sigma_Y$) | $V$ | $V$ is now used for SVD right-singular vectors |
 | $\mathsf V$ block | $V$ block | same reason |
 | $\Theta_\bullet$ | $A_D,A_V,A_T$ | $A$ is now used for alignment |
@@ -188,7 +186,7 @@ $$
 
 # Part One: Problem Setup and Data Contract
 
-## §1. Research Objective
+## 2. Research Objective
 
 ### Motivation
 
@@ -241,7 +239,7 @@ trade?
 $$X\longleftrightarrow\hat\alpha.$$
 
 Is the model recombining known features, or has it built a new mechanism?
-This question has three layers of answer (§51–§59), corresponding to "does
+This question has three layers of answer (Alpha Evaluation Section 11–Alpha Evaluation Section 19), corresponding to "does
 the output look similar," "does the mechanism look similar," and "is there
 anything beyond what's linearly reconstructible."
 
@@ -264,7 +262,7 @@ not defects — they're the scope within which the tool is valid. Full
 discussion is in Appendix A.
 
 **Boundary one: the label-side function family is finite and fixed.** $\Phi$
-is spanned by three lifting maps (§8). Some functions of future returns
+is spanned by three lifting maps (Section 9). Some functions of future returns
 (e.g. the sign of an extreme tail event, cross-day path shape) are not in
 this space; any signal that predicts only those gets $Q\approx0$ under this
 method.
@@ -273,7 +271,7 @@ method.
 linear in $s$. If $Y=X^2+\text{noise}$ and $X$ is symmetrically
 distributed, then $\mathbb E[XY]=\mathbb E[X^3]=0$, so raw $X$ gets
 $Q\approx0$ despite carrying complete information. This method's formal
-treatment is the **transform family** of §4.3: every semantic feature is
+treatment is the **transform family** of Section 5.3: every semantic feature is
 expanded into a set of transforms, each analyzed separately and then
 aggregated at the source level. This pushes the boundary from "is $X$ itself
 linearly related" to "is any transform in $X$'s specified transform family
@@ -287,7 +285,7 @@ distinguish between the two.
 
 ---
 
-## §2. Data Structure
+## 3. Data Structure
 
 ### Definition
 
@@ -312,7 +310,7 @@ implementation, and the hardest break to notice. The classic failure mode:
 the universe file is sorted by market cap, and the market-cap ranking
 changes daily, so `X[d][0]` is AAPL today and MSFT tomorrow. Every
 downstream statistic still computes cleanly and looks plausible — it's just
-entirely meaningless. The Dynamic Universe test in §65 exists specifically
+entirely meaningless. The Dynamic Universe test in Alpha Evaluation Section 25 exists specifically
 to catch this.
 
 > **Contract 2.2 (point-in-time)**: $X_{id}$ may only use information
@@ -328,17 +326,17 @@ between 1200 and 3000; $P=400$; $H=10$. Then $L\approx7\times10^7$.
 
 But this method **never needs $O(L^2)$ compute or memory**. Every
 "full-sample" quantity is expressed as a weighted average of per-period
-quantities — a direct consequence of the weighting design in §3. In
+quantities — a direct consequence of the weighting design in Section 4. In
 practice, the entire pipeline's compute bottleneck is a single pass over
 the panel (computing $\{C^{(d)}\}$); everything after that — SVD,
 permutation, bootstrap, clustering, selection — operates on a small
 $P\times d_\Phi$ matrix (typically $400\times18$). This is why the method
-is computationally so light, and why the permutation in §13 must be
+is computationally so light, and why the permutation in Section 14 must be
 implemented as a date-shift rather than a row-level permutation matrix.
 
 ---
 
-## §3. Date Weighting: Every Cross-Section Gets Equal Weight
+## 4. Date Weighting: Every Cross-Section Gets Equal Weight
 
 ### Motivation
 
@@ -387,7 +385,7 @@ that day, row-level weighting amplifies that single event's influence by
 The weighting above guarantees **equal weight by row count**: every period
 contributes equally to the sum. It does **not** guarantee **equal
 influence**, because the label side is not normalized by daily volatility
-(a design choice made in §5).
+(a design choice made in Section 6).
 
 Concretely: $\Phi_{\mathsf D}\propto Z$, and $Z$'s scale is set by the
 full-sample covariance, so $\|z_{id}\|$ is systematically larger on
@@ -397,11 +395,11 @@ $$C^{(d)}=\frac1{N_d}X_d^{\top}\Phi_d,$$
 
 a day with twice the usual cross-sectional dispersion contributes roughly
 twice the magnitude to $C$. It's stronger for the $\mathsf V$ and $\mathsf
-L$ blocks: $G_{\mathsf V}\sim\|z\|^2$, $G_{\mathsf L}\sim\|z\|^2$, so the
+L$ blocks: $G_{\mathsf V}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$, $G_{\mathsf T}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$, so the
 contribution is **four times** the magnitude.
 
 In other words, $Q^{\mathsf D}$ is an **average squared IC weighted by that
-day's dispersion**, and $Q^{\mathsf V},Q^{\mathsf L}$ are weighted by
+day's dispersion**, and $Q^{\mathsf V},Q^{\mathsf T}$ are weighted by
 dispersion squared. This is deliberate: the cross-sectional dispersion of
 future returns is itself information we want to analyze — normalizing it
 away would make "directionality during large moves" a meaningless concept.
@@ -410,7 +408,7 @@ days actually determined the result*.
 
 > **Definition 3.1 (effective number of days)**: let
 > $$\theta_d^{\mathsf B}=\frac{\frac1{N_d}\|\Phi_{\mathsf B,d}\|_F^2}{\sum_{d'}\frac1{N_{d'}}\|\Phi_{\mathsf B,d'}\|_F^2},\qquad\boxed{T^{\mathsf B}_{\rm eff}=\frac1{\sum_d(\theta_d^{\mathsf B})^2}}$$
-> where $\mathsf B\in\{\mathsf D,\mathsf V,\mathsf L\}$.
+> where $\mathsf B\in\{\mathsf D,\mathsf V,\mathsf T\}$.
 
 This is the inverse-Herfindahl of the $\{\theta_d\}$ distribution — the
 "effective number of contributing days." If $T=1000$ and $T^{\mathsf
@@ -420,7 +418,7 @@ sample sizes must be reinterpreted accordingly: a nominally 1000-day moving
 block bootstrap really only carries about 180 days of independent
 information.
 
-$T_{\rm eff}$ must appear in the §40 report. A typical healthy range is
+$T_{\rm eff}$ must appear in the Selection Bridge Section 7 report. A typical healthy range is
 $T_{\rm eff}/T\in[0.3,0.7]$; $T^{\mathsf V}_{\rm eff}/T<0.1$ means every
 conclusion about the $\mathsf V$ block is actually driven by a handful of
 volatility events, and should be downgraded to exploratory.
@@ -429,12 +427,12 @@ volatility events, and should be downgraded to exploratory.
 
 If the research goal is *not* to analyze large moves, and strict daily
 equal-influence is required instead, an additional per-date scaling
-$Z_d\leftarrow Z_d/\hat\sigma_d$ can be applied after §7, where
-$\hat\sigma_d^2=\frac1{KN_d}\|Z_d\|_F^2$. The cost is that the $\mathsf L$
+$Z_d\leftarrow Z_d/\hat\sigma_d$ can be applied after Section 8, where
+$\hat\sigma_d^2=\frac1{KN_d}\|Z_d\|_F^2$. The cost is that the Tail ($\mathsf T$)
 block's meaning degrades from "directionality during large moves" to
 "directionality during *relatively* large moves," and the $\mathsf V$ block
 is left with only the relative structure across horizons. Both are
-reasonable designs, but one must be chosen and recorded in the §66
+reasonable designs, but one must be chosen and recorded in the Alpha Evaluation Section 26
 configuration table; the rest of this book assumes this scaling is **not**
 applied.
 
@@ -443,12 +441,12 @@ applied.
 # Part Two: Building the Label Mechanism Space
 
 This part builds $\Phi$ — the coordinate system every later chapter works
-in. Build order: feature preprocessing (§4) → label preprocessing (§5) →
-horizon banding (§6) → whitening and rank control (§7) → the three liftings
-(§8) → hierarchical orthogonalization (§9) → the fit/transform boundary
-(§10).
+in. Build order: feature preprocessing (Section 5) → label preprocessing (Section 6) →
+horizon banding (Section 7) → whitening and rank control (Section 8) → the three liftings
+(Section 9) → hierarchical orthogonalization (Section 10) → the fit/transform boundary
+(Section 11).
 
-## §4. Feature Preprocessing
+## 5. Feature Preprocessing
 
 ### Motivation
 
@@ -463,7 +461,7 @@ separately:
    points and one priced in percent would differ in $Q$ by a factor of
    $10^4$ — which has nothing to do with predictive power.
 
-### §4.1 Definition
+### 5.1 Definition
 
 For each date $d$ and feature $p$, take the valid observations
 $\{X_{idp}:i\in\mathcal U_d\}$.
@@ -480,7 +478,7 @@ $$\boxed{X^{XS}_{idp}=\frac{X'_{idp}-\mu_{dp}}{\sigma_{dp}+\epsilon}.}$$
 
 **Step three: global normalization.** Missing-value imputation and coverage
 differences will leave different features with different actual weighted
-norms (see §4.2), so a global rescale is applied before entering §11:
+norms (see Section 5.2), so a global rescale is applied before entering Section 12:
 
 $$\|X_p\|_W^2=\frac1T\sum_d\frac1{N_d}\sum_i\big(X^{XS}_{idp}\big)^2,\qquad\boxed{X_p\leftarrow\frac{X_p}{\|X_p\|_W}.}$$
 
@@ -489,9 +487,9 @@ After step three,
 $$\boxed{X_p^\top WX_p=1\quad\text{(exactly)}}$$
 
 holds for every $p$ — this is the precondition for $Q_p\le1$ becoming a
-strict inequality in §16.
+strict inequality in Section 17.
 
-### §4.2 Missing Values
+### 5.2 Missing Values
 
 Record daily coverage
 
@@ -507,7 +505,7 @@ Rules:
   $\text{active\_ratio}_p=T_p/T$, where $T_p=|\mathcal D_p|$ is the number
   of valid days.
 
-**Average over valid days, not the full period.** §11's definition is
+**Average over valid days, not the full period.** Section 12's definition is
 
 $$C_{p,:}=\frac1{T_p}\sum_{d\in\mathcal D_p}C^{(d)}_{p,:},$$
 
@@ -516,7 +514,7 @@ $Q_p$ should measure "how strong this feature is when it's available," and
 "how often it's available" is a separate operational question — the two
 should not be multiplied together and conflated. The cost is that different
 rows of $C$ are averaged over different date sets, so technically the SVD
-in §12 is not the decomposition of a single linear operator. When the
+in Section 13 is not the decomposition of a single linear operator. When the
 library's coverage distribution is very dispersed (e.g. half the features
 have 100% coverage and half have 50%), low-coverage features should be
 pooled separately and run through the full pipeline on their own.
@@ -529,7 +527,7 @@ but because of the threshold. Features like this should go into a
 "restricted universe" sub-study before entering the pipeline, rather than
 compete in the same pool as full-universe features.
 
-### §4.3 Transform Family
+### 5.3 Transform Family
 
 **Motivation.** $c_p=X_p^\top W\Phi$ is linear in $X_p$. So if a feature's
 relationship to future returns is U-shaped (e.g. extreme valuation
@@ -576,8 +574,8 @@ highly correlated, so:
 
 > **Rule 4.1**: all transform entries of the same source feature are
 > **forced into the same family** during the raw-redundancy clustering of
-> §36, unless they fall into different mechanism groups (§35) *and* each
-> independently passes eligibility (§34). In other words, a source feature
+> Selection Bridge Section 3, unless they fall into different mechanism groups (Selection Bridge Section 2) *and* each
+> independently passes eligibility (Selection Bridge Section 1). In other words, a source feature
 > contributes at most one selected entry in principle; only when $t_1$ and
 > $t_2$ clearly predict **different mechanisms** (e.g. $t_1$ predicts
 > direction, $t_2$ predicts activity) can both be selected simultaneously.
@@ -586,7 +584,7 @@ This rule keeps transform-family cost under control: the library's nominal
 size is multiplied by $|\mathcal T|$, but the final selected count doesn't
 inflate.
 
-### §4.4 Lemma 4.1 (the absorption property of daily demeaning)
+### 5.4 Lemma 4.1 (the absorption property of daily demeaning)
 
 Since $X^{XS}_d$ has zero mean each period, for any matrix $\Phi_d$,
 
@@ -601,15 +599,15 @@ where $\bar\Phi_d$ is $\Phi_d$'s that-period row average.
 cross-sectional covariance**, not an uncentered cross-moment; and any
 "that-period-constant" component of $\Phi$ contributes exactly zero to $C$.
 
-This lemma gets used in §8, §9, §13, and §29. It explains two things at
-once: why the $-I_K$ term in §8.2 doesn't affect any result, and why taking
+This lemma gets used in Section 9, Section 10, Section 14, and Section 30. It explains two things at
+once: why the $-I_K$ term in Section 9.2 doesn't affect any result, and why taking
 the ticker intersection under permutation **requires re-centering**
 (because on the intersection $X^\top\mathbf 1\ne0$, breaking the lemma's
 precondition).
 
 ---
 
-## §5. Label Preprocessing
+## 6. Label Preprocessing
 
 ### Definition
 
@@ -639,19 +637,19 @@ market**." This means:
 **Choice two: no daily volatility normalization.** I.e. we do not set
 $Y_d\leftarrow Y_d/\hat\sigma_d$.
 
-The consequence is that $\Sigma_Y$ (§7) is the full-sample covariance, and
+The consequence is that $\Sigma_Y$ (Section 8) is the full-sample covariance, and
 $\|z_{id}\|$ is systematically larger on high-volatility days. As discussed
-in §3, this makes $Q$ dispersion-weighted. This choice is deliberate:
+in Section 4, this makes $Q$ dispersion-weighted. This choice is deliberate:
 **the cross-sectional dispersion of future returns is itself the
-information the $\mathsf V$ and $\mathsf L$ blocks are meant to analyze.**
-Normalizing it away first would leave the $\mathsf L$ block (directionality
+information the $\mathsf V$ and $\mathsf T$ blocks are meant to analyze.**
+Normalizing it away first would leave the Tail ($\mathsf T$) block (directionality
 during large moves) with nothing to be defined over. The cost is that $Q$
 is not regime-immune, and must be read alongside $T_{\rm eff}$
 (Definition 3.1).
 
 ---
 
-## §6. Horizon Bands
+## 7. Horizon Bands
 
 ### Motivation
 
@@ -691,7 +689,7 @@ $\lambda_{\min}^{-1/2}$ — amplifying estimation noise right along with it.
 > whose correlation matrix under a random walk is the identity, with
 > condition number near 1. If the research question genuinely requires
 > cumulative returns (e.g. execution holds to a $4h$ close), keep the
-> cumulative form, but §7's rank control becomes mandatory rather than
+> cumulative form, but Section 8's rank control becomes mandatory rather than
 > optional.
 >
 > Either way, the band definition (cumulative or incremental) must be
@@ -704,7 +702,7 @@ This book uses the following band split as its running example:
 
 $$H_1=\{5m,10m,15m,30m\},\quad H_2=\{1h,2h,4h\},\quad H_3=\{6h,12h,24h\},$$
 
-| band | $K$ | $d_{\mathsf D}$ | $d_{\mathsf V}=K(K{+}1)/2$ | $d_{\mathsf L}$ | $d_\Phi$ |
+| band | $K$ | $d_{\mathsf D}$ | $d_{\mathsf V}=K(K{+}1)/2$ | $d_{\mathsf T}$ | $d_\Phi$ |
 |---|---:|---:|---:|---:|---:|
 | $H_1$ | 4 | 4 | 10 | 4 | 18 |
 | $H_2$ | 3 | 3 | 6 | 3 | 12 |
@@ -713,12 +711,12 @@ $$H_1=\{5m,10m,15m,30m\},\quad H_2=\{1h,2h,4h\},\quad H_3=\{6h,12h,24h\},$$
 Remember this table. $d_{\mathsf V}$ grows quadratically in $K$ while
 $d_{\mathsf D}$ only grows linearly: at $K=4$, the Activity block already
 takes up $10/18=56\%$ of all coordinates. This fact has decisive
-consequences in two later places: §19 (the fingerprint's dimensional
-baseline) and §38 (coverage's rank ceiling).
+consequences in two later places: Section 20 (the fingerprint's dimensional
+baseline) and Selection Bridge Section 5 (coverage's rank ceiling).
 
 ---
 
-## §7. Label Whitening and Rank Control
+## 8. Label Whitening and Rank Control
 
 ### Motivation
 
@@ -736,16 +734,16 @@ Whitening must therefore be paired with rank control, and the rank-control
 threshold must be set by statistical stability, not an arbitrary numeric
 floor.
 
-### §7.1 Covariance and Spectrum
+### 8.1 Covariance and Spectrum
 
 $$\boxed{\Sigma_Y=\frac1T\sum_{d=1}^T\frac1{N_d}Y_d^{(\beta)\top}Y_d^{(\beta)}\in\mathbb R^{K\times K}.}$$
 
-(By the daily demeaning in §5, this genuinely is a covariance, not an
+(By the daily demeaning in Section 6, this genuinely is a covariance, not an
 uncentered moment.) Eigendecomposition:
 
 $$\Sigma_Y=E\Lambda E^\top,\qquad \lambda_1\ge\lambda_2\ge\cdots\ge\lambda_K>0.$$
 
-### §7.2 Retained Dimension $K_{\rm eff}$
+### 8.2 Retained Dimension $K_{\rm eff}$
 
 Moving block bootstrap over dates (block length $\ge H_{\max}$,
 $B_\lambda=200$ draws), giving $\{\lambda_j^{(b)}\}$. Define
@@ -767,10 +765,10 @@ was actually discarded).
 
 If $K_{\rm eff}\lt K$ and the discarded directions' loadings concentrate on
 one or two horizons, the right fix is usually not to accept the
-truncation — it's to go back to §6 and switch to an incremental basis or
+truncation — it's to go back to Section 7 and switch to an incremental basis or
 merge horizons. Truncation is the last resort.
 
-### §7.3 The Whitening Matrix
+### 8.3 The Whitening Matrix
 
 **Case one (no truncation, $K_{\rm eff}=K$)**: use the symmetric inverse
 square root
@@ -798,7 +796,7 @@ Both cases define
 
 $$\boxed{Z_d=Y_d^{(\beta)}B_Y.}$$
 
-### §7.4 Proposition 7.1 (exact whitening)
+### 8.4 Proposition 7.1 (exact whitening)
 
 $$Z^\top WZ=I_{K_{\rm eff}}\quad\text{(exact, not approximate)}.$$
 
@@ -808,20 +806,20 @@ Y_d\big)B_Y=B_Y^\top\Sigma_YB_Y$. In case two, $B_Y^\top\Sigma_YB_Y=
 $K_{\rm eff}$ columns) $=\Lambda^{-1/2}\Lambda\Lambda^{-1/2}=I$. Case one is
 the special case. $\blacksquare$
 
-This proposition is the foundation of §9: precisely because the whitening
+This proposition is the foundation of Section 10: precisely because the whitening
 is exact, $\Phi_{\mathsf D}$ can be taken directly as $Z$ with no further
 orthogonalization — and therefore introduces no coordinate ambiguity.
 
-Also, from §5's daily demeaning, $\sum_iZ_{id,:}=0$.
+Also, from Section 6's daily demeaning, $\sum_iZ_{id,:}=0$.
 
-> **Convention**: after §7, the symbol $K$ always means $K_{\rm eff}$, the
+> **Convention**: after Section 8, the symbol $K$ always means $K_{\rm eff}$, the
 > actually-retained label dimension.
 
-## §8. The Three Predictive-Mechanism Blocks
+## 9. The Three Predictive-Mechanism Blocks
 
 ### Overall Motivation
 
-Given a whitened future-return vector $z\in\mathbb R^K$, we ask: which
+Given a whitened future-return vector $> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.in\mathbb R^K$, we ask: which
 **functions** of $z$ might a cross-sectional signal plausibly relate to?
 
 In principle the answer is "any function of $z$," but that's an
@@ -833,17 +831,17 @@ different in trading terms — requiring completely different handling:
 |---|---|---|---|
 | $\mathsf D$ | $z$ | who outperforms whom | long/short directly |
 | $\mathsf V$ | $\operatorname{svec}(zz^\top)$ | who moves more violently, how horizons co-move | volatility/gamma positions only, no direction |
-| $\mathsf L$ | $\|z\|z$ | whose direction is right during large moves | directional but heavily conditional; sizing and risk management are entirely different |
+| $\mathsf T$ | $\|z\|_2\,z$ | whose direction is right during large moves (tail regime) | directional but heavily conditional; sizing and risk management are entirely different |
 
 This table is the reason the whole method exists: under ordinary rank IC
 these three contaminate each other; in this coordinate system they are
 strictly separated.
 
-### §8.1 The Three Liftings and Within-Date Centering
+### 9.1 The Three Liftings and Within-Date Centering
 
 For each observation's $z_{id}\in\mathbb R^K$:
 
-$$G_{\mathsf D}(z)=z,\qquad G_{\mathsf V}(z)=\operatorname{svec}(zz^\top),\qquad G_{\mathsf L}(z)=\|z\|_2\,z.$$
+$$G_{\mathsf D}(z)=z,\qquad G_{\mathsf V}(z)=\operatorname{svec}(zz^\top),\qquad G_{\mathsf T}(z)=\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|_2\,z.$$
 
 Dimensions are $K$, $K(K{+}1)/2$, $K$ respectively.
 
@@ -852,7 +850,7 @@ Then **all three are always within-date centered**:
 $$\boxed{G_{\mathsf B,d}\leftarrow G_{\mathsf B,d}-\mathbf 1_{N_d}\,\overline{G_{\mathsf B,d}},\qquad \overline{G_{\mathsf B,d}}=\frac1{N_d}\sum_iG_{\mathsf B}(z_{id}).}$$
 
 $G_{\mathsf D}$ already satisfies this (since $\sum_iz_{id}=0$); $G_{\mathsf
-V}$ and $G_{\mathsf L}$ don't, and it must be done explicitly.
+V}$ and $G_{\mathsf T}$ don't, and it must be done explicitly.
 
 **Why this is mandatory.** By Lemma 4.1, these "that-period-constant"
 components always contribute zero to $C$, so skipping centering **does not
@@ -862,12 +860,12 @@ produce a wrong $C$**. But it causes two real losses:
    with a day-common component produces some $\Phi_{\mathsf V}$ directions
    that are mostly "the market volatility time series." These directions
    are orthogonal to any demeaned $X$, forever contributing $Q=0$, yet
-   occupy a $d_{\mathsf V}$ slot — diluting §19's fingerprint denominator
-   and creating meaningless small singular values in §12's SVD.
+   occupy a $d_{\mathsf V}$ slot — diluting Section 20's fingerprint denominator
+   and creating meaningless small singular values in Section 13's SVD.
 2. **Distorted orthogonalization scale.** $\Xi_R=R^\top WR$ gets dominated
    by day-common variance, so $\Lambda_R^{-1/2}$ compresses genuine
    cross-sectional variance to the wrong scale, making the
-   $\mathsf D\to\mathsf V\to\mathsf L$ Gram–Schmidt numerically less stable.
+   $\mathsf D\to\mathsf V\to\mathsf T$ Gram–Schmidt numerically less stable.
 
 **Centering simplifies the definition.** Note the raw Activity lifting is
 often written $\operatorname{svec}(zz^\top-I_K)$. After centering, $-I_K$ is
@@ -883,7 +881,7 @@ directly.
 method, start to finish, only cares about cross-sectional contrasts;
 anything "common to all stocks that day" is outside the scope of study.
 
-### §8.2 Definition and Verification of svec
+### 9.2 Definition and Verification of svec
 
 `svec` flattens a symmetric matrix into a vector: diagonal entries unchanged,
 off-diagonal entries multiplied by $\sqrt2$, upper triangle only.
@@ -902,7 +900,7 @@ matches the matrix's Frobenius geometry, so $\|c_p^{\mathsf V}\|^2$ can be
 read directly as "the strength of the feature's association with
 second-order structure," with no coordinate artifact.
 
-### §8.3 Content of the $\mathsf V$ Block
+### 9.3 Content of the $\mathsf V$ Block
 
 **Worked example ($K=2$, horizons being the 1h and 4h increments)**:
 $G_{\mathsf V}$'s three coordinates are $(z_1^2,\ \sqrt2z_1z_2,\ z_2^2)$,
@@ -922,18 +920,18 @@ invisible in any single-horizon IC. This dimension is also the most
 commonly misread: it is not volatility, it is **sign consistency across
 horizons**.
 
-### §8.4 Content of the $\mathsf L$ Block
+### 9.4 Content of the Tail ($\mathsf T$) Block
 
-$G_{\mathsf L}(z)=\|z\|z$ and $G_{\mathsf D}(z)=z$ are obviously highly
-correlated (same direction, just reweighted by $\|z\|$). The $\mathsf L$
-block's actual content is $G_{\mathsf L}$'s **residual** after projecting
+$G_{\mathsf T}(z)=\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|z$ and $G_{\mathsf D}(z)=z$ are obviously highly
+correlated (same direction, just reweighted by $\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|$). The Tail ($\mathsf T$)
+block's actual content is $G_{\mathsf T}$'s **residual** after projecting
 out $\mathsf D$ and $\mathsf V$, intuitively approximately
 
-$$R_{\mathsf L}\approx\big(\|z\|-\mathbb E\|z\|\big)\,z\ \text{, orthogonalized},$$
+$$R_{\mathsf T}\approx\big(\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|-\mathbb E\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|\big)\,> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$. \text{, orthogonalized},$$
 
 i.e. "**magnitude surprise × direction**."
 
-A feature loading on the $\mathsf L$ block means: it has no directional
+A feature loading on the Tail ($\mathsf T$) block means: it has no directional
 predictive power during calm periods, but it correctly calls direction on
 the names that experience large moves. Such a feature's role in a portfolio
 is a **conditional sizing signal**, not a baseline ranking signal. Its
@@ -943,17 +941,17 @@ on an existing directional position.
 
 ---
 
-## §9. Hierarchical Orthogonalization
+## 10. Hierarchical Orthogonalization
 
 ### Motivation
 
 The three liftings' image spaces overlap. Used directly, $Q^{\mathsf D}+Q^{\mathsf
-V}+Q^{\mathsf L}$ would double-count the same information, and the
+V}+Q^{\mathsf T}$ would double-count the same information, and the
 fingerprint would become meaningless. Hierarchical orthogonalization
 resolves this, at the cost of introducing an **order dependency**.
 
 > **Principle 9.1 (attribution order)**: fixing the order
-> $\mathsf D\to\mathsf V\to\mathsf L$ means "anything explainable by
+> $\mathsf D\to\mathsf V\to\mathsf T$ means "anything explainable by
 > first-order direction is always credited to $\mathsf D$." So the correct
 > reading of $Q^{\mathsf V}$ is **not** "how much second-order information
 > does this feature have," but "how much second-order information does this
@@ -965,10 +963,10 @@ because it doesn't predict volatility, but because its volatility
 prediction is collinear with its directional prediction. The order is fixed
 this way because directional information is the most directly tradeable; by
 crediting the shared component to it, we ensure that whatever loads on
-$\mathsf V$ and $\mathsf L$ is guaranteed to be "additional" information
+$\mathsf V$ and $\mathsf T$ is guaranteed to be "additional" information
 that genuinely needs different handling.
 
-### §9.1 The Weighted Orthogonalization Operator
+### 10.1 The Weighted Orthogonalization Operator
 
 Given a matrix $R$ (rows are observations), compute
 $\Xi_R=R^\top WR$, eigendecompose $\Xi_R=U_R\Lambda_RU_R^\top$, retain
@@ -985,7 +983,7 @@ recorded and reported, since that means the lifting's image space actually
 has lower rank than its nominal dimension (which can happen when $K$ is
 large and $T$ is small).
 
-### §9.2 The $\mathsf D$ Block: Take $Z$ Directly
+### 10.2 The $\mathsf D$ Block: Take $Z$ Directly
 
 $$\boxed{\Phi_{\mathsf D}:=Z.}$$
 
@@ -1002,7 +1000,7 @@ $$\Phi_{\mathsf D}=ZU_R,$$
 where $U_R$ is determined by LAPACK implementation details, thread count,
 even memory alignment. This is harmless for $Q^{\mathsf D}=\|c_p^{\mathsf
 D}\|^2$ and any angle (orthogonal transforms preserve norms and inner
-products), but it's fatal for §21's $A^{\rm tgt}_p=(c_p^{\mathsf
+products), but it's fatal for Section 22's $A^{\rm tgt}_p=(c_p^{\mathsf
 D})^\top r_{\mathsf D}$: if $r_{\mathsf D}$ is defined in one coordinate
 system and $c_p^{\mathsf D}$ in another, the two differ by an unknown
 rotation, and the alignment value would vary across execution environments.
@@ -1013,30 +1011,30 @@ interpretation: the $k$-th coordinate is simply "the future-return vector's
 component along the $k$-th whitened direction," roughly corresponding to
 the $k$-th horizon when there's no truncation.
 
-### §9.3 The $\mathsf V$ and $\mathsf L$ Blocks
+### 10.3 The $\mathsf V$ and $\mathsf T$ Blocks
 
 $$\Gamma_{\mathsf{DV}}=\Phi_{\mathsf D}^\top WG_{\mathsf V},\qquad R_{\mathsf V}=G_{\mathsf V}-\Phi_{\mathsf D}\Gamma_{\mathsf{DV}},\qquad\boxed{\Phi_{\mathsf V}=\operatorname{orth}_W(R_{\mathsf V}).}$$
 
-$$\Gamma_{\mathsf{DL}}=\Phi_{\mathsf D}^\top WG_{\mathsf L},\quad\Gamma_{\mathsf{VL}}=\Phi_{\mathsf V}^\top WG_{\mathsf L},\quad R_{\mathsf L}=G_{\mathsf L}-\Phi_{\mathsf D}\Gamma_{\mathsf{DL}}-\Phi_{\mathsf V}\Gamma_{\mathsf{VL}},$$
+$$\Gamma_{\mathsf{DT}}=\Phi_{\mathsf D}^\top WG_{\mathsf T},\quad\Gamma_{\mathsf{VT}}=\Phi_{\mathsf V}^\top WG_{\mathsf T},\quad R_{\mathsf T}=G_{\mathsf T}-\Phi_{\mathsf D}\Gamma_{\mathsf{DT}}-\Phi_{\mathsf V}\Gamma_{\mathsf{VT}},$$
 
-$$\boxed{\Phi_{\mathsf L}=\operatorname{orth}_W(R_{\mathsf L}).}$$
+$$\boxed{\Phi_{\mathsf T}=\operatorname{orth}_W(R_{\mathsf T}).}$$
 
 Finally
 
-$$\boxed{\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf L}],\qquad \Phi^\top W\Phi=I_{d_\Phi}.}$$
+$$\boxed{\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf T}],\qquad \Phi^\top W\Phi=I_{d_\Phi}.}$$
 
-### §9.4 Proposition 9.2 (within-block rotation invariance)
+### 10.4 Proposition 9.2 (within-block rotation invariance)
 
-$\Phi_{\mathsf V}$ and $\Phi_{\mathsf L}$ still have internal rotation
+$\Phi_{\mathsf V}$ and $\Phi_{\mathsf T}$ still have internal rotation
 freedom (eigenvector ordering and sign in $\operatorname{orth}_W$). This
 causes no problem, because:
 
 > **Proposition 9.2**: let $O=\operatorname{diag}(I_{d_{\mathsf
-> D}},O_{\mathsf V},O_{\mathsf L})$ be any block-diagonal orthogonal matrix.
+> D}},O_{\mathsf V},O_{\mathsf T})$ be any block-diagonal orthogonal matrix.
 > Replacing $\Phi$ with $\Phi O$,
 > $$C\mapsto CO,\quad V_r\mapsto O^\top V_r,\quad c_s\mapsto O^\top c_s,$$
 > while the following are **completely invariant**: $Q_s$, $Q_s^{\mathsf
-> D}$, $Q_s^{\mathsf V}$, $Q_s^{\mathsf L}$, $f_s$, $\tilde f_s$, $S^{\rm
+> D}$, $Q_s^{\mathsf V}$, $Q_s^{\mathsf T}$, $f_s$, $\tilde f_s$, $S^{\rm
 > mech}_{pq}$, $A^{\rm mech}_{pq}$, $A^{\rm tgt}_s$, $\eta^{\mathsf D}_s$,
 > $N^{\rm eff}$, $R^{\rm canc}$, $r_{\rm sig}$, $r_{\rm eff}$, and every
 > $\pi$ and $M$.
@@ -1063,11 +1061,11 @@ directional meaning (target alignment).**
 
 In implementation this gives a free unit test: rerun the whole pipeline
 with different BLAS thread counts or random seeds — every quantity above
-must come out identical up to numerical error (§65).
+must come out identical up to numerical error (Alpha Evaluation Section 25).
 
 ---
 
-## §10. The Fit/Transform Boundary
+## 11. The Fit/Transform Boundary
 
 ### Motivation
 
@@ -1081,17 +1079,17 @@ comparison, any feature-vs-alpha comparison, becomes meaningless.
 During the training/research period, run `fit_label_basis(Y_train)` and
 store
 
-$$B_Y;\qquad \Theta_{\mathsf V},\ \Theta_{\mathsf L};\qquad \Gamma_{\mathsf{DV}},\ \Gamma_{\mathsf{DL}},\ \Gamma_{\mathsf{VL}}.$$
+$$B_Y;\qquad \Theta_{\mathsf V},\ \Theta_{\mathsf T};\qquad \Gamma_{\mathsf{DV}},\ \Gamma_{\mathsf{DT}},\ \Gamma_{\mathsf{VT}}.$$
 
 When new data $Y_{\rm new}$ arrives:
 
 $$Z_{\rm new}=Y_{\rm new}B_Y,\qquad \Phi_{\mathsf D}^{\rm new}=Z_{\rm new},$$
 
-$$G_{\mathsf V}^{\rm new},G_{\mathsf L}^{\rm new}\ \text{built per §8 and within-date centered},$$
+$$G_{\mathsf V}^{\rm new},G_{\mathsf T}^{\rm new}\ \text{built per Section 9 and within-date centered},$$
 
 $$R_{\mathsf V}^{\rm new}=G_{\mathsf V}^{\rm new}-\Phi_{\mathsf D}^{\rm new}\Gamma_{\mathsf{DV}},\qquad \Phi_{\mathsf V}^{\rm new}=R_{\mathsf V}^{\rm new}\Theta_{\mathsf V},$$
 
-$$R_{\mathsf L}^{\rm new}=G_{\mathsf L}^{\rm new}-\Phi_{\mathsf D}^{\rm new}\Gamma_{\mathsf{DL}}-\Phi_{\mathsf V}^{\rm new}\Gamma_{\mathsf{VL}},\qquad \Phi_{\mathsf L}^{\rm new}=R_{\mathsf L}^{\rm new}\Theta_{\mathsf L}.$$
+$$R_{\mathsf T}^{\rm new}=G_{\mathsf T}^{\rm new}-\Phi_{\mathsf D}^{\rm new}\Gamma_{\mathsf{DT}}-\Phi_{\mathsf V}^{\rm new}\Gamma_{\mathsf{VT}},\qquad \Phi_{\mathsf T}^{\rm new}=R_{\mathsf T}^{\rm new}\Theta_{\mathsf T}.$$
 
 Note that within-date centering is **not a fitted parameter** — it's
 applied in place on each date, so it does not constitute leakage.
@@ -1104,7 +1102,7 @@ isn't an error — it's a free regime-drift detector:
 $$\boxed{\delta_{\rm drift}=\big\|\Phi_{\rm OOS}^\top W_{\rm OOS}\Phi_{\rm OOS}-I\big\|_F,}$$
 
 further split into the three diagonal blocks' $\delta^{\mathsf
-D},\delta^{\mathsf V},\delta^{\mathsf L}$.
+D},\delta^{\mathsf V},\delta^{\mathsf T}$.
 
 If $\delta_{\rm drift}$ is small, future returns' covariance structure
 matches the research period, and every quantity expressed via $c$ can be
@@ -1117,8 +1115,8 @@ OOS decay.
 ### Worked Example
 
 Research period 2022–2023, OOS is the first half of 2024. If 2024H1's
-market volatility is half the research period's, $\|z\|$ is systematically
-smaller; since $G_{\mathsf V}\sim\|z\|^2$,
+market volatility is half the research period's, $\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|$ is systematically
+smaller; since $G_{\mathsf V}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$,
 
 $$\Phi_{\mathsf V}^{\rm OOS\top}W\Phi_{\mathsf V}^{\rm OOS}\approx0.25\,I\ \Longrightarrow\ \delta^{\mathsf V}\approx0.75\sqrt{d_{\mathsf V}}\approx2.4\ (d_{\mathsf V}=10).$$
 
@@ -1131,7 +1129,7 @@ necessary, make cross-period comparisons on a $\delta$-corrected basis.
 
 # Part Three: Feature–Label Geometry
 
-## §11. The Predictive Operator
+## 12. The Predictive Operator
 
 ### Definition
 
@@ -1140,7 +1138,7 @@ For each period,
 $$\boxed{C^{(d)}=\frac1{N_d}X_d^{XS\top}\Phi_d\ \in\mathbb R^{P\times d_\Phi},}$$
 
 over the full period (each feature averaged over its own valid-day set
-$\mathcal D_p$, per §4.2),
+$\mathcal D_p$, per Section 5.2),
 
 $$\boxed{C_{p,:}=\frac1{T_p}\sum_{d\in\mathcal D_p}C^{(d)}_{p,:}.}$$
 
@@ -1153,8 +1151,8 @@ future-return mechanism coordinate.
 
 ### Scale: Every Element of $C$ Is Literally an IC
 
-By §4, $X^{XS}_{\cdot p}$ has zero mean and unit variance each period; by
-§9, each column of $\Phi$ has unit norm under the weighted inner product.
+By Section 5, $X^{XS}_{\cdot p}$ has zero mean and unit variance each period; by
+Section 10, each column of $\Phi$ has unit norm under the weighted inner product.
 So
 
 $$C_{p,k}\approx\overline{\operatorname{corr}_d\big(X_{\cdot dp},\Phi_{\cdot dk}\big)}$$
@@ -1188,7 +1186,7 @@ plus their null distribution.
 
 ---
 
-## §12. Singular Value Decomposition
+## 13. Singular Value Decomposition
 
 ### Definition
 
@@ -1220,11 +1218,11 @@ $$r\le\min(P,d_\Phi)=d_\Phi.$$
 **The ceiling on the number of detectable modes is set by the label space's
 dimension, not the number of features.** At $K=4$, $r\le18$; in practice
 $r_{\rm sig}$ almost always lands between 2 and 6. This fact has decisive
-consequences in §38.
+consequences in Selection Bridge Section 5.
 
 ---
 
-## §13. The Permutation Null
+## 14. The Permutation Null
 
 ### Motivation
 
@@ -1235,7 +1233,7 @@ both of their own temporal autocorrelation structure. The only reliable
 approach is a resampling scheme that preserves all of that structure and
 destroys only "which day pairs with which."
 
-### §13.1 The Null Hypothesis
+### 14.1 The Null Hypothesis
 
 The original pairing is $X_d\leftrightarrow\Phi_d$. The null hypothesis is:
 
@@ -1256,7 +1254,7 @@ Preserving these five is what keeps the null from being artificially small
 just because cross-sectional structure got scrambled — that's the most
 common error, and it makes everything look significant.
 
-### §13.2 Primary Scheme: Circular Date Shift
+### 14.2 Primary Scheme: Circular Date Shift
 
 Given ordered dates, pick a shift $s$, and set
 
@@ -1269,14 +1267,14 @@ $$\mathcal S=\{s:\Delta\le\min(s,T-s)\},\qquad\boxed{\Delta=H_{\max}+\ell_X,}$$
 where $H_{\max}$ is the longest horizon in the band (in periods), and
 $\ell_X$ is the feature's memory length (e.g. $\ell_X=20$ for a 20-day
 moving average). This minimum offset ensures the paired $X$ and $Y$ never
-share an overlapping time window. **$\Delta$ and the purge gap in §41 must
+share an overlapping time window. **$\Delta$ and the purge gap in Alpha Evaluation Section 1 must
 be the same number** — otherwise the same data is held to different leakage
 standards in two places.
 
 In practice, use $B_{\rm null}$ of the $|\mathcal S|$ possible shifts
 (default: take all, capped at 2000).
 
-### §13.3 Universe Mismatch: the Matched-Thinning Rule
+### 14.3 Universe Mismatch: the Matched-Thinning Rule
 
 $N_d$ changes over time, so $\mathcal U_{\pi_s(d)}\ne\mathcal U_d$. Three
 things must be handled together.
@@ -1325,7 +1323,7 @@ I_{d,s}|/N_d\ge0.98$, thinning's effect is smaller than numerical error,
 and observed values can be computed directly on $\mathcal U_d$. This ratio
 must be computed and recorded, never assumed.
 
-### §13.4 Slow-Moving Features and an Alternative Null
+### 14.4 Slow-Moving Features and an Alternative Null
 
 The circular-shift test's power depends on whether, after shifting by
 $\Delta$ periods, a feature's cross-sectional ranking has actually changed.
@@ -1380,7 +1378,7 @@ uses N2, with N1's result and $\kappa_p$ also listed; for $\kappa_p\le0.5$,
 the primary conclusion uses N1. Which null was used must be marked per
 feature in the report.
 
-### §13.5 Implementation Flow
+### 14.5 Implementation Flow
 
 ```text
 Input: {X_d}, {Phi_d}, valid shift set S, number of resamples B_null
@@ -1423,7 +1421,7 @@ only needs to run once.
 
 ---
 
-## §14. Significant Rank $r_{\rm sig}$
+## 15. Significant Rank $r_{\rm sig}$
 
 ### Method: Permutation Parallel Analysis
 
@@ -1488,9 +1486,9 @@ $d_\Phi$ directions being significant on real data is extremely rare).
 
 ---
 
-## §15. The Significant Subspace and the Discovery/Evaluation Split
+## 16. The Significant Subspace and the Discovery/Evaluation Split
 
-### §15.1 Why a Split Is Needed
+### 16.1 Why a Split Is Needed
 
 $V_r$ is chosen from **observed data** as the "strongest directions." If the
 same observed data is then used to compute
@@ -1511,7 +1509,7 @@ marginal feature's p-value by several times.
 There are two correct ways to handle this. This book uses the first as its
 primary specification.
 
-### §15.2 Primary Specification: the Discovery/Evaluation Split
+### 16.2 Primary Specification: the Discovery/Evaluation Split
 
 Split the research period in time, with a purge gap of $\Delta=H_{\max}+
 \ell_X$ in between:
@@ -1520,23 +1518,23 @@ $$\underbrace{\mathcal D}_{\text{discovery,}\ \approx60\%}\ \ \|\ \Delta\ \|\ \ 
 
 **Decide the coordinate system and subspace on $\mathcal D$:**
 
-1. Fit the label basis ($B_Y,\Theta,\Gamma$) per §7–§9.
-2. Compute $C_{\mathcal D}$, and use §13's null and §14's parallel analysis
+1. Fit the label basis ($B_Y,\Theta,\Gamma$) per Section 8–Section 10.
+2. Compute $C_{\mathcal D}$, and use Section 14's null and Section 15's parallel analysis
    to determine $r_{\rm sig}$ and
 
 $$\boxed{V_r=[v_1,\dots,v_{r_{\rm sig}}]\quad\text{(determined by }\mathcal D\text{, fixed from here on)}.}$$
 
 **Do all inference on $\mathcal E$:**
 
-3. Apply the label basis to $\mathcal E$ per §10's transform rule and
+3. Apply the label basis to $\mathcal E$ per Section 11's transform rule and
    compute $C_{\mathcal E}$.
 4. Define
 
 $$\boxed{C_{\rm sig}=C_{\mathcal E}V_rV_r^\top,\qquad c_p=C_{\rm sig}[p,:].}$$
 
-5. §13's permutation runs **only on $\mathcal E$**, with $V_r$ held fixed.
-6. The bootstraps of §26–§29, the similarity-threshold calibration of §23,
-   and every screening decision in §34–§39 all run on $\mathcal E$.
+5. Section 14's permutation runs **only on $\mathcal E$**, with $V_r$ held fixed.
+6. The bootstraps of Section 27–Section 30, the similarity-threshold calibration of Section 24,
+   and every screening decision in Selection Bridge Section 1–Selection Bridge Section 6 all run on $\mathcal E$.
 
 **Why this is valid.** $V_r$ is simply a matrix fixed outside of
 $\mathcal E$'s data, so under the null hypothesis "no association between
@@ -1547,7 +1545,7 @@ already handles). The selection effect is entirely isolated inside
 $\mathcal D$.
 
 **A side benefit.** The split also produces a free diagnostic: the
-$\delta_{\rm drift}$ (§10) between $\mathcal D$ and $\mathcal E$. If it's
+$\delta_{\rm drift}$ (Section 11) between $\mathcal D$ and $\mathcal E$. If it's
 large, the coordinate system itself is already unstable between the two
 segments, and any OOS conclusion should be downgraded first.
 
@@ -1555,10 +1553,10 @@ segments, and any OOS conclusion should be downgraded first.
 and underestimates $r_{\rm sig}$; too short an $\mathcal E$ reduces every
 p-value's resolution. $60/40$ is a reasonable starting point. The criterion:
 $\mathcal D$ must be long enough for $\Sigma_Y$'s spectrum to be stable
-(§7.2's bootstrap already provides this check); $\mathcal E$ must be long
+(Section 8.2's bootstrap already provides this check); $\mathcal E$ must be long
 enough that $T^{\mathsf D}_{\rm eff}(\mathcal E)\ge200$.
 
-### §15.3 Alternative Specification: Rerun Selection Inside Each Permutation
+### 16.3 Alternative Specification: Rerun Selection Inside Each Permutation
 
 When sample length doesn't support a split, instead:
 
@@ -1581,7 +1579,7 @@ folds the selection effect into the null, making both sides equal. Both are
 valid, but **cannot be mixed** — every p-value in a single report must come
 from the same specification, noted in the report header.
 
-### §15.4 Final Refit
+### 16.4 Final Refit
 
 Once every screening decision is locked in, the label basis and $V_r$ can be
 refit on $\mathcal D\cup\mathcal E$ for production use.
@@ -1595,25 +1593,25 @@ that doesn't show up in the report.
 
 ---
 
-## §16. Feature Quality
+## 17. Feature Quality
 
 ### Definition
 
-$$\boxed{Q_p=\|c_p\|^2,}\qquad Q_p^{\mathsf B}=\big\|c_p[\mathsf B]\big\|^2,\ \ \mathsf B\in\{\mathsf D,\mathsf V,\mathsf L\},$$
+$$\boxed{Q_p=\|c_p\|^2,}\qquad Q_p^{\mathsf B}=\big\|c_p[\mathsf B]\big\|^2,\ \ \mathsf B\in\{\mathsf D,\mathsf V,\mathsf T\},$$
 
 where $c_p[\mathsf B]$ denotes $c_p$'s sub-vector on block $\mathsf B$'s
 coordinates.
 
 ### Proposition 16.1 (additivity)
 
-$$Q_p=Q_p^{\mathsf D}+Q_p^{\mathsf V}+Q_p^{\mathsf L}.$$
+$$Q_p=Q_p^{\mathsf D}+Q_p^{\mathsf V}+Q_p^{\mathsf T}.$$
 
 **Proof**: $\{1,\dots,d_\Phi\}$ is partitioned by the three blocks into
 disjoint coordinate subsets; a vector's squared norm equals the sum of
 squares over disjoint subsets. $\blacksquare$
 
 This identity is **always true**, regardless of whether $\Phi$ is
-orthogonal. So the corresponding unit test in §65 can only catch slicing
+orthogonal. So the corresponding unit test in Alpha Evaluation Section 25 can only catch slicing
 bugs, not verify orthogonality; what actually verifies orthogonality is the
 $\|\Phi^\top W\Phi-I\|_F$ test.
 
@@ -1637,7 +1635,7 @@ WX_p=\|c_p^{\rm full}\|^2$. $\blacksquare$
 $$\boxed{0\le Q_p\le\|c_p^{\rm full}\|^2\le\|X_p\|_W^2=1.}$$
 
 The first inequality holds because $P_V$ is an orthogonal projection, the
-second because $P_\Phi$ is an orthogonal projection and §4.1's step three
+second because $P_\Phi$ is an orthogonal projection and Section 5.1's step three
 guarantees $\|X_p\|_W=1$.
 
 ### Interpretation
@@ -1651,7 +1649,7 @@ $Q_p$'s precise meaning is:
 None of the three qualifiers can be dropped:
 
 - "cross-sectional variance" — contains no time-series predictive power;
-- "linearly explained" — see §1's boundary two and §4.3's transform family;
+- "linearly explained" — see Section 2's boundary two and Section 5.3's transform family;
 - "lying in the significant subspace" — $Q_p$ has already been projected
   through $P_V$, so a feature predicting only directions outside $V_r$ gets
   $Q_p\approx0$.
@@ -1668,13 +1666,13 @@ individually rather than discarded outright.
 
 ---
 
-## §17. What $Q$ Can and Cannot Answer
+## 18. What $Q$ Can and Cannot Answer
 
 $Q_p$ can answer:
 
 - How much predictive information does this feature have? (magnitude)
 - What kind of mechanism is it? ($Q^{\mathsf D}$ vs. $Q^{\mathsf V}$ vs.
-  $Q^{\mathsf L}$)
+  $Q^{\mathsf T}$)
 - How does it compare to other features? (directly comparable, since
   $\|X_p\|_W=1$)
 
@@ -1685,15 +1683,15 @@ $Q_p$ **cannot** answer:
 - The feature's marginal value in a portfolio. $Q$ is univariate; a
   medium-$Q$ signal orthogonal to everything else can have higher portfolio
   value than a high-$Q$ signal redundant with existing positions. This is
-  exactly why the coverage criterion in §38 exists.
+  exactly why the coverage criterion in Selection Bridge Section 5 exists.
 - Whether the direction is right. $Q$ is a squared quantity with no sign.
-  Direction is answered by §21's $A^{\rm tgt}$.
+  Direction is answered by Section 22's $A^{\rm tgt}$.
 
 ### Worked Example
 
 A feature's report shows
 
-$$Q_p=4.0\times10^{-4},\quad Q_p^{\mathsf D}=3.6\times10^{-4},\quad Q_p^{\mathsf V}=3\times10^{-5},\quad Q_p^{\mathsf L}=1\times10^{-5}.$$
+$$Q_p=4.0\times10^{-4},\quad Q_p^{\mathsf D}=3.6\times10^{-4},\quad Q_p^{\mathsf V}=3\times10^{-5},\quad Q_p^{\mathsf T}=1\times10^{-5}.$$
 
 Reading: total IC magnitude is about $\sqrt{4\times10^{-4}}=0.02$, with 90%
 of the energy on direction. This is a clean, moderately-strong directional
@@ -1701,32 +1699,32 @@ signal, usable directly for long/short ranking.
 
 Another feature:
 
-$$Q_q=9.0\times10^{-4},\quad Q_q^{\mathsf D}=5\times10^{-5},\quad Q_q^{\mathsf V}=8.0\times10^{-4},\quad Q_q^{\mathsf L}=5\times10^{-5}.$$
+$$Q_q=9.0\times10^{-4},\quad Q_q^{\mathsf D}=5\times10^{-5},\quad Q_q^{\mathsf V}=8.0\times10^{-4},\quad Q_q^{\mathsf T}=5\times10^{-5}.$$
 
 Larger overall magnitude (IC around 0.03), but 89% of the energy is in the
 $\mathsf V$ block. This is **not** a directional signal — it's a
 volatility/activity predictor. Put into a long/short ranking, it would
 produce a position that's "long stocks about to move violently" —
 economically like a long-gamma position, nothing like directional alpha.
-In a directional-only study this feature should be excluded by §34's
+In a directional-only study this feature should be excluded by Selection Bridge Section 1's
 eligibility (its $Q^{\mathsf D}$ is too small), but kept in the library for
 volatility research.
 
 ---
 
-## §18. Feature-Level Significance and Multiple Testing
+## 19. Feature-Level Significance and Multiple Testing
 
-### §18.1 Single-Feature P-Value
+### 19.1 Single-Feature P-Value
 
 For each feature and block, the permutation p-value is
 
 $$\boxed{p_p^{\mathsf B}=\frac{1+\#\{b:\ Q^{{\mathsf B},{\rm null}}_{p,b}\ge Q_p^{\mathsf B}\}}{B_{\rm null}+1},}$$
 
-where $Q^{\rm null}_{p,b}$ is computed per §15's specification (split:
+where $Q^{\rm null}_{p,b}$ is computed per Section 16's specification (split:
 $V_r$ fixed; rerun: $V_r^{(b)}$ self-re-estimated). The same formula
-applies to $Q_p$ (total) and to §21's $(A^{\rm tgt}_p)^2$.
+applies to $Q_p$ (total) and to Section 22's $(A^{\rm tgt}_p)^2$.
 
-### §18.2 Multiple Testing: a Resolution Problem
+### 19.2 Multiple Testing: a Resolution Problem
 
 With $P=400$ features tested simultaneously, multiple-testing control is
 mandatory. There's a mechanical limit that's easy to overlook:
@@ -1744,7 +1742,7 @@ p-value resolution is insufficient. This failure mode shows up on the
 report as "no feature is significant," and is very easily misdiagnosed as
 "no signal exists."
 
-### §18.3 Primary Approach: Westfall–Young Max-T Step-Down
+### 19.3 Primary Approach: Westfall–Young Max-T Step-Down
 
 The Westfall–Young procedure controls FWER, and **does not need** p-value
 resolution down to $1/P$, because it compares "the observed statistic"
@@ -1783,7 +1781,7 @@ structure is unknown and complex. Westfall–Young **reproduces this
 structure directly** via permutation, requiring no assumptions. The cost is
 that it controls FWER rather than FDR, which is stricter.
 
-### §18.4 Secondary Approach: Permutation FDR
+### 19.4 Secondary Approach: Permutation FDR
 
 For a large library wanting a looser screen, a permutation-estimated FDR
 can be used: at threshold $\tau$,
@@ -1795,7 +1793,7 @@ FDR}$. This is also entirely permutation-based and doesn't rely on
 dependency assumptions.
 
 **Reporting rule**: list both $\tilde p^{\rm WY}_p$ and the selection
-produced by the $\widehat{\rm FDR}$ threshold. The primary screen (§34)
+produced by the $\widehat{\rm FDR}$ threshold. The primary screen (Selection Bridge Section 1)
 uses Westfall–Young; the FDR version serves as a sensitivity analysis. If
 the two give feature counts differing by more than 3×, that means the
 signal is concentrated in a handful of very strong features with the rest
@@ -1803,26 +1801,26 @@ marginal — a structural fact worth noting in itself.
 
 ---
 
-## §19. Mechanism Fingerprint
+## 20. Mechanism Fingerprint
 
-### §19.1 Raw Fingerprint
+### 20.1 Raw Fingerprint
 
-$$\boxed{f_p=\left(\frac{Q_p^{\mathsf D}}{Q_p},\ \frac{Q_p^{\mathsf V}}{Q_p},\ \frac{Q_p^{\mathsf L}}{Q_p}\right),\qquad f_{\mathsf D}+f_{\mathsf V}+f_{\mathsf L}=1.}$$
+$$\boxed{f_p=\left(\frac{Q_p^{\mathsf D}}{Q_p},\ \frac{Q_p^{\mathsf V}}{Q_p},\ \frac{Q_p^{\mathsf T}}{Q_p}\right),\qquad f_{\mathsf D}+f_{\mathsf V}+f_{\mathsf T}=1.}$$
 
 This is a **compositional decomposition** of the feature's predictive
 energy — a literal description of which coordinates its association falls
 on.
 
-### §19.2 Why the Raw Fingerprint Cannot Be Read as the Mechanism Directly
+### 20.2 Why the Raw Fingerprint Cannot Be Read as the Mechanism Directly
 
 The blocks have different dimensions: at $K=4$, $(d_{\mathsf
-D},d_{\mathsf V},d_{\mathsf L})=(4,10,4)$.
+D},d_{\mathsf V},d_{\mathsf T})=(4,10,4)$.
 
 Consider a feature totally unrelated to future returns. Its $c_p^{\rm
 full}$ is roughly isotropic in the $d_\Phi=18$-dimensional space, so the
 expected energy allocation is
 
-$$\mathbb E[f_{\mathsf D}]\approx\frac4{18}=0.222,\qquad \mathbb E[f_{\mathsf V}]\approx\frac{10}{18}=0.556,\qquad \mathbb E[f_{\mathsf L}]\approx\frac4{18}=0.222.$$
+$$\mathbb E[f_{\mathsf D}]\approx\frac4{18}=0.222,\qquad \mathbb E[f_{\mathsf V}]\approx\frac{10}{18}=0.556,\qquad \mathbb E[f_{\mathsf T}]\approx\frac4{18}=0.222.$$
 
 In other words, **a pure-noise feature's raw fingerprint is naturally
 $(0.22,0.56,0.22)$**. Seeing $f_{\mathsf V}=0.55$ and declaring "this
@@ -1838,9 +1836,9 @@ $V_r$'s actual composition and is generally **not** equal to the dimension
 ratio. So the analytic approximation is unreliable; it must be estimated
 directly by permutation.
 
-### §19.3 Null-Adjusted Enrichment Fingerprint
+### 20.3 Null-Adjusted Enrichment Fingerprint
 
-$$\boxed{e_p^{\mathsf B}=\frac{Q_p^{\mathsf B}}{\operatorname{median}_b\,Q^{{\mathsf B},{\rm null}}_{p,b}+\epsilon},\qquad \tilde f_p^{\mathsf B}=\frac{e_p^{\mathsf B}}{e_p^{\mathsf D}+e_p^{\mathsf V}+e_p^{\mathsf L}}.}$$
+$$\boxed{e_p^{\mathsf B}=\frac{Q_p^{\mathsf B}}{\operatorname{median}_b\,Q^{{\mathsf B},{\rm null}}_{p,b}+\epsilon},\qquad \tilde f_p^{\mathsf B}=\frac{e_p^{\mathsf B}}{e_p^{\mathsf D}+e_p^{\mathsf V}+e_p^{\mathsf T}}.}$$
 
 Under the null, $\mathbb E[\tilde f_p]\approx(1/3,1/3,1/3)$, so $\tilde f$
 has a dimension-independent reference point.
@@ -1853,20 +1851,20 @@ feature's null scale.
 **Reporting rule**: $f_p$ and $\tilde f_p$ are shown side by side. $f_p$
 answers "where is the energy" (e.g. for position attribution); $\tilde f_p$
 answers "what is the mechanism" (e.g. for clustering and interpretation).
-§35's clustering and §53's reading always use $\tilde f$.
+Selection Bridge Section 2's clustering and Alpha Evaluation Section 13's reading always use $\tilde f$.
 
-### §19.4 Worked Example: How Fingerprint Changes a Decision
+### 20.4 Worked Example: How Fingerprint Changes a Decision
 
 Two features with identical $Q=5\times10^{-4}$:
 
-| | $Q^{\mathsf D}$ | $Q^{\mathsf V}$ | $Q^{\mathsf L}$ | $f$ | $\tilde f$ |
+| | $Q^{\mathsf D}$ | $Q^{\mathsf V}$ | $Q^{\mathsf T}$ | $f$ | $\tilde f$ |
 |---|---:|---:|---:|---|---|
 | A | $1.1\times10^{-4}$ | $2.8\times10^{-4}$ | $1.1\times10^{-4}$ | $(0.22,0.56,0.22)$ | $(0.33,0.34,0.33)$ |
 | B | $3.5\times10^{-4}$ | $1.0\times10^{-4}$ | $5\times10^{-5}$ | $(0.70,0.20,0.10)$ | $(0.79,0.13,0.08)$ |
 
 A's raw fingerprint looks "activity-dominant," but $\tilde f$ shows it's at
 noise level on all three blocks — its entire $Q$ is a dimensional artifact,
-and it shouldn't even clear §34's significance gate. B is a genuinely
+and it shouldn't even clear Selection Bridge Section 1's significance gate. B is a genuinely
 directional feature.
 
 Looking only at $f$, the two would be sorted into different mechanism
@@ -1877,7 +1875,7 @@ the pipeline at all.
 
 # Part Four: Target Direction, Similarity, and Stability
 
-## §20. Intended Target Direction
+## 21. Intended Target Direction
 
 ### Motivation
 
@@ -1906,7 +1904,7 @@ projecting $y^*$ onto $\Phi_{\mathsf D}$ and normalizing:
 $$\boxed{r_{\mathsf D}=\frac{\Phi_{\mathsf D}^\top Wy^*}{\big\|\Phi_{\mathsf D}^\top Wy^*\big\|},\qquad\|r_{\mathsf D}\|=1.}$$
 
 **This is the implementation spec.** It's a one-line computation, and it's
-immune to any rank truncation in §7 or any coordinate convention — because
+immune to any rank truncation in Section 8 or any coordinate convention — because
 it measures directly "where the target signal itself lands in
 $\Phi_{\mathsf D}$," rather than relying on any closed-form inversion.
 
@@ -1953,7 +1951,7 @@ $r_{\mathsf D}=(1,0,0)$.
 
 ---
 
-## §21. Signed Target Alignment
+## 22. Signed Target Alignment
 
 ### Definition
 
@@ -1967,7 +1965,7 @@ D}$'s metric).
 
 - $A^{\rm tgt}_p>0$: higher feature value implies higher target return.
 - $A^{\rm tgt}_p<0$: an inverted signal. This is **not a defect** — as long
-  as the sign is stable over time (§27's $\pi^{\rm time,sign}$), an inverted
+  as the sign is stable over time (Section 28's $\pi^{\rm time,sign}$), an inverted
   signal is just as usable as a direct one; simply negate it when
   constructing positions.
 - $A^{\rm tgt}_p\approx0$ but $Q^{\mathsf D}_p$ large: the feature has
@@ -1981,19 +1979,19 @@ Once $A^{\rm tgt}$'s sign is determined in the research period, it must be
 treated as part of the feature's definition and locked. If the sign flips
 during OOS and gets "conveniently" flipped back, that's a decision made
 using OOS data, invalidating the whole OOS evaluation. A sign flip is a
-**result**, not a bug to be patched (§28).
+**result**, not a bug to be patched (Section 29).
 
 ### Significance
 
 $(A^{\rm tgt}_p)^2$ is permutation-tested and Westfall–Young-adjusted
 exactly like $Q$, giving $\tilde p^{\rm tgt}_p$. This quantity plays a key
-role in §34's eligibility, because it merges "how much directional
+role in Selection Bridge Section 1's eligibility, because it merges "how much directional
 information" and "how well aimed" into a single testable quantity — it's
 precisely "the average squared IC against the intended target."
 
 ---
 
-## §22. Directional Target Efficiency
+## 23. Directional Target Efficiency
 
 ### Definition
 
@@ -2051,7 +2049,7 @@ the library.
 ### The Role of $\epsilon$
 
 The denominator's $\epsilon$ is purely numerical protection. When
-$Q^{\mathsf D}_p$ is itself at noise level (failed §18's significance
+$Q^{\mathsf D}_p$ is itself at noise level (failed Section 19's significance
 test), $\eta$ is a ratio of two noise quantities, numerically anywhere
 between 0 and 1, **meaningless**. $\eta$ should therefore only be read for
 features that already passed the significance test; the report should show
@@ -2059,7 +2057,7 @@ a blank, not a number, for the rest.
 
 ---
 
-## §23. Mechanism Similarity
+## 24. Mechanism Similarity
 
 ### Definition
 
@@ -2071,7 +2069,7 @@ sign, used for clustering — since a feature and its negated version carry
 identical information and must be treated as the same thing when
 clustering.
 
-### §23.1 The Energy Interpretation of Similarity
+### 24.1 The Energy Interpretation of Similarity
 
 This quantity has a precise decision-theoretic meaning. If feature $p$ is
 used as feature $q$'s representative (i.e. $p$ is kept, $q$ is dropped in
@@ -2095,13 +2093,13 @@ substituting the representative for the member." $\tau=0.90$ means
 accepting up to 19% loss. This criterion is independent of dimension and of
 library size.
 
-### §23.2 Null Calibration: How Much Similarity Comes From Chance
+### 24.2 Null Calibration: How Much Similarity Comes From Chance
 
 The decision criterion above answers "should these be merged," but not
 "is the observed similarity structure even real." The latter needs null
 calibration.
 
-**The null used for calibration differs from §13's.** §13 uses a
+**The null used for calibration differs from Section 14's.** Section 14 uses a
 **shared** shift (all features shifted together), to preserve inter-feature
 dependence — needed for the $Q_p$ test. But similarity calibration asks "how
 similar can two features with **no shared mechanism** be," so it must use
@@ -2118,7 +2116,7 @@ which we define the **excess pairing rate**
 
 $$\boxed{\zeta(\tau)=\underbrace{\frac{\#\{(p,q):S^{\rm mech}_{pq}>\tau\}}{P(P-1)/2}}_{\text{observed}}-\underbrace{\mathbb E_b\left[\frac{\#\{(p,q):S^{\rm null}_{pq,b}>\tau\}}{P(P-1)/2}\right]}_{\text{null}}.}$$
 
-### §23.3 A Fundamental Limit of Low-Dimensional Spaces
+### 24.3 A Fundamental Limit of Low-Dimensional Spaces
 
 The following calculation must be understood, or clustering results will be
 badly misread.
@@ -2140,7 +2138,7 @@ fixed direction that is **uniformly distributed** on $[-1,1]$, so
 $P(|\cos|>\tau)=1-\tau$.)
 
 **What this means.** The $\mathsf D$ block's similarity $S^{\mathsf D}$
-(§24) lives in a space of dimension
+(Section 25) lives in a space of dimension
 
 $$m_{\mathsf D}=\dim\big(\text{span}(V_r)\cap\mathsf D\text{ coordinates}\big)\le\min(K,r_{\rm sig}),$$
 
@@ -2152,16 +2150,16 @@ This isn't a calibration failure — it's a genuine structural fact: **in a
 three-dimensional space, four hundred directions cannot help being "close"
 to each other.**
 
-### §23.4 Design Conclusions That Follow
+### 24.4 Design Conclusions That Follow
 
-> **Rule 23.1**: mechanism clustering (§35) is a **descriptive and
+> **Rule 23.1**: mechanism clustering (Selection Bridge Section 2) is a **descriptive and
 > organizational** tool, for grouping in reports and for human
 > interpretation; **it is not the feature-selection decision mechanism.**
-> Selection is decided by the coverage criterion of §38–§39, which directly
+> Selection is decided by the coverage criterion of Selection Bridge Section 5–Selection Bridge Section 6, which directly
 > measures "does the selected set represent every eligible feature" — and
 > therefore doesn't depend on the significance of any pairwise threshold.
 >
-> **Rule 23.2**: the clustering threshold $\tau$ is set by §23.1's
+> **Rule 23.2**: the clustering threshold $\tau$ is set by Section 24.1's
 > energy-loss criterion (default $\tau=0.90$, corresponding to 19% loss),
 > and **must** be reported alongside $\zeta(\tau)$ and the effective
 > mechanism dimension
@@ -2175,15 +2173,15 @@ to each other.**
 This is an honest and important conclusion: in a low-dimensional mechanism
 space, "are these two features the same thing" cannot be answered by angle.
 What can be answered is "which features need to be kept to represent the
-whole" — and that's §38's question.
+whole" — and that's Selection Bridge Section 5's question.
 
 ---
 
-## §24. Block-Specific Mechanism Similarity
+## 25. Block-Specific Mechanism Similarity
 
 ### Definition
 
-$$\boxed{A^{\mathsf B}_{pq}=\frac{c_p^{\mathsf B\top}c_q^{\mathsf B}}{\|c_p^{\mathsf B}\|\|c_q^{\mathsf B}\|+\epsilon},\qquad S^{\mathsf B}_{pq}=\big|A^{\mathsf B}_{pq}\big|,\qquad \mathsf B\in\{\mathsf D,\mathsf V,\mathsf L\}.}$$
+$$\boxed{A^{\mathsf B}_{pq}=\frac{c_p^{\mathsf B\top}c_q^{\mathsf B}}{\|c_p^{\mathsf B}\|\|c_q^{\mathsf B}\|+\epsilon},\qquad S^{\mathsf B}_{pq}=\big|A^{\mathsf B}_{pq}\big|,\qquad \mathsf B\in\{\mathsf D,\mathsf V,\mathsf T\}.}$$
 
 ### Why This Section Can't Be Skipped
 
@@ -2199,18 +2197,18 @@ For **directional research**, these two features are not interchangeable
 at all.
 
 > **Rule 24.1**: every similarity computation involved in directional
-> selection (§35's clustering, §38's coverage, §52's inheritance reading)
+> selection (Selection Bridge Section 2's clustering, Selection Bridge Section 5's coverage, Alpha Evaluation Section 12's inheritance reading)
 > uses $S^{\mathsf D}$, never $S^{\rm mech}$. The full-space $S^{\rm mech}$
 > is only for the descriptive question "do these two features look alike
 > overall."
 
 The corollary: if the research target is volatility signals, switch
 entirely to $S^{\mathsf V}$. The choice of block must match the research
-target — the same applies to §27's stability and §34's thresholds.
+target — the same applies to Section 28's stability and Selection Bridge Section 1's thresholds.
 
 ---
 
-## §25. Raw Feature Redundancy
+## 26. Raw Feature Redundancy
 
 ### Motivation
 
@@ -2255,7 +2253,7 @@ measurement noise.
 
 ---
 
-## §26. Temporal Stability: Bootstrap Design
+## 27. Temporal Stability: Bootstrap Design
 
 ### Motivation
 
@@ -2284,8 +2282,8 @@ overlapping label windows fall within the same block.
 **$\Phi$ and $V_r$ are held fixed across all resamples.** This is
 deliberate: this bootstrap measures "**given the coordinate system**, how
 stable is the feature-level association." The coordinate system's own
-uncertainty is measured by two other mechanisms: §7.2's spectral bootstrap
-(stability of $\Sigma_Y$) and §10's $\delta_{\rm drift}$ (cross-period
+uncertainty is measured by two other mechanisms: Section 8.2's spectral bootstrap
+(stability of $\Sigma_Y$) and Section 11's $\delta_{\rm drift}$ (cross-period
 drift).
 
 > **Rule 26.1**: $\pi$ and $M$ are **lower bounds** on total uncertainty. The
@@ -2295,7 +2293,7 @@ drift).
 
 ---
 
-## §27. Temporal Stability Metrics
+## 28. Temporal Stability Metrics
 
 ### Definitions
 
@@ -2359,7 +2357,7 @@ bootstrap draw (multiplying cost by $B_{\rm time}$), but in practice the
 gain doesn't justify the cost.
 
 ---
-## §28. Two Failure Modes of Instability
+## 29. Two Failure Modes of Instability
 
 The combination of $\pi$ and $M$ splits instability into two categories,
 requiring completely different treatment.
@@ -2405,11 +2403,11 @@ condition, not a scoring input.
 This is a special case of mode two, but flagged separately because it's the
 most dangerous. A feature whose sign can flip turns profit directly into
 loss in a position. Features with $\pi^{\rm time,sign}<0.8$ are always
-retired, and **cannot** be rescued by "flipping the sign back in OOS" (§21).
+retired, and **cannot** be rescued by "flipping the sign back in OOS" (Section 22).
 
 ---
 
-## §29. Cross-Sectional Stability
+## 30. Cross-Sectional Stability
 
 ### Motivation
 
@@ -2453,14 +2451,14 @@ liquidity, sector dummies), it produces a systematic bias.
 > re-demeaned and re-standardized on the resampled sample:
 > $$\check X_{idp}=\frac{X_{idp}-\bar X^{(b)}_{dp}}{\sigma^{(b)}_{dp}+\epsilon}.$$
 
-The same requirement applies to §13.3(b)'s permutation intersection. Both
+The same requirement applies to Section 14.3(b)'s permutation intersection. Both
 are applications of the same principle.
 
 ### Output
 
 $$C^{(b)}_{\rm XS}=\frac1T\sum_d\frac1{N_d}\check X_{d,b}^\top\Phi_{d,b},$$
 
-holding $V_r$ fixed, giving — exactly as in §27 —
+holding $V_r$ fixed, giving — exactly as in Section 28 —
 
 $$\pi^{{\rm XS},\mathsf B}_p,\qquad \pi^{\rm XS,sign}_p,\qquad M^{{\rm XS},\mathsf B}_p.$$
 
@@ -2468,7 +2466,7 @@ Default $B_{\rm XS}=500$.
 
 ---
 
-## §30. Predictive Breadth
+## 31. Predictive Breadth
 
 ### Motivation
 
@@ -2506,9 +2504,9 @@ $N^{\rm eff}$ is the inverse-Herfindahl of the $\{|g|\}$ distribution — the
 
 ---
 
-## §31. Reading Breadth and Its Null Baseline
+## 32. Reading Breadth and Its Null Baseline
 
-### §31.1 Why $b=1$ Is Not the Reference Point
+### 32.1 Why $b=1$ Is Not the Reference Point
 
 Intuitively, $b=1$ (every stock contributes equally) feels like the
 reference point for "fully diversified." That intuition is wrong.
@@ -2527,7 +2525,7 @@ were a single normal quantity rather than a product of two, the baseline
 would be $2/\pi\approx0.637$.) Seeing $b=0.35$ and calling it "highly
 concentrated" is wrong — that's essentially the noise level.
 
-### §31.2 Relative Breadth
+### 32.2 Relative Breadth
 
 Real $X$ and $\Phi$ are not independent normals ($X$ usually has fat tails,
 $\Phi_{\mathsf V}$'s components are quadratic forms and thus heavily
@@ -2536,7 +2534,7 @@ threshold. The report uses a **relative** quantity instead:
 
 $$\boxed{\tilde b_p=\frac{b^{\rm med}_p}{\operatorname{median}_b\big(b^{{\rm med},{\rm null}}_{p,b}\big)},}$$
 
-with the null coming from §13's same resamples. $\tilde b_p\approx1$ means
+with the null coming from Section 14's same resamples. $\tilde b_p\approx1$ means
 concentration is no different from noise; $\tilde b_p\ll1$ means genuine
 concentration.
 
@@ -2547,7 +2545,7 @@ notably below 0.405. Using the same absolute threshold for $\mathsf D$ and
 $\mathsf V$ block features would systematically flag every $\mathsf V$
 block feature as "over-concentrated."
 
-### §31.3 Concentration Is Not Necessarily a Defect
+### 32.3 Concentration Is Not Necessarily a Defect
 
 > **Rule 31.1**: breadth is a soft diagnostic, not a hard gate.
 
@@ -2582,7 +2580,7 @@ threshold this feature would be mislabeled as concentrated.
 
 ---
 
-## §32. Cancellation Ratio
+## 33. Cancellation Ratio
 
 ### Definition
 
@@ -2638,7 +2636,7 @@ economics) and $\tilde R_p$ (for statistical interpretation).
 
 ---
 
-## §33. Effective Spectral Rank
+## 34. Effective Spectral Rank
 
 ### Definition
 

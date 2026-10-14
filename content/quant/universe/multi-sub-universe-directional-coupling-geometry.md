@@ -19,7 +19,7 @@ aliases:
 The [Cross-Sectional Predictive Geometry](/quant/feature-evaluation/) framework starts from a *fixed* universe: build a label mechanism basis from future returns,
 
 $$
-\Phi=[\Phi_{\mathsf D}\mid\Phi_{\mathsf V}\mid\Phi_{\mathsf L}],
+\Phi=[\Phi_{\mathsf D}\mid\Phi_{\mathsf V}\mid\Phi_{\mathsf T}],
 \qquad
 \Phi^\top W\Phi=I,
 $$
@@ -63,7 +63,7 @@ $$
 
 Its eigenvalues are squared canonical correlations; its eigenvectors are "the directional modes best represented by activity geometry in this sub-universe."
 
-> **A note on notation.** This book, like the [Cross-Sectional Predictive Geometry](/quant/feature-evaluation/) series, decomposes predictive structure into three blocks: $\mathsf D$ (Direction), $\mathsf V$ (Activity), and $\mathsf L$ — the same block the companion series calls $T$ (Tail), $G_{\mathsf L}(z)=\|z\|z$. Same definition, different letter. Here that machinery is applied one level up: not to whether a *feature* predicts direction, but to whether a *sub-universe's membership* concentrates and structures the direction block itself.
+> **A note on notation.** This book, like the [Cross-Sectional Predictive Geometry](/quant/feature-evaluation/) series, decomposes predictive structure into three blocks: $\mathsf D$ (Direction), $\mathsf V$ (Activity), and $\mathsf T$ (Tail), where $G_{\mathsf T}(z)=\|z\|_2\,z$. Here that machinery is applied one level up: not to whether a *feature* predicts direction, but to whether a *sub-universe's membership* concentrates and structures the direction block itself.
 
 So this chapter does not output a single best universe. It outputs a family of possibly-overlapping universes,
 
@@ -85,7 +85,7 @@ All four are purely **label-side structure**. Actual learnability still has to b
 
 ---
 
-## §68. Research goal and output objects
+## 1. Research goal and output objects
 
 ### Motivation
 
@@ -181,7 +181,7 @@ These three are not equivalent to each other, and a report must keep them separa
 
 ---
 
-## §69. The point-in-time and discovery/evaluation boundary
+## 2. The point-in-time and discovery/evaluation boundary
 
 ### Principle
 
@@ -253,7 +253,7 @@ Any rule that uses $Y_{t\to t+h}$ directly to decide $\mathcal S_{g,t}$ constitu
 
 ---
 
-## §70. The full-universe reference basis
+## 3. The full-universe reference basis
 
 ### Motivation
 
@@ -269,7 +269,7 @@ Y^{XS}_{\mathcal U}
 Z_{\mathcal U}
 \longrightarrow
 \Phi_{\mathcal U} =
-[\Phi_{\mathsf D}\mid\Phi_{\mathsf V}\mid\Phi_{\mathsf L}].
+[\Phi_{\mathsf D}\mid\Phi_{\mathsf V}\mid\Phi_{\mathsf T}].
 $$
 
 satisfying
@@ -305,13 +305,13 @@ So any deviation observed on a candidate subset can be read directly as concentr
 
 ### Fit / transform
 
-$B_Y$, $\Theta_{\mathsf V}$, $\Theta_{\mathsf L}$, and $\Gamma_\bullet$ are all fit on $\mathcal D_U$ only. Evaluation-period labels are only ever transformed into the already-frozen reference basis — never refit.
+$B_Y$, $\Theta_{\mathsf V}$, $\Theta_{\mathsf T}$, and $\Gamma_\bullet$ are all fit on $\mathcal D_U$ only. Evaluation-period labels are only ever transformed into the already-frozen reference basis — never refit.
 
 ---
 
-## §71. Sub-universe weight and the restriction measure
+## 4. Sub-universe weight and the restriction measure
 
-### §71.1 Definition
+### 4.1 Definition
 
 For a candidate universe $\mathcal S_g$, let
 
@@ -364,11 +364,11 @@ $$
 \operatorname{median}_dN_{g,d}\ge N_{\min},
 $$
 
-where $N_{\min}$ should be much larger than $d_\Phi$; see §96 for the default.
+where $N_{\min}$ should be much larger than $d_\Phi$; see Section 29 for the default.
 
 ---
 
-## §72. The restriction Gram operator
+## 5. The restriction Gram operator
 
 ### Definition 72.1
 
@@ -402,7 +402,7 @@ $$
 
 $\blacksquare$
 
-### §72.1 Physical meaning of the Rayleigh quotient
+### 5.1 Physical meaning of the Rayleigh quotient
 
 Take any unit mechanism direction $\|v\|=1$. In the parent universe:
 
@@ -434,7 +434,7 @@ then:
 - $\lambda_{g,k}<1$: it's suppressed;
 - $\lambda_{g,k}=1$: average energy is unchanged.
 
-### §72.2 Not a learnability operator
+### 5.2 Not a learnability operator
 
 $G_g$ is built entirely from future labels. A large eigenvalue only means label variation / mechanism energy is concentrated — it says nothing about whether any point-in-time $X$ exists that could actually predict that direction.
 
@@ -442,7 +442,7 @@ So $G_g$ is a **label-geometry operator**, not a predictive operator.
 
 ---
 
-## §73. Block decomposition and directional enrichment
+## 6. Block decomposition and directional enrichment
 
 By the block structure of the reference basis:
 
@@ -455,7 +455,7 @@ G_{g,\mathsf{LD}} & G_{g,\mathsf{LV}} & G_{g,\mathsf{LL}}
 \end{pmatrix}.
 $$
 
-### §73.1 Average mechanism energy per dimension
+### 6.1 Average mechanism energy per dimension
 
 Because block dimensions differ, traces can't be compared directly. Define
 
@@ -465,7 +465,7 @@ q_g^{\mathsf B} =
 \frac1{d_{\mathsf B}}
 \operatorname{tr}(G_{g,\mathsf{BB}}),
 \qquad
-\mathsf B\in\{\mathsf D,\mathsf V,\mathsf L\}.
+\mathsf B\in\{\mathsf D,\mathsf V,\mathsf T\}.
 }
 $$
 
@@ -474,7 +474,7 @@ The parent universe satisfies, exactly:
 $$
 q_{\mathcal U}^{\mathsf D}
 =q_{\mathcal U}^{\mathsf V}
-=q_{\mathcal U}^{\mathsf L}
+=q_{\mathcal U}^{\mathsf T}
 =1.
 $$
 
@@ -482,7 +482,7 @@ So $q_g^{\mathsf D}=1.7$ means:
 
 > this sub-universe's average squared amplitude per reference directional dimension is $1.7\times$ the parent universe's.
 
-### §73.2 Universe mechanism fingerprint
+### 6.2 Universe mechanism fingerprint
 
 Define
 
@@ -490,7 +490,7 @@ $$
 \boxed{
 f_g^{\mathsf B} =
 \frac{q_g^{\mathsf B}}
-{q_g^{\mathsf D}+q_g^{\mathsf V}+q_g^{\mathsf L}}.
+{q_g^{\mathsf D}+q_g^{\mathsf V}+q_g^{\mathsf T}}.
 }
 $$
 
@@ -522,13 +522,13 @@ This one has both absolute D enrichment and relative D enrichment at once.
 
 ---
 
-## §74. The directional spectrum and compressibility
+## 7. The directional spectrum and compressibility
 
 ### Motivation
 
 A large $q_g^{\mathsf D}$ doesn't by itself mean the directional representation is simple. If all $d_{\mathsf D}$ directions are scaled up together proportionally, there is no low-dimensional structure.
 
-### §74.1 The directional eigenspectrum
+### 7.1 The directional eigenspectrum
 
 Eigendecompose
 
@@ -549,7 +549,7 @@ $$
 
 $v_{g,k}^{\mathsf D}$ is the $k$-th most concentrated reference directional combination in this universe.
 
-### §74.2 Effective directional rank
+### 7.2 Effective directional rank
 
 Let
 
@@ -575,7 +575,7 @@ $$
 1\le r_{g,\rm eff}^{\mathsf D}\le d_{\mathsf D}.
 $$
 
-### §74.3 Top-$m$ directional concentration
+### 7.3 Top-$m$ directional concentration
 
 $$
 \boxed{
@@ -605,7 +605,7 @@ This section only answers **whether D representation is concentrated** — it do
 
 ---
 
-## §75. From $|Z|^\top WZ$ to $\mathsf V \leftrightarrow \mathsf D$ coupling
+## 8. From $|Z|^\top WZ$ to $\mathsf V \leftrightarrow \mathsf D$ coupling
 
 ### Motivation
 
@@ -632,7 +632,7 @@ The intuition is right, but this object has three limitations:
 
 So the formal method replaces $|Z|$ with $\Phi_{\mathsf V}$, and poses the question as $\mathsf V \leftrightarrow \mathsf D$ coupling within the subset.
 
-### §75.1 The cross-block Gram
+### 8.1 The cross-block Gram
 
 Define
 
@@ -669,13 +669,13 @@ This is not a basis-construction error — it's a signal about the subset's geom
 
 ---
 
-## §76. The canonical $\mathsf V \leftrightarrow \mathsf D$ coupling operator
+## 9. The canonical $\mathsf V \leftrightarrow \mathsf D$ coupling operator
 
 ### Motivation
 
 Looking at $G_{g,\mathsf{VD}}$ directly still conflates the coupling with $\mathsf V$'s and $\mathsf D$'s own scale within the subset. Both sides need to be whitened first.
 
-### §76.1 Regularized inverse square root
+### 9.1 Regularized inverse square root
 
 For
 
@@ -707,7 +707,7 @@ G_{g,\mathsf{DD}}^{-1/2}
 =E_{D,r}\Lambda_{D,r}^{-1/2}E_{D,r}^\top.
 $$
 
-### §76.2 Definition
+### 9.2 Definition
 
 $$
 \boxed{
@@ -766,7 +766,7 @@ $$
 
 whose maximum is $\sigma_1(R_{VD})=\rho_1$; the remaining singular values follow in order under orthogonality constraints. $\blacksquare$
 
-### §76.3 Canonical modes
+### 9.3 Canonical modes
 
 The $k$-th activity mode's coefficient:
 
@@ -820,7 +820,7 @@ channel.
 
 ---
 
-## §77. The directional explained-variance operator
+## 10. The directional explained-variance operator
 
 ### Definition
 
@@ -847,7 +847,7 @@ G_{g,\mathsf{DD}}^{-1/2}.
 }
 $$
 
-### §77.1 Regression interpretation
+### 10.1 Regression interpretation
 
 Let the subset's activity coordinate matrix be $V_g$ and its direction coordinate matrix be $D_g$. Consider the population linear regression:
 
@@ -889,7 +889,7 @@ $$
 
 can be read as the normalized fraction of the $k$-th canonical directional mode's covariance explained by activity space.
 
-### §77.2 Boundary
+### 10.2 Boundary
 
 "Explained" here means **linear geometric explanation within the same future-label system** — it is not causal explanation, and not point-in-time predictability.
 
@@ -897,9 +897,9 @@ Both $\mathsf V$ and $\mathsf D$ are constructed from future labels, so $H^{D\le
 
 ---
 
-## §78. Coupling quality, rank, and concentration
+## 11. Coupling quality, rank, and concentration
 
-### §78.1 Total normalized coupling
+### 11.1 Total normalized coupling
 
 Define
 
@@ -924,7 +924,7 @@ $$
 
 A large $Q$ means a large fraction of normalized D-space energy has a systematic linear coupling with V-space.
 
-### §78.2 Effective coupling rank
+### 11.2 Effective coupling rank
 
 If $\sum_k\rho_k^2>0$, let
 
@@ -946,7 +946,7 @@ r_{g,\rm eff}^{\mathsf D\leftarrow\mathsf V} =
 }
 $$
 
-### §78.3 Top-$m$ coupling concentration
+### 11.3 Top-$m$ coupling concentration
 
 $$
 \boxed{
@@ -979,13 +979,13 @@ or any similar arbitrary single score. $q_D$, $Q$, rank, and OOS stability each 
 
 ---
 
-## §79. Ticker-level directional and coupling contribution
+## 12. Ticker-level directional and coupling contribution
 
 ### Motivation
 
 An arbitrary subset search has $2^N$ possibilities; directly optimizing $q_D$ or $Q^{D\leftarrow V}$ over that space is guaranteed to overfit. Candidate universes have to come from a pre-specified, low-complexity generator.
 
-### §79.1 The directional contribution operator
+### 12.1 The directional contribution operator
 
 For observation $(i,d)$, let the reference D row be
 
@@ -1031,7 +1031,7 @@ p_i^D =
 }
 $$
 
-### §79.2 Directional shape
+### 12.2 Directional shape
 
 To separate magnitude from shape:
 
@@ -1045,7 +1045,7 @@ $$
 
 $\widetilde K_i^D$ describes *which* horizon combinations a ticker's directional energy lives in, independent of the total amount.
 
-### §79.3 Cross contribution
+### 12.3 Cross contribution
 
 An observation-level V-D outer product can also be defined:
 
@@ -1065,13 +1065,13 @@ Its singular values cannot be treated directly as canonical coupling, since it h
 
 ---
 
-## §80. Multi-universe candidate generation
+## 13. Multi-universe candidate generation
 
 ### Principle
 
-Candidate generation and candidate evaluation must stay separate. The generator only produces a finite, pre-specified family; statistical and OOS validation happen afterward, in §82-84.
+Candidate generation and candidate evaluation must stay separate. The generator only produces a finite, pre-specified family; statistical and OOS validation happen afterward, in Section 15-84.
 
-### §80.1 D-purity / D-energy ladder
+### 13.1 D-purity / D-energy ladder
 
 Rank discovery-period ticker statistics by
 
@@ -1103,7 +1103,7 @@ $$
 
 This line finds D-enriched candidate families.
 
-### §80.2 Directional-shape clustering
+### 13.2 Directional-shape clustering
 
 Using the Frobenius distance between $\widetilde K_i^D$ matrices,
 
@@ -1116,7 +1116,7 @@ cluster with a fixed, pre-specified method (e.g. average linkage or spectral clu
 
 This line finds non-nested universes that differ in their D *shape*.
 
-### §80.3 VD-shape clustering
+### 13.3 VD-shape clustering
 
 Concatenate
 
@@ -1128,7 +1128,7 @@ $$
 
 run discovery-only PCA on the concatenation, then cluster. This produces candidate groups that share similar raw V-D cross-structure.
 
-### §80.4 Hybrid family
+### 13.4 Hybrid family
 
 Within a directional-shape cluster $c$, further split by top fraction of $u_i^D$:
 
@@ -1148,7 +1148,7 @@ Genetic search, beam search, or greedily maximizing evaluation-period $Q$ ticker
 
 ---
 
-## §81. Universe eligibility: the geometric layer
+## 14. Universe eligibility: the geometric layer
 
 Geometric eligibility only defines "worth submitting to statistical validation" — it is not a significance criterion.
 
@@ -1192,15 +1192,15 @@ All thresholds are locked before research begins. Clearing U1-U5 still does not 
 
 ---
 
-## §82. The universe null: is membership actually special?
+## 15. The universe null: is membership actually special?
 
-### §82.1 Null hypothesis
+### 15.1 Null hypothesis
 
 For a fixed candidate $\mathcal S_g$, the null is:
 
 > Under the same dates, the same subset size, and the same pre-locked liquidity/availability strata, random membership can produce $q_D$, $Q^{D\leftarrow V}$, or concentration that is equally or more extreme.
 
-### §82.2 Size-matched stratified membership permutation
+### 15.2 Size-matched stratified membership permutation
 
 For every date $d$:
 
@@ -1219,7 +1219,7 @@ For every date $d$:
 
 You cannot just permute $G_{VD}$ alone, because the canonical normalizers $G_{VV}, G_{DD}$ also change with membership.
 
-### §82.3 Primary test statistics
+### 15.3 Primary test statistics
 
 Report a p-value for at least these three:
 
@@ -1251,7 +1251,7 @@ p_g
 }
 $$
 
-### §82.4 Multiple testing
+### 15.4 Multiple testing
 
 Because multiple universes are evaluated at once, the primary approach uses Westfall-Young max-T: each membership permutation produces the statistic for every candidate at once, then take
 
@@ -1263,7 +1263,7 @@ Family-wise error is then calibrated from the distribution of $M^{(b)}$.
 
 This is especially necessary for a nested ladder, since adjacent universes are highly correlated.
 
-### §82.5 When the candidate generator is itself derived from labels
+### 15.5 When the candidate generator is itself derived from labels
 
 If membership itself was generated from label-derived statistics such as $u_i^D$ or $\widetilde K_i^D$, a fixed-membership null only answers "is this already-chosen set special" — it does not account for search cost.
 
@@ -1276,9 +1276,9 @@ The baseline specification uses approach 1.
 
 ---
 
-## §83. Temporal stability
+## 16. Temporal stability
 
-### §83.1 Moving-block bootstrap
+### 16.1 Moving-block bootstrap
 
 Run a moving-block bootstrap over dates within the evaluation period, with block length
 
@@ -1300,7 +1300,7 @@ r_{eff}^{(b)},
 V_{D,r}^{(b)}.
 $$
 
-### §83.2 Enrichment persistence
+### 16.2 Enrichment persistence
 
 Define:
 
@@ -1311,7 +1311,7 @@ $$
 }
 $$
 
-### §83.3 Coupling persistence
+### 16.3 Coupling persistence
 
 For the top canonical correlation:
 
@@ -1324,7 +1324,7 @@ $$
 
 Also report the median and the 10th/90th percentiles.
 
-### §83.4 Directional-mode stability
+### 16.4 Directional-mode stability
 
 If the top $r$ canonical D modes are retained,
 
@@ -1352,13 +1352,13 @@ Absolute value is used because a singular vector's sign is not identifiable.
 
 ---
 
-## §84. The train / freeze / OOS canonical test
+## 17. The train / freeze / OOS canonical test
 
 ### Motivation
 
 A bootstrap still resamples within the same evaluation-period distribution. The test that actually matters is whether the canonical channel survives on a future period that genuinely did not participate in discovery.
 
-### §84.1 Freeze
+### 17.1 Freeze
 
 On the train window, obtain:
 
@@ -1388,7 +1388,7 @@ b_{g,k}^{train}
 =(G_{DD}^{train})^{-1/2}v_{g,k}^{train}.
 $$
 
-### §84.2 OOS evaluation
+### 17.2 OOS evaluation
 
 On OOS data, only transform the reference $\Phi$ — compute the frozen signals:
 
@@ -1414,7 +1414,7 @@ $$
 
 You may not rerun CCA on OOS data and then report its own top singular value — that would reintroduce selection.
 
-### §84.3 Decay
+### 17.3 Decay
 
 $$
 \boxed{
@@ -1438,13 +1438,13 @@ Because a CCA singular value carries no sign of its own, the implementation must
 
 ---
 
-## §85. Redundancy and retention across multiple universes
+## 18. Redundancy and retention across multiple universes
 
 ### Motivation
 
 Several candidate universes can all pass eligibility simultaneously while really just being different cuts of the same tickers, or the same D mode. Membership redundancy and mechanism redundancy must be kept separate.
 
-### §85.1 Membership overlap
+### 18.1 Membership overlap
 
 Jaccard index:
 
@@ -1458,7 +1458,7 @@ $$
 
 For dynamic universes, report the median-date Jaccard along with p10/p90.
 
-### §85.2 Canonical directional similarity
+### 18.2 Canonical directional similarity
 
 If two universes each retain their top $r_g, r_h$ stable D canonical modes,
 
@@ -1486,7 +1486,7 @@ $$
 S_{gh}^{D}=|v_{g,1}^\top v_{h,1}|^2.
 $$
 
-### §85.3 Retention rule
+### 18.3 Retention rule
 
 A universe is not automatically dropped just for high membership overlap. It is treated as a redundant version within the same universe family only when **both**:
 
@@ -1511,13 +1511,13 @@ This is a lexicographic rule — no arbitrary weighted composite score is built.
 
 ---
 
-## §86. Local refit of an accepted universe
+## 19. Local refit of an accepted universe
 
 ### Motivation
 
 The shared $\Phi_{\mathcal U}$'s role is discovery and cross-universe comparison. Once $\mathcal S_g$ is formally accepted, the downstream feature-label-alpha pipeline should treat it as its own market domain, and rebuild a local basis for it.
 
-### §86.1 The local label basis
+### 19.1 The local label basis
 
 On universe $g$'s own model-training period:
 
@@ -1549,7 +1549,7 @@ $$
 
 not a permanent dependence on the reference $\Phi_{\mathcal U}$.
 
-### §86.2 Reference-to-local diagnostic
+### 19.2 Reference-to-local diagnostic
 
 Restrict the reference basis to the subset and orthonormalize it under $W_g$:
 
@@ -1576,7 +1576,7 @@ $$
 
 $\theta_k$ is the reference-to-local principal angle. It's a diagnostic only, not a universe-selection objective.
 
-### §86.3 Interpretation
+### 19.3 Interpretation
 
 - small angle: the subset's local mechanism space is roughly a reweighting of the full-universe mechanism;
 - large angle: the subset has meaningfully different local label geometry;
@@ -1584,13 +1584,13 @@ $\theta_k$ is the reference-to-local principal angle. It's a diagnostic only, no
 
 ---
 
-## §87. From canonical D modes to feature research
+## 20. From canonical D modes to feature research
 
 ### Motivation
 
 Up to this point, universe geometry has not used any engineered feature at all. An accepted universe's canonical D modes can serve as an explicit target for subsequent feature research, but they cannot replace full mechanism analysis.
 
-### §87.1 The reference canonical target
+### 20.1 The reference canonical target
 
 For universe $g$'s stable top D canonical coefficient $b_{g,1}$:
 
@@ -1603,7 +1603,7 @@ $$
 
 This represents the strongest V-coupled directional combination in this universe.
 
-### §87.2 Feature alignment
+### 20.2 Feature alignment
 
 For a point-in-time feature $x_p$:
 
@@ -1616,7 +1616,7 @@ $$
 
 This must go through the same permutation significance, temporal stability, and OOS decay checks as any other target alignment elsewhere on this site.
 
-### §87.3 The complete downstream pipeline
+### 20.3 The complete downstream pipeline
 
 The canonical target only answers one additional question:
 
@@ -1636,7 +1636,7 @@ fingerprint, stability, breadth, redundancy, coverage, and alpha attribution —
 
 ---
 
-## §88. Beta, demeaning, and the factor-neutral variant
+## 21. Beta, demeaning, and the factor-neutral variant
 
 ### Baseline
 
@@ -1715,13 +1715,13 @@ Strong raw / weak idio means the structure is driven mainly by known common expo
 
 ---
 
-## §89. Cross-sectional breadth and single-ticker dominance
+## 22. Cross-sectional breadth and single-ticker dominance
 
 ### Motivation
 
 A universe's high $q_D$ or high $\rho_1$ might be determined by a tiny handful of names. Cross-sectional breadth has to be checked explicitly.
 
-### §89.1 D-energy contribution
+### 22.1 D-energy contribution
 
 For date $d$:
 
@@ -1756,7 +1756,7 @@ b_{g,d}^{D}
 }
 $$
 
-### §89.2 Canonical-channel breadth
+### 22.2 Canonical-channel breadth
 
 For a frozen canonical pair $(a_g,b_g)$, each observation's coupling contribution is
 
@@ -1785,13 +1785,13 @@ A high $\rho_1$ paired with very low canonical breadth should be flagged as conc
 
 ---
 
-## §90. The dynamic universe
+## 23. The dynamic universe
 
 ### Motivation
 
 If universe membership updates over time, the selection rule must depend only on label history already realized strictly before that point in time.
 
-### §90.1 Rolling ticker operators
+### 23.1 Rolling ticker operators
 
 For ticker $i$:
 
@@ -1809,7 +1809,7 @@ $$
 
 $\omega$ can be a fixed rolling window or exponential decay, and must be locked in advance.
 
-### §90.2 Membership update
+### 23.2 Membership update
 
 $$
 \mathcal S_{g,t}
@@ -1819,7 +1819,7 @@ $$
 
 Update frequency should default to weekly or monthly — not updating membership on every 5-minute bar.
 
-### §90.3 Turnover
+### 23.3 Turnover
 
 Universe turnover:
 
@@ -1834,13 +1834,13 @@ $$
 
 Report median and p90 turnover. High turnover means the universe's identity is itself unstable, and downstream feature training will be affected by distribution drift.
 
-### §90.4 Freeze boundary
+### 23.4 Freeze boundary
 
 The dynamic rule's functional form, window, cluster count, size grid, and thresholds are all frozen once discovery is complete. The evaluation period can update the *statistics*, but it cannot modify the *rule*.
 
 ---
 
-## §91. Universe report format
+## 24. Universe report format
 
 Every candidate — accepted or rejected — gets a row. Only saving the winners is not permitted.
 
@@ -1920,7 +1920,7 @@ Every candidate — accepted or rejected — gets a row. Only saving the winners
 
 ---
 
-## §92. Complete implementation order
+## 25. Complete implementation order
 
 The following can be used directly as a pipeline checklist.
 
@@ -1938,7 +1938,7 @@ The following can be used directly as a pipeline checklist.
 ```text
  4. On the parent universe's discovery period, within-date demean the labels.
  5. Fit Sigma_Y, K_eff, B_Y; transform -> Z.
- 6. Phi_D := Z; build Phi_V, Phi_L; verify Phi^T W_U Phi = I.
+ 6. Phi_D := Z; build Phi_V, Phi_T; verify Phi^T W_U Phi = I.
  7. Freeze the reference fit objects.
 ```
 
@@ -2005,7 +2005,7 @@ The following can be used directly as a pipeline checklist.
 
 ---
 
-## §93. The fit/transform boundary table
+## 26. The fit/transform boundary table
 
 | Object | Fit on | Applied to | Refittable OOS? |
 |---|---|---|---|
@@ -2022,7 +2022,7 @@ The following can be used directly as a pipeline checklist.
 
 ---
 
-## §94. Numerical identity tests
+## 27. Numerical identity tests
 
 All of the following must be automated in the production implementation.
 
@@ -2044,7 +2044,7 @@ All of the following must be automated in the production implementation.
 
 ---
 
-## §95. Synthetic calibration tests
+## 28. Synthetic calibration tests
 
 ### T1: Random membership null
 
@@ -2146,7 +2146,7 @@ Expected: $\rho_1$ can be very high, but canonical breadth drops sharply. This v
 
 ---
 
-## §96. Default operating parameters
+## 29. Default operating parameters
 
 | Parameter | Default | Note |
 |---|---:|---|
@@ -2171,11 +2171,11 @@ Expected: $\rho_1$ can be very high, but canonical breadth drops sharply. This v
 | dynamic update | weekly / monthly | reduces membership churn |
 | numerical $\epsilon$ | $10^{-12}$ | denominator protection |
 
-All of these thresholds are operating/screening parameters, not statistical criteria. Formal significance comes from the §82 null; stability comes from §83-84; actual feature learnability comes from the downstream pipeline starting at §87.
+All of these thresholds are operating/screening parameters, not statistical criteria. Formal significance comes from the Section 15 null; stability comes from Section 16-84; actual feature learnability comes from the downstream pipeline starting at Section 20.
 
 ---
 
-## §97. The four core objects of a universe
+## 30. The four core objects of a universe
 
 For every candidate universe $g$, ultimately only four objects need to be remembered.
 
@@ -2224,7 +2224,7 @@ These four objects are not interchangeable — each answers a question the other
 
 ---
 
-## §98. The parallel structure across universe, feature, and alpha
+## 31. The parallel structure across universe, feature, and alpha
 
 The existing framework, for a signal $s$:
 
@@ -2265,7 +2265,7 @@ $$
 
 ---
 
-## §99. What this chapter can and cannot answer
+## 32. What this chapter can and cannot answer
 
 ### Can answer
 
@@ -2290,7 +2290,7 @@ That last point matters especially: $\Phi_V$ and $\Phi_D$ are both constructed f
 
 ---
 
-## §100. Minimum viable version (MVP)
+## 33. Minimum viable version (MVP)
 
 A first implementation does only the following ten steps:
 

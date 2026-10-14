@@ -27,28 +27,28 @@ version; where it goes further, that's the new material.
 
 | Here | Cross-Sectional Feature Selection series |
 |---|---|
-| §34 Eligibility | Part 1, step B9 (quality floor) — this is the rigorous version: five named criteria with an explicit "why it can't be dropped" for each, not one floor |
-| §35 Mechanism grouping | Part 1, step B9 (mechanism clustering) |
-| §36 Raw redundancy families | Part 1, step B10 |
-| §37 Family representative | Part 1, step B13a-b (Score, Stage 1) |
-| §38 Coverage | Part 1, step B13c — this is where the real gap is: the series states the greedy rule, this section proves it's a certified approximation |
-| §39 Direction-first selection | Part 4 (Protecting Directional Exposure) — the series gives five practitioner levers; this is the single canonical algorithm those levers are informal variations of |
-| §40 Feature report format | Not previously published — the complete field schema for a production feature report |
+| Section 1 Eligibility | Part 1, step B9 (quality floor) — this is the rigorous version: five named criteria with an explicit "why it can't be dropped" for each, not one floor |
+| Section 2 Mechanism grouping | Part 1, step B9 (mechanism clustering) |
+| Section 3 Raw redundancy families | Part 1, step B10 |
+| Section 4 Family representative | Part 1, step B13a-b (Score, Stage 1) |
+| Section 5 Coverage | Part 1, step B13c — this is where the real gap is: the series states the greedy rule, this section proves it's a certified approximation |
+| Section 6 Direction-first selection | Part 4 (Protecting Directional Exposure) — the series gives five practitioner levers; this is the single canonical algorithm those levers are informal variations of |
+| Section 7 Feature report format | Not previously published — the complete field schema for a production feature report |
 
 Three stages, three independent questions, never mixed:
 
-1. **Eligibility (§34)** — is this feature real? A binary determination from
+1. **Eligibility (Section 1)** — is this feature real? A binary determination from
    significance and stability.
-2. **Grouping (§35–§36)** — which features are saying the same thing? A
+2. **Grouping (Section 2–Section 3)** — which features are saying the same thing? A
    descriptive organization for human interpretation.
-3. **Coverage selection (§37–§39)** — which subset should represent the
+3. **Coverage selection (Section 4–Section 6)** — which subset should represent the
    whole? An optimization problem, decided by submodular coverage.
 
 The three must not be conflated. In particular: **grouping does not decide
 selection** — selection is decided entirely by the coverage criterion in
 stage three.
 
-## §34. Eligibility
+## 1. Eligibility
 
 A feature enters selection only if all five of the following hold (for a
 directional research target):
@@ -112,11 +112,11 @@ Westfall–Young adjusted).
 For a volatility-signal research target, replace every $\mathsf D$ with
 $\mathsf V$ and drop E2 (the $\mathsf V$ block has no notion of target
 direction — it isn't a signed directional space). For large-move
-directionality, replace with $\mathsf L$ and keep E2 ($\mathsf L$ *is* a
+directionality, replace with $\mathsf T$ (Tail) and keep E2 ($\mathsf T$ *is* a
 signed directional space; the analogue of $r_{\mathsf D}$ is
-$r_{\mathsf L}=\text{normalize}(\Phi_{\mathsf L}^\top Wy^*)$).
+$r_{\mathsf T}=\text{normalize}(\Phi_{\mathsf T}^\top Wy^*)$).
 
-## §35. Mechanism grouping
+## 2. Mechanism grouping
 
 For the eligible set $\mathcal E$, run **average-linkage** hierarchical
 clustering with distance $1-S^{\mathsf D}_{pq}$, cut at
@@ -149,7 +149,7 @@ If $\zeta\le0$ or $m_{\mathsf D}<4$, the report must carry this note:
 
 This is the norm, not the exception, whenever $r_{\rm sig}\le3$. Grouping
 can still be used for visual organization of the report in that case, but
-every substantive decision is deferred to §38–§39.
+every substantive decision is deferred to Section 5–Section 6.
 
 ### Group structure is itself a library diagnostic
 
@@ -158,12 +158,12 @@ every substantive decision is deferred to §38–§39.
   feature construction — add a new data source rather than more variants of
   the same feature type.
 - A singleton group: that feature carries a unique mechanism, and will
-  automatically get high priority in the §39 coverage selection.
+  automatically get high priority in the Section 6 coverage selection.
 - The largest group exceeds half of $|\mathcal E|$: usually means the
   library is dominated by a single data vendor or a single feature type
   (e.g. everything is price-derived).
 
-## §36. Raw redundancy families
+## 3. Raw redundancy families
 
 **Within** each mechanism group $G_m$, run **complete-linkage** clustering
 on $S^{\rm raw}_{pq}$ (§25), cut at $S^{\rm raw}=0.90$, to get families
@@ -185,7 +185,7 @@ This order is correct because the actual goal is preserving **diversity of
 predictive mechanism**; raw redundancy is only a secondary criterion for
 picking a representative once the mechanism is already shared.
 
-Using complete linkage here (versus average linkage in §35) is deliberate:
+Using complete linkage here (versus average linkage in Section 2) is deliberate:
 raw-redundancy judgments should be conservative — complete linkage requires
 **every** pair within a group to clear the threshold, which avoids merging
 features that are only indirectly related.
@@ -196,7 +196,7 @@ By Rule 4.1, every transform of the same source feature,
 $(p,1),(p,2),\dots$, is **forced into the same raw family**, unless they
 fall into different mechanism groups.
 
-In implementation this is a post-processing step: after §36's clustering,
+In implementation this is a post-processing step: after Section 3's clustering,
 scan each source feature, and if its transforms land in different families
 within the same group, merge those families.
 
@@ -206,7 +206,7 @@ Record each feature's `mechanism_group`, `raw_family`, and the sizes of
 both tiers. If a mechanism group contains 30 features but splits into only
 2 raw families, that mechanism is being severely over-sampled.
 
-## §37. Family representative
+## 4. Family representative
 
 Each raw family $R_{mk}$ selects one representative:
 
@@ -237,7 +237,7 @@ $$Q^{\mathsf D}_p\cdot\pi^{\rm time}_p\cdot\pi^{\rm sign}_p\cdot M^{\rm time}_p\
 
 This has two problems.
 
-**First, it double-counts eligibility.** Anything reaching §37 already
+**First, it double-counts eligibility.** Anything reaching Section 4 already
 satisfies $\pi\ge0.8$ (three terms) and $M\ge0.6$ (two terms). So these
 factors only actually range over $[0.8,1]$ and $[0.6,1]$ respectively — the
 six factors combined can move the product by at most roughly
@@ -262,12 +262,12 @@ each other, pick the one with higher $\tilde b$. The reasoning (§31.3):
 concentration isn't itself a defect, but all else being roughly equal, a
 broad-based signal has better capacity and robustness.
 
-## §38. Coverage
+## 5. Coverage
 
 This section defines two distinct notions of coverage. **They answer
 different questions and are not interchangeable.**
 
-### §38.1 Span coverage (diagnostic only)
+### 5.1 Span coverage (diagnostic only)
 
 $$P^{\mathsf B}_{\mathcal F}=C^{\mathsf B\top}_{\mathcal F}\big(C^{\mathsf B}_{\mathcal F}C^{\mathsf B\top}_{\mathcal F}\big)^+C^{\mathsf B}_{\mathcal F},\qquad\boxed{{\rm Cov}^{\rm span}_{\mathsf B}(\mathcal F)=\frac{\big\|C^{\mathsf B}_{\mathcal E}P^{\mathsf B}_{\mathcal F}\big\|_F^2}{\big\|C^{\mathsf B}_{\mathcal E}\big\|_F^2}\in[0,1],}$$
 
@@ -298,19 +298,19 @@ genuinely distinct, independently worth-keeping mechanisms.
 
 > **Rule 38.1.** ${\rm Cov}^{\rm span}$ is diagnostic-only: it answers
 > "does the selected set span every mechanism direction." It **does not
-> enter** the §39 selection loop.
+> enter** the Section 6 selection loop.
 
 It remains useful diagnostically: if ${\rm Cov}^{\rm span}_{\mathsf D}(\mathcal F)<1$,
 the selected set doesn't even span the $\mathsf D$ space — usually meaning
 every selected feature points at the same horizon combination, which is a
 problem worth investigating.
 
-### §38.2 Feature coverage (selection criterion)
+### 5.2 Feature coverage (selection criterion)
 
 The actual question selection needs to answer is: **does every feature
 worth keeping have a selected representative that's "close enough" to it?**
 
-$$\boxed{{\rm Cov}^{\rm feat}_{\mathsf B}(\mathcal F)=\frac{\sum_{p\in\mathcal E}w_p\max_{j\in\mathcal F}S^{\mathsf B}_{pj}}{\sum_{p\in\mathcal E}w_p},\qquad w_p=\text{Score}_p\ \text{(§37)}.}$$
+$$\boxed{{\rm Cov}^{\rm feat}_{\mathsf B}(\mathcal F)=\frac{\sum_{p\in\mathcal E}w_p\max_{j\in\mathcal F}S^{\mathsf B}_{pj}}{\sum_{p\in\mathcal E}w_p},\qquad w_p=\text{Score}_p\ \text{(Section 4)}.}$$
 
 (By convention $\max_{j\in\varnothing}=0$, and $S^{\mathsf B}_{pp}=1$ when $p\in\mathcal F$.)
 
@@ -319,7 +319,7 @@ means that, weighted by importance, the eligible features' mechanisms have
 on average 0.9 cosine similarity captured by some selected representative
 — corresponding to $0.9^2=81\%$ of mechanism energy.
 
-### §38.3 Theorem 38.3 (submodularity)
+### 5.3 Theorem 38.3 (submodularity)
 
 ${\rm Cov}^{\rm feat}_{\mathsf B}$ is a monotone non-decreasing,
 **submodular** set function.
@@ -350,7 +350,7 @@ This guarantee is ${\rm Cov}^{\rm feat}$'s substantive advantage over
 ${\rm Cov}^{\rm span}$: it turns "greedily add one at a time" from a
 plausible heuristic into something with a formal quality guarantee.
 
-### §38.4 Comparing the two coverage notions
+### 5.4 Comparing the two coverage notions
 
 | | ${\rm Cov}^{\rm span}$ | ${\rm Cov}^{\rm feat}$ |
 |---|---|---|
@@ -360,10 +360,10 @@ plausible heuristic into something with a formal quality guarantee.
 | Submodular | No (matroid-rank type, only monotone) | Yes |
 | Use | Diagnostic | Selection |
 
-## §39. Direction-first selection
+## 6. Direction-first selection
 
 **Step 1: seed.** $\mathcal F\leftarrow\{$the representative $p^*$ of every
-raw family$\}$ (§37).
+raw family$\}$ (Section 4).
 
 **Step 2: directional coverage.** Greedily add from the remaining eligible
 features
@@ -376,12 +376,12 @@ $$\boxed{{\rm Cov}^{\rm feat}_{\mathsf D}(\mathcal F)\ge0.90}$$
 
 or the feature budget $n_{\max}$ is reached.
 
-**Step 3: fill $\mathsf V$ and $\mathsf L$.** If budget remains, repeat step
-2 for the $\mathsf V$ and $\mathsf L$ blocks (using $S^{\mathsf V}$,
-$S^{\mathsf L}$ and their respective Scores), target $0.80$.
+**Step 3: fill $\mathsf V$ and $\mathsf T$.** If budget remains, repeat step
+2 for the $\mathsf V$ and $\mathsf T$ blocks (using $S^{\mathsf V}$,
+$S^{\mathsf T}$ and their respective Scores), target $0.80$.
 
 **Step 4: diagnose.** Compute and record ${\rm Cov}^{\rm span}_{\mathsf D}(\mathcal F)$,
-${\rm Cov}^{\rm span}_{\mathsf V}(\mathcal F)$, ${\rm Cov}^{\rm span}_{\mathsf L}(\mathcal F)$.
+${\rm Cov}^{\rm span}_{\mathsf V}(\mathcal F)$, ${\rm Cov}^{\rm span}_{\mathsf T}(\mathcal F)$.
 If ${\rm Cov}^{\rm span}_{\mathsf D}<1$, examine which direction isn't spanned.
 
 ### Why direction-first
@@ -391,7 +391,7 @@ after — rests on three points:
 
 1. The downstream objective is cross-sectional relative-strength ranking,
    which depends directly on $\mathsf D$.
-2. $\mathsf V$ and $\mathsf L$ information is valuable at the portfolio
+2. $\mathsf V$ and $\mathsf T$ information is valuable at the portfolio
    level (position sizing, risk budgeting, conditional overlays), but
    **cannot substitute for direction.** A portfolio with only $\mathsf V$
    information cannot construct a long-short position.
@@ -417,9 +417,9 @@ If greedy runs through every eligible feature and still hasn't reached
 0.90, the eligible set has genuinely high mechanism diversity — every
 feature carries some part that nothing else represents. In that case,
 record the coverage actually reached and accept it, while checking whether
-$\tau_{\mathsf D}$ (§35) was set too high.
+$\tau_{\mathsf D}$ (Section 2) was set too high.
 
-## §40. Feature report format
+## 7. Feature report format
 
 One row per feature (one row per transform entry $(p,k)$ within a transform
 family):
@@ -438,11 +438,11 @@ family):
 
 | Field | Description |
 |---|---|
-| `Q`, `Q_D`, `Q_V`, `Q_L` | §16 |
-| `Q_full` | $\|c_p^{\rm full}\|^2$ not projected onto $V_r$ (§16, closing note) |
-| `f_D`, `f_V`, `f_L` | Raw fingerprint (§19.1) |
-| `ft_D`, `ft_V`, `ft_L` | Enrichment fingerprint $\tilde f$ (§19.3) |
-| `A_target`, `eta_D` | §21, §22 |
+| `Q`, `Q_D`, `Q_V`, `Q_T` | Section 17 of Feature Predictive Geometry |
+| `Q_full` | $\|c_p^{\rm full}\|^2$ not projected onto $V_r$ (Predictive Geometry Section 17, closing note) |
+| `f_D`, `f_V`, `f_T` | Raw fingerprint (Predictive Geometry Section 20.1) |
+| `ft_D`, `ft_V`, `ft_T` | Enrichment fingerprint $\tilde f$ (Predictive Geometry Section 20.3) |
+| `A_target`, `eta_D` | Predictive Geometry Section 22, Section 23 |
 
 **Significance**
 
@@ -473,10 +473,10 @@ family):
 
 | Field | Description |
 |---|---|
-| `mechanism_group`, `raw_family` | §35, §36 |
-| `is_representative` | §37 |
-| `score` | Score from §37 |
-| `selected` | Final outcome of §39 |
+| `mechanism_group`, `raw_family` | Section 2, Section 3 |
+| `is_representative` | Section 4 |
+| `score` | Score from Section 4 |
+| `selected` | Final outcome of Section 6 |
 | `marginal_cov_gain` | $\Delta{\rm Cov}^{\rm feat}_{\mathsf D}$ at the moment of selection |
 
 **Global fields (one row per run)**

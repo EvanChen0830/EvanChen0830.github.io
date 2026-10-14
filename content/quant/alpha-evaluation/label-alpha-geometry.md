@@ -18,7 +18,7 @@ features into an output, how much of that output is real, what kind of
 prediction is it actually making, and how much of it is genuinely new
 versus a repackaging of what the feature layer already found.
 
-## §41. Model training and leakage control
+## 1. Model training and leakage control
 
 Once feature selection is finished, the model is trained using only
 information available in the training period, producing
@@ -35,7 +35,7 @@ objects in this method are fit on the research period, and every one of
 them can leak:
 
 1. $B_Y$ (label whitening) and $K_{\rm eff}$;
-2. $\Theta_{\mathsf V},\Theta_{\mathsf L},\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DL}},\Gamma_{\mathsf{VL}}$ (orthogonalization coefficients);
+2. $\Theta_{\mathsf V},\Theta_{\mathsf T},\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DT}},\Gamma_{\mathsf{VT}}$ (orthogonalization coefficients);
 3. $V_r$ and $r_{\rm sig}$;
 4. The feature eligibility list;
 5. Mechanism-group and raw-family structure;
@@ -78,7 +78,7 @@ from the same configuration constant in implementation — otherwise the same
 data gets treated by two different leakage standards in two places, and
 that inconsistency is invisible in any report.
 
-## §42. Alpha preprocessing
+## 2. Alpha preprocessing
 
 ### Definition
 
@@ -107,12 +107,12 @@ Standardization is necessary because it's what makes $Q_\alpha$ and $Q_p$
 directly comparable — both become "predictive energy per unit of signal
 variance."
 
-## §43. Representation convention: full / inherited / novel
+## 3. Representation convention: full / inherited / novel
 
 **This section is the foundation for all of Parts 6 and 7.** It defines how
 every signal — feature, alpha, residual — is represented in $\Phi$.
 
-### §43.1 Three vectors
+### 3.1 Three vectors
 
 For any within-date-standardized signal $s$ with $\|s\|_W=1$:
 
@@ -136,7 +136,7 @@ $$Q^{\rm full}_s=Q^{\rm inh}_s+Q^{\rm nov}_s.$$
 *Proof.* $P_V$ and $I-P_V$ are complementary orthogonal projections, so
 $c^{\rm inh}\perp c^{\rm nov}$, and Pythagoras gives the result. $\blacksquare$
 
-### §43.2 Why alpha can't be judged on its projected version alone
+### 3.2 Why alpha can't be judged on its projected version alone
 
 $V_r$'s content is "**the label mechanisms the original feature library can
 see linearly.**" If a nonlinear model learns
@@ -153,12 +153,12 @@ Asking afterward "did the model learn any new predictive structure" is then
 unanswerable on a representation that has already projected the new
 structure away — a logical contradiction.
 
-It's worse for residual alpha (§58): the entire **purpose** of
+It's worse for residual alpha (Section 18): the entire **purpose** of
 $\varepsilon_\alpha=\tilde\alpha-\text{Linear}(X)$ is to find whatever lies
 outside the linear feature span. Projecting it back onto the feature-derived
 subspace negates its own definition.
 
-### §43.3 Novelty fraction
+### 3.3 Novelty fraction
 
 $$\boxed{\nu_s=\frac{Q^{\rm nov}_s}{Q^{\rm full}_s}\in[0,1].}$$
 
@@ -167,7 +167,7 @@ mechanisms the feature library already knows about.
 $\nu_\alpha=0.4$: 40% of the model's predictive geometry sits in directions
 the linear feature analysis couldn't originally see.
 
-### §43.4 Novelty needs null calibration
+### 3.4 Novelty needs null calibration
 
 The exact dimensional effect from fingerprints (§19.2) reappears here, and
 worse.
@@ -202,10 +202,10 @@ only a descriptive quantity for the energy decomposition.
 | $>0.7$ | The model's predictive power mostly comes from directions **outside** known mechanisms |
 
 A high $\tilde\nu$ must always be read alongside the significance test on
-$Q^{\rm nov}_\alpha$ (§46): high $\tilde\nu$ with a non-significant
+$Q^{\rm nov}_\alpha$ (Section 6): high $\tilde\nu$ with a non-significant
 $Q^{\rm nov}$ means the new component is just noise.
 
-### §43.5 Summary table of representation conventions
+### 3.5 Summary table of representation conventions
 
 > **Convention 43.2:**
 > - **Feature-level selection statistics** (§16–§39) use the **projected**
@@ -213,19 +213,19 @@ $Q^{\rm nov}$ means the new component is just noise.
 >   features along statistically validated mechanism directions, and $P_V$
 >   is a necessary denoising step. The report also lists $Q_p^{\rm full}$
 >   for detecting isolated mechanisms.
-> - **Alpha and residuals** (§43–§60) always use $c^{\rm full}$ as the
+> - **Alpha and residuals** (Section 3–Section 20) always use $c^{\rm full}$ as the
 >   primary result, reporting the inherited/novel decomposition and
 >   $\tilde\nu$ alongside it.
-> - **Feature-alpha cross-comparison** (§52) uses $c_p$ and
+> - **Feature-alpha cross-comparison** (Section 12) uses $c_p$ and
 >   $c^{\rm inh}_\alpha$ — both live inside $\operatorname{span}(V_r)$, so
 >   the angle between them is meaningful — while also reporting
 >   $\tilde\nu_\alpha$ to show how much of alpha this comparison actually
 >   covers.
-> - **Target alignment** (§45) uses the $\mathsf D$ component of
+> - **Target alignment** (Section 5) uses the $\mathsf D$ component of
 >   $c^{\rm full}_\alpha$, because the target direction $r_{\mathsf D}$ is
 >   defined in the full $\mathsf D$ space, independent of $V_r$.
 
-### §43.6 The boundary of this decomposition
+### 3.6 The boundary of this decomposition
 
 $Q^{\rm nov}$ measures what's "inside $\operatorname{span}(\Phi)$ but
 outside $\operatorname{span}(V_r)$." **Anything entirely outside
@@ -236,19 +236,19 @@ So the correct statement is:
 
 $$\nu_\alpha\ \text{measures "novelty relative to the feature library," not "absolute novelty."}$$
 
-## §44. Alpha Quality and fingerprint
+## 4. Alpha Quality and fingerprint
 
 ### Definition
 
 $$\boxed{Q_\alpha=Q^{\rm full}_\alpha=\|c^{\rm full}_\alpha\|^2,}$$
 
-with block components $Q^{\mathsf D}_\alpha,Q^{\mathsf V}_\alpha,Q^{\mathsf L}_\alpha$
+with block components $Q^{\mathsf D}_\alpha,Q^{\mathsf V}_\alpha,Q^{\mathsf T}_\alpha$
 also taken from $c^{\rm full}_\alpha$, satisfying the additive identity.
 
-$$\boxed{f_\alpha=\left(\frac{Q^{\mathsf D}_\alpha}{Q_\alpha},\frac{Q^{\mathsf V}_\alpha}{Q_\alpha},\frac{Q^{\mathsf L}_\alpha}{Q_\alpha}\right),}$$
+$$\boxed{f_\alpha=\left(\frac{Q^{\mathsf D}_\alpha}{Q_\alpha},\frac{Q^{\mathsf V}_\alpha}{Q_\alpha},\frac{Q^{\mathsf T}_\alpha}{Q_\alpha}\right),}$$
 
 along with the enrichment version $\tilde f_\alpha$ (§19.3, null baseline
-from the alpha permutation in §46).
+from the alpha permutation in Section 6).
 
 ### $\tilde f_\alpha$ is the single most important diagnostic
 
@@ -259,7 +259,7 @@ all: **what kind of predictive power does this model have?**
 |---|---|---|
 | $\mathsf D$ | Model predicts direction | Can directly build a long-short ranking position |
 | $\mathsf V$ | Model predicts activity | A long-short ranking becomes a long-gamma position — entirely different return character |
-| $\mathsf L$ | Model predicts direction during large moves | Needs conditional position sizing; exposure should be reduced in calm periods |
+| $\mathsf T$ | Model predicts direction during large moves (tail regime) | Needs conditional position sizing; exposure should be reduced in calm periods |
 
 A model with $\tilde f_\alpha=(0.2,0.7,0.1)$ can look fine on traditional IC
 (because volatility correlates with return skew, leaking a positive rank
@@ -279,7 +279,7 @@ combining features, which is itself a conclusion. Typical values: best
 single feature $Q^{\mathsf D}_p\approx5\times10^{-4}$ (IC 0.022), a good
 model $Q^{\mathsf D}_\alpha\approx2\times10^{-3}$ (IC 0.045).
 
-## §45. Alpha target alignment
+## 5. Alpha target alignment
 
 ### Definition
 
@@ -307,11 +307,11 @@ is to re-weight the training target's horizons to match $a$.
 ---
 
 Continues directly from
-[§41–45](#41-model-training-and-leakage-control),
+[Section 1–45](#41-model-training-and-leakage-control),
 which defines $c^{\rm full}_\alpha$, $Q_\alpha$, $f_\alpha$, and the
 inherited/novel decomposition used throughout this post.
 
-## §46. Alpha significance
+## 6. Alpha significance
 
 ### Specification
 
@@ -322,7 +322,7 @@ $\{c^{\rm full,null}_{\alpha,b}\}$.
 
 From this, compute all six p-values:
 
-$$p^{\rm full}_\alpha,\quad p^{\mathsf D}_\alpha,\quad p^{\mathsf V}_\alpha,\quad p^{\mathsf L}_\alpha,\quad p^{\rm tgt}_\alpha\ \big((A^{\rm tgt}_\alpha)^2\big),\quad p^{\rm nov}_\alpha\ \big(Q^{\rm nov}_\alpha\big).$$
+$$p^{\rm full}_\alpha,\quad p^{\mathsf D}_\alpha,\quad p^{\mathsf V}_\alpha,\quad p^{\mathsf T}_\alpha,\quad p^{\rm tgt}_\alpha\ \big((A^{\rm tgt}_\alpha)^2\big),\quad p^{\rm nov}_\alpha\ \big(Q^{\rm nov}_\alpha\big).$$
 
 Testing $Q^{\rm nov}_\alpha$ **requires $V_r$ to be independent of the
 evaluation data** (the §15 split specification) — otherwise the direction
@@ -348,7 +348,7 @@ hyperparameter combinations and reports the best one has an effective
 significance level one to two orders of magnitude worse than the nominal
 one.
 
-## §47. Alpha signal breadth
+## 7. Alpha signal breadth
 
 ### Definition
 
@@ -374,7 +374,7 @@ As in §31, the null baseline is not 1. If $\tilde\alpha$ is approximately
 cross-sectionally normal, $b^{\rm sig}\to2/\pi\approx0.637$ (a single normal
 quantity, not a product of two).
 
-## §48. Alpha predictive breadth
+## 8. Alpha predictive breadth
 
 ### Definition
 
@@ -400,7 +400,7 @@ directly fixable problem: applying a position cap or a score threshold to
 names contributing near-zero predictive power can cut cost and turnover
 substantially with almost no return given up.
 
-## §49. Traditional IC must still be reported
+## 9. Traditional IC must still be reported
 
 ### Specification
 
@@ -438,7 +438,7 @@ The $IC_d$ series is highly autocorrelated (overlapping label windows), so
 $ICIR\cdot\sqrt{T}$ is **not** a valid t-statistic. If IC significance is
 needed, use the same §13 permutation set, not a closed-form formula.
 
-## §50. Feature and alpha must be compared in the same OOS window
+## 10. Feature and alpha must be compared in the same OOS window
 
 ### Specification
 
@@ -447,7 +447,7 @@ For the OOS period, using the **same** $\Phi_{\rm OOS}$ (obtained via the
 
 $$\boxed{c_p^{\rm OOS}=\left[\frac1{T_{\rm OOS}}\sum_{d}\frac1{N_d}X^{\rm OOS\top}_{d,p}\Phi^{\rm OOS}_d\right],\qquad c_\alpha^{\rm OOS}=\tilde\alpha^{\rm OOS\top}W_{\rm OOS}\Phi^{\rm OOS}.}$$
 
-Every feature-alpha comparison (§51–§53) must use these two OOS
+Every feature-alpha comparison (Section 11–Section 13) must use these two OOS
 representations.
 
 ### Why this rule is non-negotiable
@@ -478,7 +478,7 @@ If model performance has degraded and $M^{\rm OOS}_p$ is broadly low, the
 problem is in the features, not the model. This distinction is decisive for
 where to direct further research.
 
-## §51. Feature–alpha layer one: raw output exposure
+## 11. Feature–alpha layer one: raw output exposure
 
 ### Definition
 
@@ -500,9 +500,9 @@ Its uses:
   exposure regardless of the model's predictive mechanism.
 
 $\rho^{\rm rank}$ and the next layer ask **different questions** and must
-not be conflated (§53).
+not be conflated (Section 13).
 
-## §52. Feature–alpha layer two: mechanism inheritance
+## 12. Feature–alpha layer two: mechanism inheritance
 
 ### Definition
 
@@ -561,10 +561,10 @@ Note that by Proposition 38.2, once $|\mathcal F|\ge K$ with linearly
 independent mechanism vectors, $\chi_\alpha\equiv1$ — so $\chi_\alpha$ is
 only informative when $|\mathcal F|\lt K$ or the mechanism vectors are
 degenerate. This is exactly why "what did the model inherit" ultimately has
-to be answered by the linear surrogate of §54–§57, not by geometric
+to be answered by the linear surrogate of Section 14–Section 17, not by geometric
 projection alone.
 
-## §53. Joint interpretation of layers one and two
+## 13. Joint interpretation of layers one and two
 
 $\rho^{\rm rank}_{p,\alpha}$ (output similarity) and $A^{\mathsf D}_{p,\alpha}$
 (mechanism similarity) form a $2\times2$:
@@ -572,24 +572,24 @@ $\rho^{\rm rank}_{p,\alpha}$ (output similarity) and $A^{\mathsf D}_{p,\alpha}$
 | | $A^{\mathsf D}$ high | $A^{\mathsf D}$ low |
 |---|---|---|
 | $\rho^{\rm rank}$ high | **Model ≈ a monotone transform of this feature.** Check whether the model is just wrapping a single feature; if so, its complexity isn't earning its keep. | **Output looks similar, mechanism doesn't.** Usually means $\rho$ is propped up by shared cross-sectional structure (industry, market cap) while the actual predictive content differs. Recompute $\rho$ after controlling for known exposures. |
-| $\rho^{\rm rank}$ low | **Same mechanism, different output.** The most valuable case: the model reaches the same predictive mechanism by a different route (different name weighting, different nonlinearity), possibly with better noise or cost characteristics. | **The two are unrelated.** If this holds for every feature and $\tilde\nu_\alpha$ is also high, the model's predictive power comes from outside the library — proceed to the residual analysis of §58. |
+| $\rho^{\rm rank}$ low | **Same mechanism, different output.** The most valuable case: the model reaches the same predictive mechanism by a different route (different name weighting, different nonlinearity), possibly with better noise or cost characteristics. | **The two are unrelated.** If this holds for every feature and $\tilde\nu_\alpha$ is also high, the model's predictive power comes from outside the library — proceed to the residual analysis of Section 18. |
 
 The bottom-left cell deserves special note. Its typical cause: the model
 learned to "only use feature $p$ under certain conditions." Output ranking
 then differs from $X_p$ (the model doesn't bet when the condition isn't
 met), but the predictive mechanism is the same (it predicts the same thing
 when the condition is met). Models like this often have a better
-$b^{\rm pred}/b^{\rm sig}$ ratio (§48) — a case where complexity genuinely
+$b^{\rm pred}/b^{\rm sig}$ ratio (Section 8) — a case where complexity genuinely
 earns value.
 
 ---
 
 Continues from
-[§46–53](#46-alpha-significance).
+[Section 6–53](#46-alpha-significance).
 
-## §54. The third-layer problem
+## 14. The third-layer problem
 
-The first two layers (§51 output similarity, §52 mechanism similarity) are
+The first two layers (Section 11 output similarity, Section 12 mechanism similarity) are
 both geometric, correlational. Neither can answer the question that
 actually matters:
 
@@ -605,7 +605,7 @@ So the third layer's design is: build an OOS linear surrogate, measure how
 much of the model it reconstructs, and analyze whether **the part it
 couldn't reconstruct** has any predictive power.
 
-## §55. Walk-forward linear surrogate
+## 15. Walk-forward linear surrogate
 
 ### Specification
 
@@ -637,7 +637,7 @@ was too strict, or the model's actual inputs don't match the selected set
 
 **(b) Standardization.** $X$ uses the §4.1-processed $X^{XS}$ (already
 within-date standardized and globally normalized), consistent with the rest
-of the pipeline. $\tilde\alpha$ uses the §42 version. Standardizing again
+of the pipeline. $\tilde\alpha$ uses the Section 2 version. Standardizing again
 inside the surrogate fit is **not allowed** — it would break the
 correspondence between $R^2$'s scale and $Q$'s scale.
 
@@ -665,10 +665,10 @@ small amount of bias for a large reduction in variance, giving a more
 stable answer to "can this be reconstructed."
 
 Note the surrogate's purpose is **not** to estimate each feature's
-contribution (that's §57's job), but to estimate **the reconstructible
+contribution (that's Section 17's job), but to estimate **the reconstructible
 fraction**. The coefficients themselves are not interpreted.
 
-## §56. Reconstruction metrics
+## 16. Reconstruction metrics
 
 ### Definition
 
@@ -704,7 +704,7 @@ This should not be read as "the model is highly nonlinear" — first check
 the surrogate's implementation ($\lambda$ too small, leakage or
 discontinuity in the fold split).
 
-## §57. Which feature families reconstruct alpha
+## 17. Which feature families reconstruct alpha
 
 ### Specification
 
@@ -756,7 +756,7 @@ Cost is $2^G$ surrogate fits — about 1000 at $G=10$, practically
 affordable. Shapley values resolve the masking problem above and give the
 cleanest attribution, but don't scale to large $G$.
 
-## §58. Residual alpha
+## 18. Residual alpha
 
 ### Definition
 
@@ -773,11 +773,11 @@ $$s^2_\varepsilon=\|\varepsilon_\alpha\|_W^2=1-R^2_{\rm lin,OOS}.$$
 
 **Standardized residual signal:** within-date standardize $\varepsilon_\alpha$
 and globally normalize, giving $\tilde\varepsilon_\alpha$ with
-$\|\tilde\varepsilon_\alpha\|_W=1$, then compute per §43
+$\|\tilde\varepsilon_\alpha\|_W=1$, then compute per Section 3
 
 $$c^{\rm full}_\varepsilon=\tilde\varepsilon_\alpha^\top W\Phi,\qquad c^{\rm inh}_\varepsilon=c^{\rm full}_\varepsilon P_V,\qquad c^{\rm nov}_\varepsilon=c^{\rm full}_\varepsilon(I-P_V),$$
 
-$$Q_\varepsilon=\|c^{\rm full}_\varepsilon\|^2,\quad Q^{\mathsf D}_\varepsilon,\ Q^{\mathsf V}_\varepsilon,\ Q^{\mathsf L}_\varepsilon,\quad A^{\rm tgt}_\varepsilon,\ \eta^{\mathsf D}_\varepsilon,\quad\tilde\nu_\varepsilon.$$
+$$Q_\varepsilon=\|c^{\rm full}_\varepsilon\|^2,\quad Q^{\mathsf D}_\varepsilon,\ Q^{\mathsf V}_\varepsilon,\ Q^{\mathsf T}_\varepsilon,\quad A^{\rm tgt}_\varepsilon,\ \eta^{\mathsf D}_\varepsilon,\quad\tilde\nu_\varepsilon.$$
 
 ### Why $Q_\varepsilon$ must be computed after standardizing
 
@@ -829,11 +829,11 @@ $\tilde\nu_\varepsilon$ answers the second.
 ---
 
 Continues from
-[§54–58](#54-the-third-layer-problem),
+[Section 14–58](#54-the-third-layer-problem),
 which defines $R^2_{\rm lin,OOS}$, $\rho^{\rm rank}_{\rm lin}$, and
 $Q_\varepsilon$/$\tilde\nu_\varepsilon$ used throughout this post.
 
-## §59. How the three layers relate logically
+## 19. How the three layers relate logically
 
 $$\underbrace{\rho^{\rm rank}_{p,\alpha}}_{\text{layer 1: output}}\ \longrightarrow\ \underbrace{A^{\mathsf D}_{p,\alpha},\ \tilde\nu_\alpha}_{\text{layer 2: mechanism}}\ \longrightarrow\ \underbrace{R^2_{\rm lin},\ Q_\varepsilon,\ \tilde\nu_\varepsilon}_{\text{layer 3: beyond-linear structure}}$$
 
@@ -850,12 +850,12 @@ The three layers **tighten progressively**:
 layer three: $R^2_{\rm lin}=0.3$ gets read as "the model is highly
 nonlinear and valuable." But if $Q_\varepsilon$ isn't significant, that 70%
 unreconstructed part is just noise, and the model is in fact *worse* than
-the surrogate (§60, Case C).
+the surrogate (Section 20, Case C).
 
 Another common mistake is looking only at layer two: $A^{\mathsf D}_{p,\alpha}=0.95$
 gets read as "the model simply learned feature $p$," ignoring that
 $\tilde\nu_\alpha$ might be high (most of the model's geometry isn't even
-inside $V_r$) and the coincidence effect of low-dimensional spaces (§52(b)).
+inside $V_r$) and the coincidence effect of low-dimensional spaces (Section 12(b)).
 
 ### Two entirely different meanings of "nonlinear"
 
@@ -869,7 +869,7 @@ inputs" — automatically true for any tree model or neural network, and
 carries no information. The second is what we actually want to know:
 **did that nonlinearity buy any new predictive power.**
 
-## §60. Five diagnostic cases
+## 20. Five diagnostic cases
 
 The following five cases cover the large majority of model diagnostic
 conclusions encountered in practice.
@@ -900,7 +900,7 @@ positive directional predictive value toward the intended target; it
 mostly sits in a re-weighting of known mechanisms (since $\tilde\nu_\varepsilon$
 isn't high).
 
-**Action:** deploy the original model. Then use the §57 family attribution
+**Action:** deploy the original model. Then use the Section 17 family attribution
 and conditional analysis to try to understand the *form* of this nonlinear
 structure — if it can be understood (e.g. "the model only uses momentum
 features on high-volatility days"), it can often be hard-coded as a new
@@ -939,7 +939,7 @@ predictive mechanism, and the family also makes a substantial independent
 contribution to alpha's linear reconstruction. This is strong evidence "the
 model is using this mechanism."
 
-**Necessary verification (§52(b)):** $A^{\mathsf D}=0.92$ alone isn't rare
+**Necessary verification (Section 12(b)):** $A^{\mathsf D}=0.92$ alone isn't rare
 at $m_{\mathsf D}=3$. This conclusion only holds if three conditions are
 met: (i) the gap to the runner-up is significant; (ii) it exceeds the 95th
 percentile of the null distribution of $\max_p|A^{\mathsf D}_{p,\alpha}|$;
@@ -972,7 +972,7 @@ Required follow-up verification:
 Step 4 is the ultimate purpose of this method's design: **make whatever a
 model discovers systematically recoverable.**
 
-## §61. Model report
+## 21. Model report
 
 One row per model × horizon band.
 
@@ -980,19 +980,19 @@ One row per model × horizon band.
 
 | Field | Description |
 |---|---|
-| `Q_alpha_full`, `Q_alpha_D/V/L` | §44 |
-| `Q_alpha_inh`, `Q_alpha_nov` | §43.1 |
+| `Q_alpha_full`, `Q_alpha_D/V/L` | Section 4 |
+| `Q_alpha_inh`, `Q_alpha_nov` | Section 3.1 |
 | `f_alpha_D/V/L` | Raw fingerprint |
 | `ft_alpha_D/V/L` | Enrichment fingerprint |
-| `nu_alpha`, `nu_tilde_alpha` | §43.3, §43.4 |
-| `A_target_alpha`, `eta_D_alpha` | §45 |
+| `nu_alpha`, `nu_tilde_alpha` | Section 3.3, Section 3.4 |
+| `A_target_alpha`, `eta_D_alpha` | Section 5 |
 
 **Significance**
 
 | Field | Description |
 |---|---|
-| `p_alpha_full`, `p_alpha_D/V/L` | §46 |
-| `p_alpha_target`, `p_alpha_nov` | §46 |
+| `p_alpha_full`, `p_alpha_D/V/L` | Section 6 |
+| `p_alpha_target`, `p_alpha_nov` | Section 6 |
 | `n_model_variants_evaluated` | Rule 46.1 |
 | `holdout_used_count` | Rule 41.1 |
 
@@ -1000,30 +1000,30 @@ One row per model × horizon band.
 
 | Field | Description |
 |---|---|
-| `b_signal_med` | §47 |
-| `b_pred_med`, `b_pred_D_med` | §48 |
-| `b_pred/b_signal` | §48's key ratio |
+| `b_signal_med` | Section 7 |
+| `b_pred_med`, `b_pred_D_med` | Section 8 |
+| `b_pred/b_signal` | Section 8's key ratio |
 | `R_cancel_alpha`, `R_tilde_alpha` | §32 applied to alpha |
 
 **Traditional metrics**
 
 | Field | Description |
 |---|---|
-| `IC_mean`, `IC_median`, `IC_hit_rate`, `ICIR` | §49 |
+| `IC_mean`, `IC_median`, `IC_hit_rate`, `ICIR` | Section 9 |
 
 **Linear surrogate and residual**
 
 | Field | Description |
 |---|---|
-| `R2_lin_selected`, `R2_lin_library` | §55(a) |
-| `rho_rank_lin` | §56 |
-| `lambda_by_fold` | §55(d) |
-| `s2_resid` ($=1-R^2$) | §58 |
-| `Q_resid`, `Q_resid_D/V/L` | §58 (post-standardization) |
-| `Q_resid_abs` ($=s^2_\varepsilon Q_\varepsilon$) | §58 |
-| `A_target_resid`, `eta_D_resid` | §58 |
-| `nu_tilde_resid` | §58 |
-| `p_resid_D`, `p_resid_nov` | §58 |
+| `R2_lin_selected`, `R2_lin_library` | Section 15(a) |
+| `rho_rank_lin` | Section 16 |
+| `lambda_by_fold` | Section 15(d) |
+| `s2_resid` ($=1-R^2$) | Section 18 |
+| `Q_resid`, `Q_resid_D/V/L` | Section 18 (post-standardization) |
+| `Q_resid_abs` ($=s^2_\varepsilon Q_\varepsilon$) | Section 18 |
+| `A_target_resid`, `eta_D_resid` | Section 18 |
+| `nu_tilde_resid` | Section 18 |
+| `p_resid_D`, `p_resid_nov` | Section 18 |
 
 **Coordinate-system health**
 
@@ -1031,26 +1031,26 @@ One row per model × horizon band.
 |---|---|
 | `delta_drift`, `delta_D/V/L` | §10 |
 | `T_eff_D`, `T_eff_V` (OOS period) | §3 |
-| `diagnosis_case` | A–E from §60 |
+| `diagnosis_case` | A–E from Section 20 |
 
-## §62. Feature–alpha report
+## 22. Feature–alpha report
 
-One row per selected feature (all computed in the same OOS window, §50):
+One row per selected feature (all computed in the same OOS window, Section 10):
 
 | Field | Description |
 |---|---|
-| `rho_rank_p_alpha`, `rho_lin_p_alpha` | §51 |
-| `A_mech_p_alpha`, `S_mech_p_alpha` | §52 |
-| `A_D_p_alpha` | §52 (primary field for directional research) |
+| `rho_rank_p_alpha`, `rho_lin_p_alpha` | Section 11 |
+| `A_mech_p_alpha`, `S_mech_p_alpha` | Section 12 |
+| `A_D_p_alpha` | Section 12 (primary field for directional research) |
 | `A_D_rank` | Rank among all selected features |
 | `A_D_gap_to_next` | Gap to the runner-up |
 | `A_D_null_q95` | 95th percentile of $\max_p|A^{\mathsf D}_{p,\alpha}|$ under the null |
-| `delta_R2_family` | §57(a) |
-| `R2_own_family` | §57(b) |
-| `M_OOS_p` | Feature mechanism OOS stability from §50 |
+| `delta_R2_family` | Section 17(a) |
+| `R2_own_family` | Section 17(b) |
+| `M_OOS_p` | Feature mechanism OOS stability from Section 10 |
 | `Q_p_OOS`, `A_target_p_OOS` | Feature representation in the OOS period |
 | `Q_decay` ($=Q_p^{\rm OOS}/Q_p^{\mathcal E}$) | Feature decay |
-| `cell_2x2` | The four-cell classification from §53 |
+| `cell_2x2` | The four-cell classification from Section 13 |
 
 **Global fields:** $\tilde\nu_\alpha$, $\chi_\alpha$, $m_{\mathsf D}$ (a
 reminder of the dimensional limit), and the OOS window's start/end dates.
@@ -1066,7 +1066,7 @@ checklist, a boundary table, a validation-test suite, and a default
 parameter table meant to be checked against directly, not read start to
 end.
 
-## §63. Complete execution order
+## 23. Complete execution order
 
 The following order is complete and can be used directly as an
 implementation checklist. Bracketed references point to the relevant
@@ -1077,7 +1077,7 @@ sections.
 ```text
  0. Lock the configuration: band definition (cumulative/incremental),
     target weight a, Delta = H_max + l_X, split ratios, B_null / B_time /
-    B_XS, every threshold                                    [§6,§13,§20,§66]
+    B_XS, every threshold                                    [§6,§13,§20,Section 26]
  1. Align by (time, ticker) key; verify the point-in-time contract  [§2]
  2. Split discovery D and evaluation E, with a purge gap of Delta   [§15.2]
  3. Feature preprocessing: winsorize -> within-date standardize
@@ -1094,8 +1094,8 @@ sections.
     and cond(Sigma_Y)                                              [§7.1,§7.2]
  8. B_Y -> Z; verify Z^T W Z = I holds exactly                      [§7.3,§7.4]
  9. Phi_D := Z (no orthogonalization)                               [§9.2]
-10. G_V, G_L -> within-date centering -> Gram-Schmidt -> Phi         [§8.1,§9.3]
-11. Store B_Y, Theta_V, Theta_L, Gamma_DV, Gamma_DL, Gamma_VL        [§10]
+10. G_V, G_T -> within-date centering -> Gram-Schmidt -> Phi         [Feature Evaluation §8.1, §9.3]
+11. Store B_Y, Theta_V, Theta_T, Gamma_DV, Gamma_DT, Gamma_VT        [Feature Evaluation §10]
 12. Compute T_eff^D, T_eff^V                                        [§3.1]
 13. C_D; permutation null (common shift, matched thinning,
     intersection re-standardization)                               [§11,§13]
@@ -1107,7 +1107,7 @@ sections.
 
 ```text
 16. Transform the label basis onto E; compute delta_drift(D->E)     [§10]
-17. C_E -> c_p = C_E V_r V_r^T -> Q, Q_D, Q_V, Q_L, Q_full           [§15.2,§16]
+17. C_E -> c_p = C_E V_r V_r^T -> Q, Q_D, Q_V, Q_T, Q_full           [§15.2,§16]
 18. kappa_p; decide whether each feature uses the N1 or N2 null     [§13.4]
 19. Permutation on E -> raw p-values -> Westfall-Young adjustment   [§18]
 20. Fingerprint f and enrichment f_tilde                            [§19]
@@ -1139,23 +1139,23 @@ sections.
 
 ```text
 33. Train the model (purge + embargo = Delta; the selected set must
-    not contain test information)                                   [§41]
-34. Within-date standardize alpha + global normalization             [§42]
+    not contain test information)                                   [Section 1]
+34. Within-date standardize alpha + global normalization             [Section 2]
 35. OOS: transform Phi; record delta_drift                           [§10]
 36. c_alpha^full -> inherited/novel decomposition; Q, f, f_tilde,
-    nu_tilde                                                         [§43,§44]
-37. A_target_alpha, eta_D_alpha                                      [§45]
-38. Alpha permutation -> p_full, p_D/V/L, p_target, p_nov             [§46]
-39. b_signal, b_pred; IC / ICIR                                       [§47,§48,§49]
-40. Recompute c_p^OOS in the same OOS window; M_OOS_p; Q_decay        [§50]
-41. rho_rank; A^D_{p,alpha} + null max quantile; 2x2 interpretation   [§51,§52,§53]
+    nu_tilde                                                         [Section 3,Section 4]
+37. A_target_alpha, eta_D_alpha                                      [Section 5]
+38. Alpha permutation -> p_full, p_D/V/L, p_target, p_nov             [Section 6]
+39. b_signal, b_pred; IC / ICIR                                       [Section 7,Section 8,Section 9]
+40. Recompute c_p^OOS in the same OOS window; M_OOS_p; Q_decay        [Section 10]
+41. rho_rank; A^D_{p,alpha} + null max quantile; 2x2 interpretation   [Section 11,Section 12,Section 13]
 42. Walk-forward ridge surrogate -> R2_selected, R2_library,
-    rho_rank_lin                                                      [§55,§56]
-43. Family attribution: delta_R2 and R2_own                           [§57]
+    rho_rank_lin                                                      [Section 15,Section 16]
+43. Family attribution: delta_R2 and R2_own                           [Section 17]
 44. Residual: s2_resid, Q_resid (post-standardization), Q_resid_abs,
-    nu_tilde_resid, p_resid                                           [§58]
-45. Determine Case A-E                                                [§60]
-46. Output the model report and feature-alpha report                  [§61,§62]
+    nu_tilde_resid, p_resid                                           [Section 18]
+45. Determine Case A-E                                                [Section 20]
+46. Output the model report and feature-alpha report                  [Section 21,Section 22]
 ```
 
 **Stage 5 (optional): production refit**
@@ -1165,7 +1165,7 @@ sections.
     only. No new decisions may be made after refitting.               [§15.4]
 ```
 
-## §64. Fit/transform boundary table
+## 24. Fit/transform boundary table
 
 The table below lists every fitted object, what data it's fit on, and how
 it's applied. Violating any row constitutes a leak.
@@ -1177,14 +1177,14 @@ it's applied. Violating any row constitutes a leak.
 | Global normalization $\|X_p\|_W$ | $\mathcal D$ | The entire period | §4.1 |
 | $\Sigma_Y$, $K_{\rm eff}$, $B_Y$ | $\mathcal D$ | The entire period | §7 |
 | Within-date centering of $G_\bullet$ | Computed per period | The current period | §8.1 |
-| $\Theta_{\mathsf V},\Theta_{\mathsf L},\Gamma_\bullet$ | $\mathcal D$ | The entire period | §9 |
+| $\Theta_{\mathsf V},\Theta_{\mathsf T},\Gamma_\bullet$ | $\mathcal D$ | The entire period | §9 |
 | $r_{\rm sig}$, $V_r$ | $\mathcal D$ | The entire period | §14, §15 |
 | $r_{\mathsf D}$ | $\mathcal D$ (or $\mathcal E$, must be consistent and logged) | The entire period | §20 |
 | Eligibility list | $\mathcal E$ | Model input | §34 |
 | Grouping / families | $\mathcal E$ | Model input | §35, §36 |
 | Selected set | $\mathcal E$ | Model input | §39 |
-| Model parameters | $\subseteq\mathcal D\cup\mathcal E$, strictly before OOS | OOS | §41 |
-| Surrogate $\hat\beta_k,\lambda_k$ | Each fold's train | That fold's test | §55 |
+| Model parameters | $\subseteq\mathcal D\cup\mathcal E$, strictly before OOS | OOS | Section 1 |
+| Surrogate $\hat\beta_k,\lambda_k$ | Each fold's train | That fold's test | Section 15 |
 
 ### Vectors across folds cannot be averaged directly
 
@@ -1209,13 +1209,13 @@ There are three things you can actually do:
    an "average mechanism vector," at the cost of introducing an arbitrary
    choice of reference fold.
 
-## §65. Numerical validation
+## 25. Numerical validation
 
 Split into two groups: **identity tests** (verify the implementation is
 correct) and **calibration tests** (verify the statistics are valid). Both
 groups must pass.
 
-### §65.1 Identity tests
+### 25.1 Identity tests
 
 | Test | Criterion |
 |---|---|
@@ -1225,7 +1225,7 @@ groups must pass.
 | Exact whitening | $\|Z^\top WZ-I\|_F<10^{-10}$ (**must hold exactly**, see Proposition 7.1) |
 | Basis orthogonality | $\|\Phi^\top W\Phi-I\|_F<10^{-6}$ (in-sample) |
 | $C$ computed two ways agrees | Direct long-form vs. $\frac1T\sum_dC^{(d)}$ |
-| Quality additivity | $Q_p=Q_p^{\mathsf D}+Q_p^{\mathsf V}+Q_p^{\mathsf L}$ |
+| Quality additivity | $Q_p=Q_p^{\mathsf D}+Q_p^{\mathsf V}+Q_p^{\mathsf T}$ |
 | Novelty additivity | $Q^{\rm full}_s=Q^{\rm inh}_s+Q^{\rm nov}_s$ |
 | Efficiency bound | $0\le\eta^{\mathsf D}\le1+\epsilon$ |
 | Sign flip | $X_q=-X_p\Rightarrow S^{\rm mech}_{pq}=1,\ A^{\rm mech}_{pq}=-1$ |
@@ -1237,7 +1237,7 @@ Note the quality-additivity test is **tautologically true** (Proposition
 implementation slicing bugs. What actually verifies orthogonality is the
 exact-whitening and basis-orthogonality tests.
 
-### §65.2 Calibration tests
+### 25.2 Calibration tests
 
 Run on synthetic data. This group is the direct evidence for whether
 statistical conclusions can be trusted.
@@ -1281,7 +1281,7 @@ numerical error ($10^{-10}$ relative).
 Criterion: $\tilde\nu_\alpha\approx0.5$; $p^{\rm nov}_\alpha$ uniform.
 
 (Cross-check: raw $\nu_\alpha$ should be close to $(d_\Phi-r_{\rm sig})/d_\Phi$,
-verifying §43.4.)
+verifying Section 3.4.)
 
 **T6 Breadth/cancellation calibration.** Pure-noise feature.
 
@@ -1324,7 +1324,7 @@ Criterion: N1's (circular shift) p-value visibly deviates from uniform
 permutation) p-value is uniform. This contrast validates the necessity of
 the dual-null design.
 
-### §65.3 Acceptance criteria
+### 25.3 Acceptance criteria
 
 > An implementation's output should not be trusted for any significance
 > conclusion until **T1, T2, T3, T4, and T5** all pass. T1 validates the
@@ -1333,7 +1333,7 @@ the dual-null design.
 > is well-defined. Together these five cover every part of the method that
 > can systematically change a conclusion.
 
-## §66. Default parameters
+## 26. Default parameters
 
 | Parameter | Default | Section |
 |---|---:|---|
@@ -1345,7 +1345,7 @@ the dual-null design.
 | $\tau_\lambda$ (eigenvalue bootstrap relative SE ceiling) | 0.25 | §7.2 |
 | $\epsilon_{\rm rank}$ ($\operatorname{orth}_W$ numerical cutoff) | $10^{-10}$ | §9.1 |
 | Discovery/evaluation ratio | 60/40 | §15.2 |
-| $\Delta$ (minimum permutation shift = purge gap) | $H_{\max}+\ell_X$ | §13.2, §41 |
+| $\Delta$ (minimum permutation shift = purge gap) | $H_{\max}+\ell_X$ | §13.2, Section 1 |
 | $\rho_{\min}$ (minimum intersection ratio) | 0.90 | §13.3 |
 | $R_{\rm thin}$ (matched thinning repeats) | 5 | §13.3 |
 | $\kappa_p$ threshold (switch to N2 null) | 0.50 | §13.4 |
@@ -1362,7 +1362,7 @@ the dual-null design.
 | $M$ threshold (two terms) | 0.60 | §34 |
 | Breadth warning | $\tilde b<0.5$ / $\tilde b^{\rm p10}<0.2$ | §31.3 |
 | ${\rm Cov}^{\rm feat}_{\mathsf D}$ target | 0.90 | §39 |
-| ${\rm Cov}^{\rm feat}_{\mathsf V},{\rm Cov}^{\rm feat}_{\mathsf L}$ target | 0.80 | §39 |
+| ${\rm Cov}^{\rm feat}_{\mathsf V},{\rm Cov}^{\rm feat}_{\mathsf T}$ target | 0.80 | §39 |
 | $m_{\mathsf D}$ warning threshold | $<4$ → grouping has no discriminative power | §23.4 |
 | $\delta_{\rm drift}$ warning threshold | $>0.3$ | §10 |
 | $T_{\rm eff}/T$ warning threshold | $<0.1$ | §3.1 |
@@ -1370,13 +1370,13 @@ the dual-null design.
 
 **These thresholds are operational filtering parameters, not statistical
 criteria.** Statistical significance is always determined by permutation
-(§14, §18, §46). The thresholds exist to filter out features that are
+(§14, §18, Section 6). The thresholds exist to filter out features that are
 "significant but unusable"; their values can be adjusted for the research
 target, but **must be locked and logged before research begins** — adjusting
 thresholds after the fact until results look good is a form of overfitting
 this method cannot detect.
 
-## §67. The unified representation
+## 27. The unified representation
 
 ### One object
 
@@ -1390,7 +1390,7 @@ off:
 
 $$\begin{aligned}
 &Q_s=\|c^{\rm full}_s\|^2 && \text{strength}\\
-&\big(Q^{\mathsf D}_s,Q^{\mathsf V}_s,Q^{\mathsf L}_s\big) && \text{mechanism decomposition}\\
+&\big(Q^{\mathsf D}_s,Q^{\mathsf V}_s,Q^{\mathsf T}_s\big) && \text{mechanism decomposition}\\
 &\tilde f_s && \text{mechanism fingerprint (dimension-calibrated)}\\
 &A^{\rm tgt}_s=\big(c^{{\rm full},\mathsf D}_s\big)^\top r_{\mathsf D} && \text{direction}\\
 &\eta^{\mathsf D}_s && \text{target precision}\\
@@ -1485,9 +1485,9 @@ So the correct statement of this method is:
 
 This distinction matters especially when the final model is itself
 nonlinear: the model may use a transform the transform family doesn't
-cover, in which case §52's mechanism-inheritance analysis will
-underestimate the degree of inheritance, and §58's residual analysis will
-classify it as a "new mechanism." Step 4 of Case E's verification in §60
+cover, in which case Section 12's mechanism-inheritance analysis will
+underestimate the degree of inheritance, and Section 18's residual analysis will
+classify it as a "new mechanism." Step 4 of Case E's verification in Section 20
 (trying to construct a new feature that captures that direction) exists
 precisely to distinguish these two situations.
 
@@ -1511,7 +1511,7 @@ stock-level predictive power," not "there is predictive power."
 
 Fully addressed in §3: diagnosed via $T_{\rm eff}$. The practical
 consequence is that $Q$ is not immune to market regime, especially for the
-$\mathsf V$ and $\mathsf L$ blocks (whose contribution scales like
+$\mathsf V$ and $\mathsf T$ blocks (whose contribution scales like
 $\sim\|z\|^2$).
 
 ### A.5 Discriminative power of a low-dimensional mechanism space
@@ -1521,7 +1521,7 @@ two features the same mechanism" cannot be answered by the angle between
 them alone. This method's design therefore bases selection on a coverage
 criterion (§38.2) rather than pairwise thresholds, but **descriptive**
 conclusions like "the model inherited feature $p$" are still bound by this
-limit, and only hold up when paired with §52's null quantile and §57's
+limit, and only hold up when paired with Section 12's null quantile and Section 17's
 linear attribution.
 
 ### A.6 Association is not causation
@@ -1570,12 +1570,12 @@ capacity analysis.
 | $R^2_{\rm lin}$ low but $Q_\varepsilon$ not significant | The nonlinearity is pure cost (Case C) | Strengthen regularization or fall back to the surrogate |
 | $R^2_{\rm lin,library}\gg R^2_{\rm lin,selected}$ | The model is using information outside the selected set | Check whether the model's actual inputs match `selected` |
 | $\Delta R^2_g\approx0$ but $R^2_{g,\rm own}$ high | Masked by another family | Either one alone suffices, but you can't drop both |
-| $A^{\mathsf D}_{p,\alpha}=0.92$ with the top five close together | Inevitable in a low-dimensional space, not inheritance | Needs the null max quantile and §57 support together |
+| $A^{\mathsf D}_{p,\alpha}=0.92$ with the top five close together | Inevitable in a low-dimensional space, not inheritance | Needs the null max quantile and Section 17 support together |
 | $\tilde\nu_\varepsilon>0.7$ and $p^{\rm nov}_\varepsilon<0.05$ | Possibly a new mechanism (Case E) | Four-step verification; the ultimate goal is building a new feature that captures it |
 
 ---
 
 *Every definition, formula, default, and report field in this book forms
-one self-consistent specification. §65's identity tests and calibration
+one self-consistent specification. Section 25's identity tests and calibration
 tests are the acceptance criteria: no significance conclusion should be
 trusted until all five core calibration tests (T1–T5) pass.*

@@ -16,13 +16,15 @@ aliases:
   - "/quant/model/diffusion-book-part-8-evaluation/"
   - "/quant/model/diffusion-book-part-9-using-the-distribution/"
   - "/quant/model/diffusion-book-part-10-checklist-and-reference/"
+  - "/quant/model/diffusion-models-for-statistical-arbitrage/"
 ---
 
-This book is an implementation guide to learning the joint distribution of
-multi-ticker, multi-horizon returns: model structure, tensor shapes,
-training, guidance, sampling, evaluation, and how to use the samples. For a
-shorter conceptual introduction, start with
-[Diffusion Models for Statistical Arbitrage](/quant/model/diffusion-models-for-statistical-arbitrage/).
+This guide is an end-to-end implementation reference for learning the joint
+conditional distribution of multi-ticker, multi-horizon returns: model
+structure, tensor shapes, training objectives, guidance, fast sampling,
+distributional evaluation, and portfolio construction.
+
+{{< pipeline highlight="model,alpha,alpha-evaluation" >}}
 
 {{< figkey >}}
 
@@ -597,6 +599,33 @@ Once you have the joint distribution there is a lot to extract. Mean and median 
 2. Which tickers and horizons should be considered together?
 3. Which statistic, transformation, grouping or objective represents that property?
 4. How will I compare its usefulness with realized outcomes?
+
+### Live applications: where distribution shapes matter
+
+**Market making.** A single ticker has labels at multiple horizons, and
+those horizon-specific predicted distributions don't have to agree. When
+the short-horizon prediction moves against the long-horizon trend, the
+honest response is to widen spreads and lean on inventory reversion rather
+than take a view. When short- and long-horizon predictions agree, that's a
+reason to shift weight from pure market-making toward directional skew —
+and when only the short horizon carries a sharp, confident shape, that can
+justify a direct directional take sized to that horizon alone. The point
+is that the *joint* shape across horizons — not any single-horizon point
+forecast — determines which of these regimes you're in.
+
+**Cross-equity co-movement.** The same joint-distribution idea extends
+across tickers: modeling $[\text{label}_A, \text{label}_B]$ together rather
+than independently exposes co-movement structure directly in the sample
+distribution, without a separate correlation-estimation step bolted on
+afterward.
+
+**Connection to the broader pipeline.** The distributional output doesn't
+replace the [direction / activity / tail](/overview/) decomposition used
+elsewhere in this framework — it subsumes it. A learned distribution's
+first moment is the direction signal, its dispersion and co-movement
+structure is the activity signal, and its tail mass is the tail signal:
+three separate diagnostics bolted onto a point prediction elsewhere become
+three different slices of one object you can inspect directly.
 
 ## 10. Checklist and Reference
 
