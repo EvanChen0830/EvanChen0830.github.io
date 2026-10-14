@@ -143,7 +143,7 @@ can actually look at here.
 The full derivation — model structure, tensor shapes, label preprocessing,
 training objective weighting across diffusion steps, classifier-free and
 auto-guidance, fast samplers, and the complete evaluation and checklist — is
-written up in the 10-part companion series:
+written up in the companion implementation guide:
 
-**[Diffusion models for stat-arb: an implementation book →](/quant/model/diffusion-book-part-1-the-idea/)**
+**[Diffusion models for stat-arb: an implementation guide →](/quant/model/diffusion-statarb-implementation-guide/)**
 

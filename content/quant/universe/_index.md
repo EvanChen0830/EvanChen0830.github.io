@@ -6,7 +6,7 @@ description: "Universe discovery as its own geometric research layer, before fea
 {{< pipeline highlight="universe" >}}
 
 Picking a universe by industry, market cap, or liquidity treats it as an
-exogenous setting. The series below treats the universe itself as an
+exogenous setting. The guide below treats the universe itself as an
 analyzable geometric object: for any candidate sub-universe, does
 restricting to it concentrate directional label structure into a low-rank
 channel that's actually stable out of sample — before any feature or model

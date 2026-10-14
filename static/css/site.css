@@ -49,6 +49,10 @@ nav.toc a:hover{color:var(--ink); background:var(--surface)}
 nav.toc a.on{color:var(--ink); background:var(--surface); box-shadow:inset 3px 0 0 var(--feat); font-weight:600}
 nav.toc .sub{padding-left:14px; margin-top:2px; border-left:1px solid var(--rule)}
 nav.toc .sub a{font-size:14px; padding:4px 8px}
+nav.toc #TableOfContents > ul{display:flex; flex-direction:column; gap:2px}
+nav.toc #TableOfContents ul ul{padding-left:12px; margin-top:2px; border-left:1px solid var(--rule); display:flex; flex-direction:column; gap:2px}
+nav.toc #TableOfContents ul ul a{font-size:13.5px; padding:3px 8px}
+nav.toc #TableOfContents a{white-space:normal}
 .n{font-variant-numeric:tabular-nums; color:var(--muted); min-width:1.4em; flex:none}
 nav.toc .back{font-size:13px; color:var(--muted); text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:-6px}
 nav.toc .back:hover{color:var(--ink)}

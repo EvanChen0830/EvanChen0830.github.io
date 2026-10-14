@@ -6,30 +6,15 @@
     </button>
   </div>
 
-  {{- $seriesNames := .Params.series }}
-  {{- if $seriesNames }}
-  {{- $name := index $seriesNames 0 }}
-  {{- $pages := where site.RegularPages "Params.series" "intersect" $seriesNames }}
-  {{- $pages = $pages.ByParam "part" }}
+  {{- if and .IsPage (gt (len .TableOfContents) 40) }}
   <a class="back" href="{{ .CurrentSection.RelPermalink }}">&larr; {{ .CurrentSection.Title }}</a>
-  <div class="group">
-    <p class="group-label">{{ $name }}</p>
-    <ol>
-      {{- range $pages }}
-      {{- /* Chapter label: explicit linkTitle wins; otherwise drop the
-             "Series Name, Part N: " prefix since the number is already shown. */}}
-      {{- $label := .LinkTitle }}
-      {{- if not .Params.linkTitle }}{{ $label = replaceRE `^.*?Part \d+:\s*` "" $label }}{{ end }}
-      <li><a href="{{ .RelPermalink }}" class="{{ if eq .RelPermalink $.RelPermalink }}on{{ end }}">
-        <span class="n">{{ .Params.part }}</span><span>{{ $label }}</span>
-      </a></li>
-      {{- end }}
-    </ol>
+  <div class="group toc-page">
+    <p class="group-label">Contents</p>
+    {{ .TableOfContents }}
   </div>
-  {{- else }}
+  {{- end }}
 
   {{- $cur := .RelPermalink }}
-  {{- $isOn := partial "is-active.html" (dict "cur" $cur "url" "/overview/") }}
   <div class="group">
     <ol>
       <li><a href="{{ "/overview/" | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" "/overview/") }}on{{ end }}">Overview</a></li>
@@ -61,5 +46,4 @@
       <li><a href="{{ "/about/" | absURL }}" class="{{ if eq $cur "/about/" }}on{{ end }}">About</a></li>
     </ol>
   </div>
-  {{- end }}
 </nav>

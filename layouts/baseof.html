@@ -28,6 +28,24 @@
     root.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
   });
+
+  // Table of Contents active-link highlighting on scroll
+  var tocLinks = Array.from(document.querySelectorAll("#TableOfContents a"));
+  if (!tocLinks.length || !("IntersectionObserver" in window)) return;
+  var targets = tocLinks.map(function(a){
+    var href = a.getAttribute("href");
+    return href && href.startsWith("#") ? document.querySelector(href) : null;
+  }).filter(Boolean);
+  if (!targets.length) return;
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        var idx = targets.indexOf(entry.target);
+        tocLinks.forEach(function(l, i){ l.classList.toggle("on", i === idx); });
+      }
+    });
+  }, { rootMargin: "-10% 0px -75% 0px" });
+  targets.forEach(function(t){ observer.observe(t); });
 })();
 </script>
 </body>

@@ -9,8 +9,8 @@ TocOpen: true
 ---
 
 This post is the formal counterpart to the
-[Cross-Sectional Feature Selection](/quant/feature-evaluation/part-1-setup-and-matrix-mechanics/)
-series. That series is an implementation guide: it states the selection
+[Cross-Sectional Feature Selection](/quant/feature-evaluation/cross-sectional-feature-selection/)
+guide. That guide is an implementation reference: it states the selection
 procedure (eligibility floor, mechanism clustering, redundancy families,
 coverage-based greedy fill, direction-first budget protection) at the level
 a practitioner needs to build it. What follows is the formal specification

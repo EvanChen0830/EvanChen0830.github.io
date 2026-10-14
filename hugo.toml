@@ -34,6 +34,11 @@ buildExpired = false
     lineNos = false
     style = "monokai"
 
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 2
+    ordered = false
+
   [markup.goldmark]
     [markup.goldmark.renderer]
       # Keep false: LaTeX math routinely contains bare "<" (e.g. subscripts

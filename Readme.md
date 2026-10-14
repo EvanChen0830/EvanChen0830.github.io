@@ -137,23 +137,12 @@ actually hurt; for real access control, gate the page at the edge instead
 (e.g. Cloudflare Access or a Cloudflare Pages Function checking a password
 before the page is ever served).
 
-### Multi-part series
+### Long-form articles and Table of Contents
 
-To turn a long write-up into a linked, sidebar-navigated series (like
-`content/quant/universe/part-1-*.md` through `part-7-*.md`), give each post
-a shared `series` name and a `part` number in front matter:
+Long write-ups are organized as unified, comprehensive guides (e.g., `multi-sub-universe-directional-coupling-geometry.md`, `cross-sectional-predictive-geometry.md`, `diffusion-statarb-implementation-guide.md`).
 
-```yaml
-series: ["My Series Name"]
-part: 1
-```
+`layouts/partials/sidebar.html` automatically detects long articles and renders a sticky, scroll-spy Table of Contents (`Contents`) with quick-jump links and a "&larr; back to section" button, while preserving site-wide navigation below it.
 
-That's it — no shortcode needed. `layouts/partials/sidebar.html` detects the
-`series` param and automatically renders the chapter list (ordered by
-`part`, current chapter highlighted) in place of the normal site nav,
-with a "&larr; back to section" link above it. A `{{< series name="..." >}}`
-shortcode still exists for older content that calls it, but it's a no-op by
-design (the sidebar replaced it) — don't add new calls to it.
 
 ### Drafts / source material
 
