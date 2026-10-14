@@ -16,15 +16,9 @@
 
   {{- $cur := .RelPermalink }}
   <div class="group">
+    <p class="group-label">Quant</p>
     <ol>
-      <li><a href="{{ "/overview/" | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" "/overview/") }}on{{ end }}">Overview</a></li>
-    </ol>
-  </div>
-
-  <div class="group">
-    <p class="group-label">Quant Research</p>
-    <ol>
-      <li><a href="{{ "/quant/" | absURL }}" class="{{ if eq $cur "/quant/" }}on{{ end }}">Quant (overview)</a></li>
+      <li><a href="{{ "/overview/" | absURL }}" class="{{ if or (eq $cur "/quant/") (partial "is-active.html" (dict "cur" $cur "url" "/overview/")) }}on{{ end }}">Overview</a></li>
       {{- range site.Data.pipeline.stages }}
       {{- $url := printf "/quant/%s/" .slug }}
       <li><a href="{{ $url | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" $url) }}on{{ end }}">{{ .label }}</a></li>
@@ -33,8 +27,15 @@
   </div>
 
   <div class="group">
+    <p class="group-label">Machine Learning</p>
     <ol>
-      <li><a href="{{ "/machine-learning/" | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" "/machine-learning/") }}on{{ end }}">Machine Learning</a></li>
+      <li><a href="{{ "/machine-learning/" | absURL }}" class="{{ if eq $cur "/machine-learning/" }}on{{ end }}">Overview</a></li>
+      {{- $mlSection := site.GetPage "section" "machine-learning" }}
+      {{- with $mlSection }}
+        {{- range .Pages }}
+        <li><a href="{{ .RelPermalink }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" .RelPermalink) }}on{{ end }}">{{ .Title }}</a></li>
+        {{- end }}
+      {{- end }}
     </ol>
   </div>
 
