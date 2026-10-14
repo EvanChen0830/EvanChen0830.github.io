@@ -1,35 +1,6 @@
 {{ define "main" }}
-<div class="home-hero">
+<article class="content home-hero">
   <h1>{{ .Title }}</h1>
   {{ .Content }}
-</div>
-
-<div class="home-sections">
-  {{- $cards := slice (dict "url" "/overview/" "title" "Overview" "desc" "Mindset and the shape of the pipeline.") }}
-  {{- range site.Data.pipeline.stages }}
-  {{- $cards = $cards | append (dict "url" (printf "/quant/%s/" .slug) "title" .label "desc" .desc) }}
-  {{- end }}
-  {{- $cards = $cards | append (dict "url" "/machine-learning/" "title" "Machine Learning" "desc" "General ML notes, not specific to the quant pipeline.") }}
-  {{- range $cards }}
-  <a href="{{ .url | absURL }}">
-    <p class="home-section-title">{{ .title }}</p>
-    <p class="home-section-desc">{{ .desc }}</p>
-  </a>
-  {{- end }}
-</div>
-
-{{ $recent := where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{ $recent = first 8 $recent }}
-{{ if $recent }}
-<h2>Recent</h2>
-<div class="entry-list">
-  {{- range $recent }}
-  <a class="entry" href="{{ .RelPermalink }}">
-    <p class="entry-title">{{ .Title }}</p>
-    {{- with .Description }}<p class="entry-desc">{{ . }}</p>{{ end }}
-    <p class="entry-meta">{{- if not .Date.IsZero }}<span>{{ .Date.Format "Jan 2, 2006" }}</span>{{ end }}</p>
-  </a>
-  {{- end }}
-</div>
-{{ end }}
+</article>
 {{ end }}

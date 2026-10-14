@@ -1,21 +1,21 @@
 ---
 title: "About"
-description: "About Evan Chen, quantitative research methodology, and machine learning notebook."
+description: "About Tsung-Yu (Evan) Chen, Quantitative Researcher at Vatic Labs."
 ---
 
-I'm **Evan Chen**. I work on quantitative research and machine learning — feature engineering, geometric signal selection, deep generative models, and portfolio construction.
+I'm **Tsung-Yu (Evan) Chen**, a **Quantitative Researcher** at **Vatic Labs** based in Abu Dhabi. My work focuses on statistical arbitrage, deep generative modeling, and algorithmic trading systems.
 
-I write this site to keep a public, permanent record of the methodology and experiments behind that work. Most posts here are end-to-end implementation guides: the formal mathematics, worked tensor shapes, reproducible code examples, and the rationale behind design choices — written so a future version of me (or anyone else) can pick the method back up without re-deriving proofs or guessing hyperparameters from scratch.
+I maintain this website to keep a permanent, open record of the methodology and experiments behind my work. Most write-ups here are end-to-end implementation guides: the formal mathematics, worked tensor shapes, reproducible code specifications, and the rationale behind architectural design choices.
 
-### Research Focus
+### Experience & Education
 
-- **Cross-Sectional Quantitative Pipelines**  
-  Point-in-time universe geometry, orthogonal mechanism decomposition ($\Phi_{\mathsf D}, \Phi_{\mathsf V}, \Phi_{\mathsf T}$), permutation null calibration (circular date shifts, matched thinning), submodular coverage-based feature selection, and residual alpha evaluation.
-
-- **Generative Diffusion & Deep Learning**  
-  Continuous conditional diffusion models for learning joint multi-asset, multi-horizon return distributions $p(Y \mid X)$, Transformer denoiser architectures for cross-sectional panels, fast sampling, and binned likelihood scoring.
+- **Vatic Labs** — Quantitative Researcher *(Present)*  
+  Researching and developing quantitative trading strategies, statistical arbitrage pipelines, and deep generative architectures for financial time series.
+- **National Tsing Hua University (NTHU)** — M.S. *(2019 – 2021)*  
+- **WorldQuant Global Alphathon 2022** — 3rd Prize (Stage 2 Taiwan Region), Top 29 globally out of 1,022 teams.
 
 ### Connect
 
+- **LinkedIn**: [linkedin.com/in/tsung-yu-chen-a2512a166](https://www.linkedin.com/in/tsung-yu-chen-a2512a166/)
 - **GitHub**: [github.com/EvanChen0830](https://github.com/EvanChen0830)
 - **Email**: [evan.chen.gpt@gmail.com](mailto:evan.chen.gpt@gmail.com)
