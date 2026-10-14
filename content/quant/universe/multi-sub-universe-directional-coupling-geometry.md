@@ -671,6 +671,10 @@ This is not a basis-construction error — it's a signal about the subset's geom
 
 ## 9. The canonical $\mathsf V \leftrightarrow \mathsf D$ coupling operator
 
+{{< svgfig src="universe/fig-universe-coupling.svg" >}}
+**Figure 1.** The sub-universe restriction Gram operator and canonical directional-volatility coupling. Restricting the parent universe basis $\Phi$ to candidate universe $\mathcal U$ reveals diagonal energy enrichment ($G_{\mathsf{DD}}, G_{\mathsf{VV}}$) and cross-block structural coupling ($G_{\mathsf{VD}}$), whose canonical singular modes are calibrated against stratified membership permutations.
+{{< /svgfig >}}
+
 ### Motivation
 
 Looking at $G_{g,\mathsf{VD}}$ directly still conflates the coupling with $\mathsf V$'s and $\mathsf D$'s own scale within the subset. Both sides need to be whitened first.

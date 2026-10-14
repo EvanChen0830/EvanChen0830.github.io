@@ -48,6 +48,10 @@ The three must not be conflated. In particular: **grouping does not decide
 selection** — selection is decided entirely by the coverage criterion in
 stage three.
 
+{{< svgfig src="feature-eval/fig-selection-bridge.svg" >}}
+**Figure 1.** The three-stage selection pipeline. Candidate features first pass multi-criterion statistical eligibility gates, are clustered into interpretable mechanism groups using directional similarity, and are then selected through direction-first greedy coverage with mechanism diversity quotas.
+{{< /svgfig >}}
+
 ## 1. Eligibility
 
 A feature enters selection only if all five of the following hold (for a

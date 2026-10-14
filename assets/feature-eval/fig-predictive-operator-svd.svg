@@ -1,0 +1,73 @@
+<svg viewBox="0 0 880 330" style="min-width:760px" role="img" aria-label="Predictive Operator, SVD Truncation and Significant Subspace" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mf2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" class="ah"/>
+  </marker>
+</defs>
+
+<!-- Left: Input Matrices -->
+<rect x="20" y="35" width="130" height="110" rx="6" class="bx feat"/>
+<text x="85" y="65" class="t hd" text-anchor="middle">Features  X</text>
+<text x="85" y="90" class="tm" text-anchor="middle">[L, P]</text>
+<text x="85" y="115" class="ts mute" text-anchor="middle">demeaned, unit-norm</text>
+
+<rect x="20" y="170" width="130" height="110" rx="6" class="bx label"/>
+<text x="85" y="200" class="t hd" text-anchor="middle">Basis  Φ</text>
+<text x="85" y="225" class="tm" text-anchor="middle">[L, d_Φ]</text>
+<text x="85" y="250" class="ts mute" text-anchor="middle">Φᵀ W Φ = I</text>
+
+<!-- Contraction operator -->
+<line x1="150" y1="90" x2="200" y2="140" class="ar" marker-end="url(#mf2)"/>
+<line x1="150" y1="225" x2="200" y2="175" class="ar" marker-end="url(#mf2)"/>
+
+<!-- Center-Left: Predictive Operator C -->
+<rect x="205" y="105" width="150" height="100" rx="8" class="bx plain"/>
+<text x="280" y="135" class="t hd" text-anchor="middle">Predictive Matrix</text>
+<text x="280" y="160" class="tm" text-anchor="middle">C = Xᵀ W Φ</text>
+<text x="280" y="185" class="ts mute" text-anchor="middle">shape: [P, d_Φ]</text>
+
+<line x1="355" y1="155" x2="400" y2="155" class="ar" marker-end="url(#mf2)"/>
+
+<!-- Center: SVD & Null Spectrum Plot -->
+<rect x="405" y="30" width="220" height="250" rx="8" class="bx plain"/>
+<text x="515" y="55" class="t hd" text-anchor="middle">SVD &amp; Permutation Null</text>
+<text x="515" y="75" class="tm" text-anchor="middle">C = U S Vᵀ</text>
+
+<!-- Mini Eigenspectrum Chart -->
+<line x1="430" y1="220" x2="595" y2="220" class="gridl"/>
+<line x1="430" y1="90" x2="430" y2="220" class="gridl"/>
+
+<!-- Real singular values (steep drop) -->
+<polyline points="440,105 460,120 480,145 500,180 520,205 540,212 560,215 580,217" class="ln feat-s" fill="none"/>
+<!-- Null singular values (flat noise floor) -->
+<polyline points="440,165 460,172 480,180 500,188 520,195 540,202 560,208 580,212" class="ln dash mute" fill="none"/>
+
+<!-- Truncation cut line -->
+<line x1="490" y1="95" x2="490" y2="220" class="real"/>
+<text x="490" y="90" class="ts guide-t" text-anchor="middle">r_sig cutoff</text>
+
+<text x="560" y="125" class="ts feat-s" text-anchor="start">signal</text>
+<text x="560" y="175" class="ts mute" text-anchor="start">null floor</text>
+<text x="515" y="245" class="ts mute" text-anchor="middle">Retain V_r ∈ ℝ^(d × r_sig)</text>
+
+<line x1="625" y1="155" x2="670" y2="155" class="ar" marker-end="url(#mf2)"/>
+
+<!-- Right: Evaluated Signals & Decisions -->
+<rect x="675" y="45" width="185" height="225" rx="8" class="bx guide"/>
+<text x="767" y="75" class="t hd" text-anchor="middle">Feature Output</text>
+
+<rect x="690" y="95" width="155" height="45" rx="5" class="bx plain"/>
+<text x="767" y="115" class="ts" text-anchor="middle">Quality (Signal Energy)</text>
+<text x="767" y="130" class="tm" text-anchor="middle">Q_p = ||c_p||²</text>
+
+<rect x="690" y="150" width="155" height="45" rx="5" class="bx plain"/>
+<text x="767" y="170" class="ts" text-anchor="middle">Fingerprint Vector</text>
+<text x="767" y="185" class="tm" text-anchor="middle">f_p = (f_D, f_V, f_T)</text>
+
+<rect x="690" y="205" width="155" height="45" rx="5" class="bx plain"/>
+<text x="767" y="223" class="ts" text-anchor="middle">Target Alignment</text>
+<text x="767" y="238" class="tm" text-anchor="middle">A_p^tgt = cos(c_p^D, r_D)</text>
+
+<!-- Bottom caption note -->
+<text x="440" y="312" class="ts mute" text-anchor="middle">Circular date-permutation breaks time synchrony while preserving cross-sectional correlation, isolating genuine predictive modes from noise.</text>
+</svg>

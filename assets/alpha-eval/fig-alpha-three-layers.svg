@@ -1,0 +1,56 @@
+<svg viewBox="0 0 880 330" style="min-width:760px" role="img" aria-label="The Three-Layer Feature-Alpha Dissection and Residual Alpha" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mf4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" class="ah"/>
+  </marker>
+</defs>
+
+<!-- Left: Alpha Signal -->
+<rect x="20" y="110" width="150" height="110" rx="8" class="bx label"/>
+<text x="95" y="140" class="t hd" text-anchor="middle">Trained Alpha</text>
+<text x="95" y="165" class="tm" text-anchor="middle">α ∈ ℝ^L</text>
+<text x="95" y="185" class="ts mute" text-anchor="middle">Standardized model</text>
+<text x="95" y="202" class="ts mute" text-anchor="middle">forecasts</text>
+
+<!-- Connectors from Alpha to 3 Layers -->
+<path d="M170,145 C205,145 205,65 235,65" class="ar" marker-end="url(#mf4)"/>
+<path d="M170,165 L235,165" class="ar" marker-end="url(#mf4)"/>
+<path d="M170,185 C205,185 205,255 235,255" class="ar" marker-end="url(#mf4)"/>
+
+<!-- Layer 1: Raw Output Exposure -->
+<rect x="240" y="25" width="310" height="80" rx="8" class="bx feat"/>
+<text x="255" y="50" class="t hd" text-anchor="start">Layer 1: Raw Output Exposure</text>
+<text x="255" y="70" class="tm" text-anchor="start">Corr(α, X_p)  or  α ≈ Σ β_p X_p</text>
+<text x="255" y="90" class="ts mute" text-anchor="start">Surface-level linear correlation with raw input features</text>
+
+<!-- Layer 2: Mechanism Inheritance -->
+<rect x="240" y="125" width="310" height="80" rx="8" class="bx ticker"/>
+<text x="255" y="150" class="t hd" text-anchor="start">Layer 2: Mechanism Inheritance</text>
+<text x="255" y="170" class="tm" text-anchor="start">c_α = αᵀ W Φ,   c_α^proj = Proj_ℱ(c_α)</text>
+<text x="255" y="190" class="ts mute" text-anchor="start">Measures whether alpha predicts through the same basis vectors</text>
+
+<!-- Layer 3: Residual Alpha & Surrogate -->
+<rect x="240" y="225" width="310" height="80" rx="8" class="bx guide"/>
+<text x="255" y="250" class="t hd" text-anchor="start">Layer 3: Walk-Forward Surrogate &amp; Residual</text>
+<text x="255" y="270" class="tm" text-anchor="start">α̂ = Σ β̂_p^OOS X_p  →  ε_α = α − α̂</text>
+<text x="255" y="290" class="ts mute" text-anchor="start">Subtracts best linear feature combination out-of-sample</text>
+
+<!-- Connector to Decision Box -->
+<line x1="550" y1="265" x2="615" y2="265" class="ar" marker-end="url(#mf4)"/>
+
+<!-- Right: Truly Novel Signal Evaluation -->
+<rect x="620" y="75" width="240" height="200" rx="8" class="bx plain"/>
+<text x="740" y="105" class="t hd" text-anchor="middle">Novelty Diagnostic</text>
+<rect x="635" y="120" width="210" height="65" rx="5" class="bx guide"/>
+<text x="740" y="142" class="ts" text-anchor="middle">Residual Quality &amp; Significance</text>
+<text x="740" y="160" class="tm guide-t" text-anchor="middle">Q_ε = ||c_ε||²,   p_nov &lt; 0.05</text>
+<text x="740" y="176" class="ts mute" text-anchor="middle">Is residual predictive under null?</text>
+
+<rect x="635" y="195" width="210" height="65" rx="5" class="bx plain"/>
+<text x="740" y="217" class="ts" text-anchor="middle">Novelty Fraction</text>
+<text x="740" y="235" class="tm" text-anchor="middle">ν_α = Q_nov / Q_α</text>
+<text x="740" y="250" class="ts mute" text-anchor="middle">High ν_α = genuinely new signal</text>
+
+<!-- Bottom Annotation -->
+<text x="440" y="318" class="ts mute" text-anchor="middle">Disentangles genuine machine-learned non-linear alpha from repackaged linear factor exposure.</text>
+</svg>

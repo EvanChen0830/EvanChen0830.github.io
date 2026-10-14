@@ -837,11 +837,15 @@ This table is the reason the whole method exists: under ordinary rank IC
 these three contaminate each other; in this coordinate system they are
 strictly separated.
 
+{{< svgfig src="feature-eval/fig-mechanism-blocks.svg" >}}
+**Figure 1.** The three predictive-mechanism blocks and hierarchical orthogonalization. Whitened labels $Z$ are lifted into Direction ($\mathsf D$), Activity/Volatility ($\mathsf V$), and Tail ($\mathsf T$) representations, then sequentially Gram-Schmidt orthogonalized so $\mathsf V$ and $\mathsf T$ contain strictly non-redundant signal beyond linear direction.
+{{< /svgfig >}}
+
 ### 9.1 The Three Liftings and Within-Date Centering
 
 For each observation's $z_{id}\in\mathbb R^K$:
 
-$$G_{\mathsf D}(z)=z,\qquad G_{\mathsf V}(z)=\operatorname{svec}(zz^\top),\qquad G_{\mathsf T}(z)=\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|_2\,z.$$
+$$G_{\mathsf D}(z)=z,\qquad G_{\mathsf V}(z)=\operatorname{svec}(zz^\top),\qquad G_{\mathsf T}(z)=\|z\|_2\,z.$$
 
 Dimensions are $K$, $K(K{+}1)/2$, $K$ respectively.
 
@@ -1187,6 +1191,10 @@ plus their null distribution.
 ---
 
 ## 13. Singular Value Decomposition
+
+{{< svgfig src="feature-eval/fig-predictive-operator-svd.svg" >}}
+**Figure 2.** Cross-sectional predictive operator $C=X^\top W\Phi$, singular value decomposition, and permutation null truncation. Comparing empirical singular values to the circular-shift null envelope isolates the significant mechanism subspace $V_r \in \mathbb R^{d_\Phi \times r_{\rm sig}}$, from which feature quality $Q_p$ and fingerprints are derived.
+{{< /svgfig >}}
 
 ### Definition
 

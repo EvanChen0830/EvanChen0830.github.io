@@ -1,0 +1,73 @@
+<svg viewBox="0 0 880 330" style="min-width:760px" role="img" aria-label="Sub-Universe Restriction Gram and Directional-Volatility Coupling" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mf5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" class="ah"/>
+  </marker>
+</defs>
+
+<!-- Left: Parent Basis & Sub-Universe Filter -->
+<rect x="20" y="45" width="165" height="105" rx="8" class="bx plain"/>
+<text x="102" y="75" class="t hd" text-anchor="middle">Parent Basis  Φ</text>
+<text x="102" y="100" class="tm" text-anchor="middle">Φ = [Φ_D | Φ_V | Φ_T]</text>
+<text x="102" y="125" class="ts mute" text-anchor="middle">Global reference basis</text>
+
+<rect x="20" y="170" width="165" height="105" rx="8" class="bx ticker"/>
+<text x="102" y="200" class="t hd" text-anchor="middle">Sub-Universe  𝒰</text>
+<text x="102" y="225" class="tm" text-anchor="middle">W_𝒰 = diag(w_i · 𝟙_(i∈𝒰))</text>
+<text x="102" y="250" class="ts mute" text-anchor="middle">Asset membership mask</text>
+
+<line x1="185" y1="97" x2="235" y2="145" class="ar" marker-end="url(#mf5)"/>
+<line x1="185" y1="222" x2="235" y2="175" class="ar" marker-end="url(#mf5)"/>
+
+<!-- Center: Restriction Gram Matrix Block Structure -->
+<rect x="240" y="35" width="310" height="245" rx="8" class="bx plain"/>
+<text x="395" y="62" class="t hd" text-anchor="middle">Restriction Gram Operator  G_𝒰 = Φᵀ W_𝒰 Φ</text>
+
+<!-- Block Matrix Grid -->
+<rect x="260" y="80" width="85" height="70" rx="4" class="bx feat"/>
+<text x="302" y="112" class="tm" text-anchor="middle">G_DD</text>
+<text x="302" y="132" class="ts feat-s" text-anchor="middle">Direction</text>
+
+<rect x="352" y="80" width="85" height="70" rx="4" class="bx guide"/>
+<text x="394" y="112" class="tm guide-t" text-anchor="middle">G_DV</text>
+<text x="394" y="132" class="ts guide-t" text-anchor="middle">Coupling</text>
+
+<rect x="444" y="80" width="85" height="70" rx="4" class="bx plain"/>
+<text x="486" y="112" class="tm" text-anchor="middle">G_DT</text>
+<text x="486" y="132" class="ts mute" text-anchor="middle">Tail Cross</text>
+
+<rect x="260" y="158" width="85" height="70" rx="4" class="bx guide"/>
+<text x="302" y="190" class="tm guide-t" text-anchor="middle">G_VD</text>
+<text x="302" y="210" class="ts guide-t" text-anchor="middle">Coupling</text>
+
+<rect x="352" y="158" width="85" height="70" rx="4" class="bx ticker"/>
+<text x="394" y="190" class="tm" text-anchor="middle">G_VV</text>
+<text x="394" y="210" class="ts" text-anchor="middle">Volatility</text>
+
+<rect x="444" y="158" width="85" height="70" rx="4" class="bx plain"/>
+<text x="486" y="190" class="tm" text-anchor="middle">G_VT</text>
+<text x="486" y="210" class="ts mute" text-anchor="middle">Activity</text>
+
+<text x="395" y="258" class="ts mute" text-anchor="middle">Diagonal = Energy Enrichment | Off-Diagonal = Structural Coupling</text>
+
+<line x1="550" y1="158" x2="600" y2="158" class="ar" marker-end="url(#mf5)"/>
+
+<!-- Right: Canonical Coupling Analysis & Null Testing -->
+<rect x="605" y="45" width="255" height="230" rx="8" class="bx guide"/>
+<text x="732" y="75" class="t hd" text-anchor="middle">Canonical V ↔ D Coupling</text>
+
+<rect x="620" y="95" width="225" height="48" rx="4" class="bx plain"/>
+<text x="732" y="115" class="ts" text-anchor="middle">Normalized Coupling Operator</text>
+<text x="732" y="133" class="tm" text-anchor="middle">M_VD = G_VV^(-1/2) G_VD G_DD^(-1/2)</text>
+
+<rect x="620" y="150" width="225" height="52" rx="4" class="bx plain"/>
+<text x="732" y="170" class="ts" text-anchor="middle">Singular Value Decomposition</text>
+<text x="732" y="190" class="tm guide-t" text-anchor="middle">M_VD = U_c Σ_c V_cᵀ  (modes σ_k)</text>
+
+<rect x="620" y="210" width="225" height="50" rx="4" class="bx plain"/>
+<text x="732" y="230" class="ts" text-anchor="middle">Stratified Membership Null</text>
+<text x="732" y="248" class="ts mute" text-anchor="middle">Tests if coupling &gt; random asset draw</text>
+
+<!-- Bottom Annotation -->
+<text x="440" y="315" class="ts mute" text-anchor="middle">Tests whether a sub-universe contains authentic economic structure or merely random portfolio variance.</text>
+</svg>

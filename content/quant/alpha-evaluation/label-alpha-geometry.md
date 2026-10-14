@@ -584,10 +584,11 @@ earns value.
 
 ---
 
-Continues from
-[Section 6–53](#46-alpha-significance).
-
 ## 14. The third-layer problem
+
+{{< svgfig src="alpha-eval/fig-alpha-three-layers.svg" >}}
+**Figure 1.** The three-layer feature–alpha attribution framework. Layer 1 measures surface-level output correlation; Layer 2 measures geometric mechanism inheritance; Layer 3 fits an out-of-sample linear surrogate and tests whether the residual $\varepsilon_\alpha = \alpha - \hat\alpha$ carries genuine novel signal or merely repackages existing features.
+{{< /svgfig >}}
 
 The first two layers (Section 11 output similarity, Section 12 mechanism similarity) are
 both geometric, correlational. Neither can answer the question that
