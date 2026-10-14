@@ -1,0 +1,10 @@
+{{- /*
+  A highlighted aside box. Inner content is Markdown.
+  Usage:
+    {{< callout >}}**Gate every path.** ...{{< /callout >}}           (red rule: warning/rule)
+    {{< callout type="feat" >}}**The concept.** ...{{< /callout >}}   (blue rule: key idea)
+*/ -}}
+{{- $type := .Get "type" | default "" -}}
+<div class="callout{{ with $type }} {{ . }}{{ end }}">
+{{ .Inner | strings.TrimSpace | $.Page.RenderString (dict "display" "block") }}
+</div>

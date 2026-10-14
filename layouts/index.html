@@ -5,17 +5,12 @@
 </div>
 
 <div class="home-sections">
-  {{- range (slice
-    (dict "url" "/overview/" "title" "Overview" "desc" "Mindset and the shape of the pipeline.")
-    (dict "url" "/quant/universe/" "title" "Universe" "desc" "Which assets are eligible, tested as a geometric object.")
-    (dict "url" "/quant/feature-engineering/" "title" "Feature Engineering" "desc" "What goes into the feature matrix.")
-    (dict "url" "/quant/feature-evaluation/" "title" "Feature Evaluation" "desc" "Which features carry real signal, and selecting among them.")
-    (dict "url" "/quant/model/" "title" "Model" "desc" "From RankIC transformers to generative diffusion.")
-    (dict "url" "/quant/alpha/" "title" "Alpha" "desc" "Turning model output into a tradeable signal.")
-    (dict "url" "/quant/alpha-evaluation/" "title" "Alpha Evaluation" "desc" "Significance, breadth, and what's genuinely novel.")
-    (dict "url" "/quant/final-ensemble/" "title" "Final Ensemble" "desc" "Combining alphas into traded positions.")
-    (dict "url" "/machine-learning/" "title" "Machine Learning" "desc" "General ML notes, not specific to the quant pipeline.")
-  ) }}
+  {{- $cards := slice (dict "url" "/overview/" "title" "Overview" "desc" "Mindset and the shape of the pipeline.") }}
+  {{- range site.Data.pipeline.stages }}
+  {{- $cards = $cards | append (dict "url" (printf "/quant/%s/" .slug) "title" .label "desc" .desc) }}
+  {{- end }}
+  {{- $cards = $cards | append (dict "url" "/machine-learning/" "title" "Machine Learning" "desc" "General ML notes, not specific to the quant pipeline.") }}
+  {{- range $cards }}
   <a href="{{ .url | absURL }}">
     <p class="home-section-title">{{ .title }}</p>
     <p class="home-section-desc">{{ .desc }}</p>

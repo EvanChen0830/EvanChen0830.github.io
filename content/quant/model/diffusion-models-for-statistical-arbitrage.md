@@ -143,11 +143,7 @@ can actually look at here.
 The full derivation — model structure, tensor shapes, label preprocessing,
 training objective weighting across diffusion steps, classifier-free and
 auto-guidance, fast samplers, and the complete evaluation and checklist — is
-written up in the companion implementation book:
+written up in the 10-part companion series:
 
-**[Diffusion models for stat-arb: an implementation book →](/diffusion-statarb-implementation-book.html)**
+**[Diffusion models for stat-arb: an implementation book →](/quant/model/diffusion-book-part-1-the-idea/)**
 
-The original introduction deck — the generative-model picture, the
-forward/backward process diagrams, and the two ongoing-research sketches
-above — is also available as a
-**[PDF](/diffusion-intro-summary.pdf)**.

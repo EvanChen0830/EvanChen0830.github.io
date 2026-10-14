@@ -16,8 +16,12 @@
     <p class="group-label">{{ $name }}</p>
     <ol>
       {{- range $pages }}
+      {{- /* Chapter label: explicit linkTitle wins; otherwise drop the
+             "Series Name, Part N: " prefix since the number is already shown. */}}
+      {{- $label := .LinkTitle }}
+      {{- if not .Params.linkTitle }}{{ $label = replaceRE `^.*?Part \d+:\s*` "" $label }}{{ end }}
       <li><a href="{{ .RelPermalink }}" class="{{ if eq .RelPermalink $.RelPermalink }}on{{ end }}">
-        <span class="n">{{ .Params.part }}</span><span>{{ .LinkTitle }}</span>
+        <span class="n">{{ .Params.part }}</span><span>{{ $label }}</span>
       </a></li>
       {{- end }}
     </ol>
@@ -36,15 +40,7 @@
     <p class="group-label">Quant Research</p>
     <ol>
       <li><a href="{{ "/quant/" | absURL }}" class="{{ if eq $cur "/quant/" }}on{{ end }}">Quant (overview)</a></li>
-      {{- range (slice
-        (dict "slug" "universe" "label" "Universe")
-        (dict "slug" "feature-engineering" "label" "Feature Engineering")
-        (dict "slug" "feature-evaluation" "label" "Feature Evaluation")
-        (dict "slug" "model" "label" "Model")
-        (dict "slug" "alpha" "label" "Alpha")
-        (dict "slug" "alpha-evaluation" "label" "Alpha Evaluation")
-        (dict "slug" "final-ensemble" "label" "Final Ensemble")
-      ) }}
+      {{- range site.Data.pipeline.stages }}
       {{- $url := printf "/quant/%s/" .slug }}
       <li><a href="{{ $url | absURL }}" class="{{ if partial "is-active.html" (dict "cur" $cur "url" $url) }}on{{ end }}">{{ .label }}</a></li>
       {{- end }}

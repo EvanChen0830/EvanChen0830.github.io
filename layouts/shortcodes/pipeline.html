@@ -1,28 +1,23 @@
+{{- /*
+  Renders the 7-stage pipeline flowchart. Stages come from data/pipeline.toml.
+  Usage: {{< pipeline >}} or {{< pipeline highlight="model,alpha" >}}
+*/ -}}
 {{- $highlightRaw := .Get "highlight" | default "" -}}
 {{- $highlight := split $highlightRaw "," -}}
-{{- $stages := slice
-  (dict "id" "universe" "label" "Universe")
-  (dict "id" "feature_engineering" "label" "Feature Engineering")
-  (dict "id" "feature_evaluation" "label" "Feature Evaluation")
-  (dict "id" "model" "label" "Model")
-  (dict "id" "alpha" "label" "Alpha")
-  (dict "id" "alpha_evaluation" "label" "Alpha Evaluation")
-  (dict "id" "final_ensemble" "label" "Final Ensemble")
--}}
+{{- $stages := site.Data.pipeline.stages -}}
 <pre class="mermaid">
 graph LR
 {{- range $stages }}
-{{ .id }}["{{ .label }}"]
+{{ replace .slug "-" "_" }}["{{ .label }}"]
 {{- end }}
 {{- range $i, $s := $stages }}
 {{- if gt $i 0 }}
-{{ (index $stages (sub $i 1)).id }} --> {{ $s.id }}
+{{ replace (index $stages (sub $i 1)).slug "-" "_" }} --> {{ replace $s.slug "-" "_" }}
 {{- end }}
 {{- end }}
 {{- range $stages }}
-{{- $slug := replace .id "_" "-" }}
-{{- if in $highlight $slug }}
-style {{ .id }} fill:#f0a500,stroke:#333,stroke-width:2px,color:#111
+{{- if in $highlight .slug }}
+style {{ replace .slug "-" "_" }} fill:#f0a500,stroke:#333,stroke-width:2px,color:#111
 {{- end }}
 {{- end }}
 </pre>

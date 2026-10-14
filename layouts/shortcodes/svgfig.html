@@ -1,0 +1,24 @@
+{{- /*
+  Inlines an SVG diagram from assets/ so it inherits the site's CSS
+  variables (light/dark mode) — an <img> tag couldn't see page CSS.
+  The inner text, if any, becomes the caption (Markdown allowed).
+
+  Usage:
+    {{< svgfig src="diffusion-book/fig01.svg" alt="Input and output shapes" >}}
+    **Figure 1.** What goes in and what comes out.
+    {{< /svgfig >}}
+
+  Colour classes used inside the SVG (.feat, .label, .ticker, .time, .guide,
+  ...) are styled in static/css/site.css under ".fig-scroll svg".
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- $r := resources.Get $src -}}
+{{- if not $r -}}
+  {{- errorf "svgfig: asset %q not found (%s)" $src .Position -}}
+{{- end -}}
+<figure class="fig">
+  <div class="fig-scroll">{{ $r.Content | safeHTML }}</div>
+  {{- with .Inner | strings.TrimSpace }}
+  <figcaption>{{ . | $.Page.RenderString }}</figcaption>
+  {{- end }}
+</figure>

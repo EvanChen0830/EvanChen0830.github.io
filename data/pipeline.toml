@@ -1,0 +1,39 @@
+# Single source of truth for the 7-stage quant pipeline.
+# Read by layouts/partials/sidebar.html (nav), layouts/index.html (home cards)
+# and layouts/shortcodes/pipeline.html (Mermaid flowchart). To add, rename or
+# reorder a stage, edit it here once; also create content/quant/<slug>/_index.md.
+
+[[stages]]
+slug = "universe"
+label = "Universe"
+desc = "Which assets are eligible, tested as a geometric object."
+
+[[stages]]
+slug = "feature-engineering"
+label = "Feature Engineering"
+desc = "What goes into the feature matrix."
+
+[[stages]]
+slug = "feature-evaluation"
+label = "Feature Evaluation"
+desc = "Which features carry real signal, and selecting among them."
+
+[[stages]]
+slug = "model"
+label = "Model"
+desc = "Generative diffusion: learning the full conditional return distribution."
+
+[[stages]]
+slug = "alpha"
+label = "Alpha"
+desc = "Turning model output into a tradeable signal."
+
+[[stages]]
+slug = "alpha-evaluation"
+label = "Alpha Evaluation"
+desc = "Significance, breadth, and what's genuinely novel."
+
+[[stages]]
+slug = "final-ensemble"
+label = "Final Ensemble"
+desc = "Combining alphas into traded positions."

@@ -7,12 +7,11 @@ under `layouts/`. Open either one directly and edit it; there's no framework
 indirection to fight.
 
 **Design**: a sidebar-navigated "book" layout (persistent left nav, serif
-headings, equation callout boxes, light/dark mode via CSS variables),
-originally designed for the standalone `diffusion-statarb-implementation-
-book.html` page and then adopted site-wide. The sidebar does double duty:
-on most pages it shows the site's section tree; on a page that's part of a
-`series` (see below), it shows that series' chapter list instead, with the
-current chapter highlighted — i.e. it becomes the book's table of contents.
+headings, equation callout boxes, light/dark mode via CSS variables).
+The sidebar does double duty: on most pages it shows the site's section tree;
+on a page that's part of a `series` (see below), it shows that series' chapter
+list instead, with the current chapter highlighted — i.e. it becomes the book's
+table of contents.
 
 ## Requirements
 
@@ -173,17 +172,20 @@ visual — colors are CSS custom properties at the top of the file (`--bg`,
 `--ink`, `--feat`, etc.), duplicated once for the dark-mode media query and
 once for the `[data-theme="dark"]` override (manual toggle).
 
-## Deploying to Cloudflare Pages
+## Deployment
+ 
+### GitHub Pages (default)
+
+Pushes to the `develop` branch trigger `.github/workflows/hugo.yml`, which automatically builds and deploys the site to GitHub Pages (`https://evanchen0830.github.io/`).
+
+### Cloudflare Pages (alternative)
 
 1. Push this repo to GitHub/GitLab.
-2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect
-   to Git**, pick the repo.
+2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**, pick the repo.
 3. Build settings:
    - Framework preset: **Hugo**
    - Build command: `hugo --gc --minify`
    - Build output directory: `public`
-   - Environment variable: `HUGO_VERSION` = `0.150.1` (or whatever
-     `hugo version` prints locally — keep them in sync)
+   - Environment variable: `HUGO_VERSION` = `0.150.1`
 4. Deploy. Cloudflare rebuilds automatically on every push.
-5. To use a custom domain, add it under the Pages project's **Custom
-   domains** tab; otherwise the site is live at `<project>.pages.dev`.
+
