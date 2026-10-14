@@ -82,31 +82,35 @@ covariance to get $Z$. For a single cross-section (one asset $i$ on one
 date), lift $Z$ into three blocks:
 
 $$
-\Phi_D = Z, \qquad
-\Phi_V = \operatorname{svec}\!\left(ZZ^\top - I\right), \qquad
-\Phi_T = \|Z\|_2\, Z.
+\Phi_{\mathsf D} = Z, \qquad
+\Phi_{\mathsf V} = \operatorname{svec}\!\left(ZZ^\top - I\right), \qquad
+\Phi_{\mathsf T} = \|Z\|_2\, Z.
 $$
 
-- $\Phi_D$ (**Direction**) is just the whitened return itself — it asks
+- $\Phi_{\mathsf D}$ (**Direction**) is just the whitened return itself — it asks
   whether a feature predicts *who outperforms*.
-- $\Phi_V$ (**Activity**) is the outer-product residual — it asks whether a
+- $\Phi_{\mathsf V}$ (**Activity**) is the outer-product residual — it asks whether a
   feature predicts *dispersion and co-movement structure*, independent of
   which side wins.
-- $\Phi_T$ (**Tail**) scales direction by its own magnitude — it asks
+- $\Phi_{\mathsf T}$ (**Tail**) scales direction by its own magnitude — it asks
   whether a feature's predictive power is conditional on *large moves*.
+
+{{< svgfig src="feature-eval/fig-mechanism-blocks.svg" >}}
+**Figure 1.** The cross-sectional mechanism decomposition. Raw predictive signal separates additively into Direction ($\mathsf D$), Activity ($\mathsf V$), and Tail ($\mathsf T$) channels via sequential Gram-Schmidt orthogonalization.
+{{< /svgfig >}}
 
 After orthogonalizing these three blocks against each other, a feature's
 (or an alpha's) entire predictive relationship with the target is a single
 cross-covariance,
 
 $$
-C = \frac{1}{L}X^{\top}\Phi \in \mathbb{R}^{P \times d_\Phi},
+C = X^{\top} W \Phi \in \mathbb{R}^{P \times d_\Phi},
 $$
 
 and its quality splits additively across the three mechanisms:
 
 $$
-Q = Q_D + Q_V + Q_T, \qquad Q_q = \|c^{q}\|_2^2 \ \ (q \in \{D, V, T\}).
+Q = Q^{\mathsf D} + Q^{\mathsf V} + Q^{\mathsf T}, \qquad Q^{\mathsf B} = \|c^{\mathsf B}\|_2^2 \ \ (\mathsf B \in \{\mathsf D, \mathsf V, \mathsf T\}).
 $$
 
 That single decomposition answers the question that headline metrics hide:

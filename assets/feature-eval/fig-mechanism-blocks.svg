@@ -1,4 +1,4 @@
-<svg viewBox="0 0 880 380" style="min-width:760px" role="img" aria-label="The Three Mechanism Blocks and Hierarchical Orthogonalization" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 900 415" style="min-width:760px" role="img" aria-label="The Three Mechanism Blocks and Hierarchical Orthogonalization" xmlns="http://www.w3.org/2000/svg">
 <defs>
   <marker id="mf1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
     <path d="M0,0 L10,5 L0,10 z" class="ah"/>
@@ -6,49 +6,50 @@
 </defs>
 
 <!-- Left: Input Whitened Label -->
-<rect x="20" y="140" width="150" height="90" rx="8" class="bx label"/>
-<text x="95" y="170" class="t hd" text-anchor="middle">Whitened Label</text>
-<text x="95" y="192" class="tm" text-anchor="middle">Z = Y B_Y</text>
-<text x="95" y="212" class="ts mute" text-anchor="middle">Zᵀ W Z = I_K</text>
+<rect x="20" y="145" width="145" height="95" rx="8" class="bx label"/>
+<text x="92" y="175" class="t hd" text-anchor="middle">Whitened Label</text>
+<text x="92" y="198" class="tm" text-anchor="middle">Z = Y B_Y</text>
+<text x="92" y="218" class="ts mute" text-anchor="middle">Zᵀ W Z = I_K</text>
 
 <!-- Connectors from Input to 3 Blocks -->
-<path d="M170,165 C205,165 205,75 235,75" class="ar" marker-end="url(#mf1)"/>
-<path d="M170,185 L235,185" class="ar" marker-end="url(#mf1)"/>
-<path d="M170,205 C205,205 205,295 235,295" class="ar" marker-end="url(#mf1)"/>
+<path d="M165,170 C195,170 195,75 220,75" class="ar" marker-end="url(#mf1)"/>
+<path d="M165,192 L220,192" class="ar" marker-end="url(#mf1)"/>
+<path d="M165,215 C195,215 195,310 220,310" class="ar" marker-end="url(#mf1)"/>
 
 <!-- Block 1: Direction (D) -->
-<rect x="240" y="30" width="310" height="90" rx="8" class="bx feat"/>
-<text x="255" y="55" class="t hd" text-anchor="start">1. Direction Block  Φ_D</text>
-<text x="255" y="75" class="tm" text-anchor="start">G_D(z) = z  ∈ ℝ^K</text>
-<text x="255" y="95" class="ts" text-anchor="start">Relative outperformance ranking</text>
-<text x="255" y="110" class="ts mute" text-anchor="start">Φ_D = Z  (no orthogonalization needed)</text>
+<rect x="225" y="25" width="370" height="100" rx="8" class="bx feat"/>
+<text x="240" y="50" class="t hd" text-anchor="start">1. Direction Block  Φ_D</text>
+<text x="240" y="70" class="tm" text-anchor="start">G_D(z) = z  ∈ ℝ^K</text>
+<text x="240" y="90" class="ts" text-anchor="start">Relative outperformance ranking</text>
+<text x="240" y="110" class="ts mute" text-anchor="start">Φ_D = Z  (no orthogonalization needed)</text>
 
 <!-- Block 2: Volatility / Activity (V) -->
-<rect x="240" y="140" width="310" height="90" rx="8" class="bx ticker"/>
-<text x="255" y="165" class="t hd" text-anchor="start">2. Activity / Volatility Block  Φ_V</text>
-<text x="255" y="185" class="tm" text-anchor="start">G_V(z) = svec(z zᵀ)  ∈ ℝ^(K(K+1)/2)</text>
-<text x="255" y="205" class="ts" text-anchor="start">Horizon co-movement &amp; violent moves</text>
-<text x="255" y="220" class="ts mute" text-anchor="start">R_V = G_V − Φ_D Γ_DV  →  orth_W(R_V)</text>
+<rect x="225" y="142" width="370" height="100" rx="8" class="bx ticker"/>
+<text x="240" y="167" class="t hd" text-anchor="start">2. Activity / Volatility Block  Φ_V</text>
+<text x="240" y="187" class="tm" text-anchor="start">G_V(z) = svec(z zᵀ)  ∈ ℝ^(K(K+1)/2)</text>
+<text x="240" y="207" class="ts" text-anchor="start">Horizon co-movement &amp; violent moves</text>
+<text x="240" y="227" class="tm mute" text-anchor="start">R_V = G_V − Φ_D Γ_DV  →  Φ_V = orth_W(R_V)</text>
 
 <!-- Block 3: Tail (T) -->
-<rect x="240" y="250" width="310" height="90" rx="8" class="bx guide"/>
-<text x="255" y="275" class="t hd" text-anchor="start">3. Tail Block  Φ_T</text>
-<text x="255" y="295" class="tm" text-anchor="start">G_T(z) = ||z||₂ z  ∈ ℝ^K</text>
-<text x="255" y="315" class="ts" text-anchor="start">Direction conditional on extreme events</text>
-<text x="255" y="330" class="ts mute" text-anchor="start">R_T = G_T − Φ_D Γ_DT − Φ_V Γ_VT  →  orth_W(R_T)</text>
+<rect x="225" y="260" width="370" height="100" rx="8" class="bx guide"/>
+<text x="240" y="285" class="t hd" text-anchor="start">3. Tail Block  Φ_T</text>
+<text x="240" y="305" class="tm" text-anchor="start">G_T(z) = ||z||₂ z  ∈ ℝ^K</text>
+<text x="240" y="325" class="ts" text-anchor="start">Direction conditional on extreme events</text>
+<text x="240" y="345" class="tm mute" text-anchor="start">R_T = G_T − proj(Φ_D, Φ_V)  →  Φ_T = orth_W(R_T)</text>
 
 <!-- Connectors from 3 Blocks to Final Basis -->
-<path d="M550,75 C580,75 580,165 615,165" class="ar" marker-end="url(#mf1)"/>
-<path d="M550,185 L615,185" class="ar" marker-end="url(#mf1)"/>
-<path d="M550,295 C580,295 580,205 615,205" class="ar" marker-end="url(#mf1)"/>
+<path d="M595,75 C625,75 625,170 650,170" class="ar" marker-end="url(#mf1)"/>
+<path d="M595,192 L650,192" class="ar" marker-end="url(#mf1)"/>
+<path d="M595,310 C625,310 625,215 650,215" class="ar" marker-end="url(#mf1)"/>
 
 <!-- Right: Unified Basis Box -->
-<rect x="620" y="125" width="240" height="120" rx="8" class="bx plain"/>
-<text x="740" y="155" class="t hd" text-anchor="middle">Mechanism Basis  Φ</text>
-<text x="740" y="178" class="tm" text-anchor="middle">Φ = [ Φ_D | Φ_V | Φ_T ]</text>
-<text x="740" y="202" class="tm guide-t" text-anchor="middle">Φᵀ W Φ = I_(d_Φ)</text>
-<text x="740" y="225" class="ts mute" text-anchor="middle">Mutually orthogonal coordinate system</text>
+<rect x="655" y="132" width="225" height="120" rx="8" class="bx plain"/>
+<text x="767" y="162" class="t hd" text-anchor="middle">Mechanism Basis  Φ</text>
+<text x="767" y="187" class="tm" text-anchor="middle">Φ = [ Φ_D | Φ_V | Φ_T ]</text>
+<text x="767" y="212" class="tm guide-t" text-anchor="middle">Φᵀ W Φ = I_(d_Φ)</text>
+<text x="767" y="234" class="ts mute" text-anchor="middle">Orthonormal coordinate system</text>
 
-<!-- Bottom Summary Note -->
-<text x="440" y="365" class="ts mute" text-anchor="middle">Hierarchical projection (D → V → T) guarantees activity and tail features carry strictly non-redundant signal beyond linear direction.</text>
+<!-- Bottom Summary Note (Split cleanly into 2 readable lines) -->
+<text x="450" y="375" class="ts mute" text-anchor="middle">Hierarchical projection (D → V → T) guarantees activity and tail features</text>
+<text x="450" y="395" class="ts mute" text-anchor="middle">carry strictly non-redundant signal beyond linear direction.</text>
 </svg>
