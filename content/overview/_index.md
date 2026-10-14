@@ -55,20 +55,14 @@ its own terms rather than judged only by the final portfolio result.
 
 - **Universe** — which assets are even eligible, and whether that
   eligibility is defined without hindsight.
-- **Feature engineering** — what goes into the feature matrix before any
-  evaluation happens.
-- **Feature evaluation** — which engineered features actually carry
+- **Feature evaluation** — which features actually carry
   cross-sectional predictive signal, survive a null, and aren't redundant
   with something already kept.
-- **Model** — the function that turns selected features into a prediction
-  (point estimate, rank, or full distribution).
-- **Alpha** — turning the model's raw output into a signal with a
-  consistent, tradeable meaning.
-- **Alpha evaluation** — the same scrutiny applied to features, now applied
-  to the model's output: is it significant, is it stable, how much of it is
-  actually novel versus inherited from the feature layer.
-- **Final ensemble** — combining surviving alphas across models, horizons,
-  and universes into the positions that get traded.
+- **Model** — generative modeling of multi-horizon cross-sectional return
+  distributions (e.g. conditional diffusion) rather than point predictions.
+- **Alpha evaluation** — evaluating model predictions with the same
+  scrutiny as raw features: significance, stability, and residual novelty
+  beyond linear factor surrogates.
 
 ## One picture: direction, activity, tail
 

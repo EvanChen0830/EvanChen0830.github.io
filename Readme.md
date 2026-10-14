@@ -40,10 +40,8 @@ branches are:
 
 - `content/overview/` — mindset and a high-level tour of the methodology,
   with the pipeline diagram. The entry point for a new reader.
-- `content/quant/` — the quant research pipeline, one subfolder per stage,
-  in the order a signal actually moves through it: `universe/`,
-  `feature-engineering/`, `feature-evaluation/`, `model/`, `alpha/`,
-  `alpha-evaluation/`, `final-ensemble/`.
+- `content/quant/` — the quant research pipeline, one subfolder per stage:
+  `universe/`, `feature-evaluation/`, `model/`, `alpha-evaluation/`.
 - `content/machine-learning/` — general ML notes, not specific to the quant
   pipeline.
 
@@ -92,11 +90,10 @@ standard LaTeX delimiters in the body: `$inline$`, `$$block$$`,
 ### Diagrams
 
 `{{< mermaid >}}...{{< /mermaid >}}` renders any [Mermaid](https://mermaid.js.org/)
-diagram definition. `{{< pipeline highlight="model,alpha" >}}` renders the
-site's 7-stage pipeline flowchart specifically, with an optional
-comma-separated list of stages to highlight (valid slugs: `universe`,
-`feature-engineering`, `feature-evaluation`, `model`, `alpha`,
-`alpha-evaluation`, `final-ensemble`). Both load `mermaid.js` only on pages
+diagram definition. `{{< pipeline >}}` renders the
+site's pipeline flowchart, with an optional comma-separated list of stages to
+highlight (valid slugs: `universe`, `feature-evaluation`, `model`,
+`alpha-evaluation`). Both load `mermaid.js` only on pages
 that actually use them — see `layouts/shortcodes/{mermaid,pipeline}.html`
 and the `.HasShortcode` check in `head.html`.
 
