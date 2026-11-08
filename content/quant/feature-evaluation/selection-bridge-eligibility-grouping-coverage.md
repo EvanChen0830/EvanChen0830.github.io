@@ -120,6 +120,30 @@ directionality, replace with $\mathsf T$ (Tail) and keep E2 ($\mathsf T$ *is* a
 signed directional space; the analogue of $r_{\mathsf D}$ is
 $r_{\mathsf T}=\text{normalize}(\Phi_{\mathsf T}^\top Wy^*)$).
 
+### Factor-aware eligibility
+
+Every feature also gets the factor decomposition of
+[Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature):
+its factor share $\rho^2_{F,p}$ and its globally normalized idiosyncratic part
+$\tilde x^M_p$. How that enters eligibility depends on the mandate, which must
+be fixed before selection (Factor IR-28):
+
+| Mandate for factor $F$ | Eligibility runs on | Why |
+|---|---|---|
+| unconstrained or soft budget | the raw feature $x_p$, plus a soft flag | the factor component can be traded, so it is real signal |
+| hard-neutral | $\tilde x^M_p$ (E1–E5 recomputed) | under a hard constraint only the residual of the expected return reaches the portfolio ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)); the factor component is removed regardless of how strong it is |
+
+Under an unconstrained mandate, flag `FACTOR_PROXY` when
+$\rho^2_{F,p}\ge0.8$ **and** $Q^{\mathsf D}_{\tilde x^M_p}$ is not significant.
+Like breadth, this flags but does not exclude: the feature's value then rests
+entirely on that factor being priced (IR-26), which feature selection cannot
+establish.
+
+The hard-neutral row uses the unweighted projector of Section 35 as a proxy.
+The portfolio actually removes the $(\Sigma^u)^{-1}$-weighted projection, so
+the two agree only when specific variances are roughly equal across names;
+report which one was used.
+
 ## 2. Mechanism grouping
 
 For the eligible set $\mathcal E$, run **average-linkage** hierarchical
@@ -194,6 +218,24 @@ raw-redundancy judgments should be conservative — complete linkage requires
 **every** pair within a group to clear the threshold, which avoids merging
 features that are only indirectly related.
 
+### Redundancy that is only shared exposure
+
+Two features can be highly correlated only because both load on the same
+factor: two different measures that each mostly track beta, for example.
+Under a hard-neutral mandate that shared part never reaches the portfolio, so
+redundancy must be judged on what survives. Compute the same Spearman
+redundancy on the idiosyncratic parts,
+
+$$
+S^{\rm raw,M}_{pq}=S^{\rm raw}\big(x^M_p,\,x^M_q\big),
+$$
+
+and, for a hard-neutral mandate, cluster on $S^{\rm raw,M}$ instead of
+$S^{\rm raw}$. Under an unconstrained mandate keep $S^{\rm raw}$ for
+clustering and report $S^{\rm raw,M}$ next to it: a pair with high $S^{\rm raw}$
+and low $S^{\rm raw,M}$ is redundant through its factor and distinct in its
+specific part.
+
 ### The transform-family rule
 
 By Rule 4.1, every transform of the same source feature,
@@ -221,6 +263,13 @@ where $b$ ranges over the temporal bootstrap resamples of §26.
 If the research target doesn't specify a direction $a$ (exploratory
 research), use $\text{Score}_p=\operatorname{median}_b\big[Q^{\mathsf D,(b)}_p\big]$
 instead.
+
+Under a hard-neutral mandate, compute the Score on the **unnormalized**
+idiosyncratic part $x^M_p$, i.e. with $A^{\rm tgt}$ taken from
+$c^{\rm full}_{x^M_p}$. That measures the absolute contribution that survives
+neutralization. The normalized $\tilde x^M_p$ measures quality and would
+favour a feature whose idiosyncratic part is excellent but carries almost
+none of its variance.
 
 ### Why a bootstrap median, not a point estimate
 
@@ -448,6 +497,17 @@ family):
 | `ft_D`, `ft_V`, `ft_T` | Enrichment fingerprint $\tilde f$ (Predictive Geometry Section 20.3) |
 | `A_target`, `eta_D` | Predictive Geometry Section 22, Section 23 |
 
+**Factor decomposition** (Predictive Geometry Section 35)
+
+| Field | Description |
+|---|---|
+| `factor_basis_id`, `mandate` | which $F_d$, and unconstrained / soft / hard-neutral |
+| `rho2_F` | $\rho^2_{F,p}=\|x^P_p\|_W^2$ |
+| `Q_full_P`, `Q_full_M`, `kappa` | $Q^{\rm full}_{x^P_p}$, $Q^{\rm full}_{x^M_p}$, cross term $\kappa_p$ |
+| `Q_D_Mtilde`, `p_D_Mtilde` | $Q^{\mathsf D}_{\tilde x^M_p}$ and its permutation p-value |
+| `A_target_M` | target alignment of $x^M_p$ (Score input under a hard-neutral mandate) |
+| `S_raw_M_max` | largest $S^{\rm raw,M}_{pq}$ to any other feature |
+
 **Significance**
 
 | Field | Description |
@@ -471,7 +531,7 @@ family):
 | `b_med`, `b_p10` | §30 |
 | `b_tilde` | Relative breadth (§31.2) |
 | `R_cancel_med`, `R_tilde` | §32 |
-| `flags` | `CONCENTRATED` / `EXTREME_CONCENTRATION` / `TARGET_MISMATCH` |
+| `flags` | `CONCENTRATED` / `EXTREME_CONCENTRATION` / `TARGET_MISMATCH` / `FACTOR_PROXY` |
 
 **Structure and selection**
 

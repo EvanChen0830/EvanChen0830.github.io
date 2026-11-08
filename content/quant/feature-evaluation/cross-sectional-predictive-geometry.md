@@ -140,6 +140,8 @@ $$
 | $\Theta_{\mathsf V},\Theta_{\mathsf T}$ | orthogonalization matrices (Section 10) |
 | $\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DT}},\Gamma_{\mathsf{VT}}$ | Gram–Schmidt projection coefficients (Section 10) |
 | $\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf T}]$ | label-mechanism basis, $\Phi^\top W\Phi=I_{d_\Phi}$ |
+| $F_d$ | point-in-time factor exposures, within-date centered (Section 35; symbols as in [Factor Research §1](/quant/factor/factor-research-framework/#1-notation)) |
+| $P_{F_d},M_{F_d}$ | unweighted factor projector and its complement (Section 35) |
 
 ### 1.3 Core statistics
 
@@ -166,6 +168,8 @@ $$
 | $\hat\alpha,\tilde\alpha$ | model's raw / standardized prediction |
 | $\varepsilon_\alpha$ | OOS linear-surrogate residual (Alpha Evaluation Section 18) |
 | $\nu_s$ | novelty fraction (Alpha Evaluation Section 3) |
+| $\rho^2_{F,p},\ \kappa_p$ | factor share of feature $p$, factor/idiosyncratic cross term (Section 35) |
+| $\tilde x^M_p$ | globally normalized idiosyncratic part of feature $p$ (Section 35.3) |
 | $\epsilon$ | pure numerical floor (denominator protection), default $10^{-12}$ |
 
 ### 1.4 Correspondence to earlier notation
@@ -2676,3 +2680,147 @@ $r_{\rm eff}=3$, selecting 40 features is necessarily highly redundant at
 the mechanism level — redundancy itself isn't wrong (spreading noise has
 value), but it should be a conscious decision, not a mistaken belief that
 40 genuinely different signals were found.
+
+---
+
+## 35. Factor Decomposition of a Feature
+
+### Motivation
+
+A feature with a respectable $Q^{\mathsf D}$ may simply be a noisy proxy for a
+known exposure: beta, size, a sector, a funding-rate bucket. Every quantity in
+this book is measured against $\Phi$, which knows nothing about factors, so
+the question "how much of this feature's predictive geometry is a known
+factor?" needs its own definition.
+
+There are two ways to bring factors in, and only one keeps the ruler fixed:
+
+| Approach | What changes | Can raw and factor-neutral numbers be compared? |
+|---|---|---|
+| Label-side: $Y\to M_FY$, rebuild $\Phi$ (as in [Universe §21.2](/quant/universe/multi-sub-universe-directional-coupling-geometry/#212-the-factor-neutral-variant)) | the coordinate system | no: $\Phi^{idio}$ is a different basis, so $Q^{raw}-Q^{idio}$ is not a factor contribution |
+| **Feature-side**: keep $\Phi$, split $x$ | only the signal | **yes**: every piece lives in the same $\Phi$ |
+
+This section defines the feature-side version as the primary one. The
+label-side version stays as a robustness check.
+
+### 35.1 Definition
+
+Notation follows [Factor Research §1](/quant/factor/factor-research-framework/#1-notation):
+$F_d\in\mathbb R^{N_d\times m}$ are point-in-time exposures known at $d$,
+**within-date centered** ($\mathbf1^\top F_d=0$). Per date,
+
+$$
+P_{F_d}=F_d\big(F_d^\top F_d\big)^{+}F_d^\top,\qquad M_{F_d}=I-P_{F_d}.
+$$
+
+For feature $p$ (the standardized $X^{XS}_{\cdot p}$ of Section 5, with
+$\|X_p\|_W=1$), split it date by date:
+
+$$
+x^{P}_p=P_{F_d}X_{d,p},\qquad x^{M}_p=M_{F_d}X_{d,p}.
+$$
+
+Both pieces stay within-date demeaned (centered $F_d$), so Lemma 4.1 still
+applies to each.
+
+### 35.2 Proposition 35.1 (exact decomposition in the fixed basis)
+
+$$
+\boxed{
+c^{\rm full}_p=c^{\rm full}_{x^P_p}+c^{\rm full}_{x^M_p},
+\qquad
+\rho^2_{F,p}+\big(1-\rho^2_{F,p}\big)=1,\quad
+\rho^2_{F,p}:=\|x^P_p\|_W^2,
+}
+$$
+
+$$
+Q^{\rm full}_p
+=Q^{\rm full}_{x^P_p}+Q^{\rm full}_{x^M_p}
++\underbrace{2\big\langle c^{\rm full}_{x^P_p},c^{\rm full}_{x^M_p}\big\rangle}_{\kappa_p},
+$$
+
+and the same identities hold block by block ($\mathsf D,\mathsf V,\mathsf T$)
+and after projection onto $V_r$.
+
+**Proof**: $c_s=s^\top W\Phi$ is linear in $s$. Within each date $W$ is a
+scalar multiple of $I$, so $P_{F_d}$ is $W$-self-adjoint and Pythagoras holds
+date by date. Expanding $\|a+b\|^2$ gives the energy identity. The full proof
+is [Factor Proposition F.2](/quant/factor/factor-research-framework/#proposition-f2-exact-feature-side-decomposition). $\blacksquare$
+
+**The cross term $\kappa_p$ is not a rounding error.** It is generally
+nonzero, and it can be negative: the factor and idiosyncratic parts of the
+same feature can point in opposite directions in mechanism space, so the
+feature's total $Q$ is *smaller* than its parts. Reporting $Q_{x^P}$ and
+$Q_{x^M}$ without $\kappa_p$ hides exactly that cancellation.
+
+### 35.3 The idiosyncratic quality on the IC scale
+
+$Q^{\rm full}_{x^M_p}$ is bounded by $1-\rho^2_{F,p}$, for the same reason
+residual alpha's raw energy is bounded by $1-R^2$
+([Label–Alpha §18](/quant/alpha-evaluation/label-alpha-geometry/#18-residual-alpha)).
+To compare quality on the IC scale, normalize globally:
+
+$$
+\tilde x^{M}_p=\frac{x^M_p}{\|x^M_p\|_W},
+\qquad
+\boxed{Q^{\rm full}_{\tilde x^M_p}=\frac{Q^{\rm full}_{x^M_p}}{1-\rho^2_{F,p}}.}
+$$
+
+Use one global normalization, not a per-date restandardization: re-scaling
+each date separately changes the weight of each date and breaks the exact
+relation above. Report both numbers:
+
+- $Q^{\rm full}_{\tilde x^M_p}$: **how good** the idiosyncratic part is;
+- $(1-\rho^2_{F,p})\,Q^{\rm full}_{\tilde x^M_p}=Q^{\rm full}_{x^M_p}$: **how much**
+  of the feature it accounts for.
+
+### 35.4 Significance
+
+Test $\tilde x^M_p$ with the same circular-shift null as the raw feature
+(Section 14). Under the shift only $\Phi$ moves: $X_{d,p}$ and $F_d$ both stay
+at date $d$, so $x^M_p$ does not change across permutations. Under matched
+thinning (Section 14.3), recompute $P_{F_d}$ **on the thinned cross-section**,
+with $F_d$ re-centered there, exactly as $X$ is re-centered: on a subset,
+$\mathbf1^\top F_d\neq0$ and Lemma 4.1 would otherwise fail for $x^P$ and $x^M$.
+
+The p-value of $Q^{\mathsf D}_{\tilde x^M_p}$ is scale-invariant, so it is the
+same whether computed on $x^M_p$ or $\tilde x^M_p$.
+
+### 35.5 Reading the decomposition
+
+| $\rho^2_{F,p}$ | $Q^{\mathsf D}_{\tilde x^M_p}$ significant? | Reading |
+|---|---|---|
+| high | no | **factor proxy**: the feature's directional content is a known exposure. Its value depends on whether that factor is priced (IR-26) and whether the mandate neutralizes it (IR-28). |
+| high | yes | a factor-loaded feature that **also** carries idiosyncratic signal; the idiosyncratic part is small in variance but real |
+| low | yes | an idiosyncratic feature; the factor split changes little |
+| low | no | the raw $Q$ came from the cross term or from noise: check $\kappa_p$ and the raw p-value |
+
+Two cautions:
+
+- **Neutralization in the portfolio is not the same projection.** $P_{F_d}$
+  here is unweighted. A factor risk model with hard neutrality acts through
+  the $(\Sigma^u)^{-1}$-weighted projector
+  ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)).
+  A feature that is "idiosyncratic" in this section can still carry factor
+  exposure after an unconstrained optimizer, unless specific variances are
+  roughly equal across names.
+- **The split depends on the basis.** A different legitimate $F_d$ gives a
+  different $\rho^2_{F,p}$. Report `factor_basis_id` with every number.
+
+### 35.6 Library level
+
+Stacking $x^P_p$ and $x^M_p$ for every feature gives two operators that add
+up exactly:
+
+$$
+C=C^{P}+C^{M},\qquad
+C^{P}_{p,:}=c^{\rm full}_{x^P_p},\quad C^{M}_{p,:}=c^{\rm full}_{x^M_p}.
+$$
+
+The SVD of $C^{M}$ answers "which mechanism directions does the library
+illuminate **after** known exposures are removed from every feature". If the
+top right-singular vector of $C$ disappears from $C^{M}$, the library's
+dominant mode (Section 13: often the momentum/reversal axis) is a known
+factor rather than a discovered mechanism. Significance of the modes of
+$C^{M}$ uses the same permutation scheme (Section 15), applied to $C^{M}$.
