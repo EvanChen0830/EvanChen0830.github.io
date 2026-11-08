@@ -1,0 +1,57 @@
+{{- /*
+  Research map: a collapsible tree built from data/research_tree.yaml.
+  Each branch is a layer of the research framework; each leaf is a topic.
+  Usage: {{< research-tree >}}   (add  open="true"  to start expanded)
+*/ -}}
+{{- $tree := site.Data.research_tree -}}
+{{- $open := eq (.Get "open") "true" -}}
+{{- $nTopics := 0 -}}{{- $nPub := 0 -}}
+{{- range $tree.branches }}{{ range .topics }}
+  {{- $nTopics = add $nTopics 1 -}}{{- if isset . "url" }}{{ $nPub = add $nPub 1 }}{{ end -}}
+{{- end }}{{ end -}}
+<div class="rtree" data-rtree>
+  <div class="rtree-bar">
+    <ul class="rtree-legend">
+      <li><span class="rtree-dot is-pub" aria-hidden="true"></span>Published note ({{ $nPub }})</li>
+      <li><span class="rtree-dot is-plan" aria-hidden="true"></span>Planned topic ({{ sub $nTopics $nPub }})</li>
+      <li><span class="rtree-p rtree-p0">P0</span><span class="rtree-p rtree-p1">P1</span><span class="rtree-p rtree-p2">P2</span>dependency order</li>
+    </ul>
+    <button type="button" class="rtree-toggle" data-rtree-toggle>{{ if $open }}Collapse all{{ else }}Expand all{{ end }}</button>
+  </div>
+  <div class="rtree-root"><span class="rtree-root-node">{{ $tree.root }}</span></div>
+  <ul class="rtree-branches">
+    {{- range $tree.branches }}
+    {{- $b := . -}}{{- $pub := 0 -}}
+    {{- range .topics }}{{ if isset . "url" }}{{ $pub = add $pub 1 }}{{ end }}{{ end }}
+    <li class="rtree-branch c-{{ .color | default "feat" }}" id="map-{{ .slug }}">
+      <details{{ if $open }} open{{ end }}>
+        <summary>
+          <span class="rtree-node">{{ .label }}</span>
+          <span class="rtree-count">{{ len .topics }} topics{{ if gt $pub 0 }} · {{ $pub }} published{{ end }}</span>
+        </summary>
+        <ul class="rtree-leaves">
+          {{- range .topics }}{{ partial "research-tree-leaf.html" . }}{{ end }}
+        </ul>
+      </details>
+    </li>
+    {{- end }}
+  </ul>
+</div>
+<script>
+(function(){
+  var tree = document.currentScript.previousElementSibling;
+  var btn = tree.querySelector("[data-rtree-toggle]");
+  var all = tree.querySelectorAll("details");
+  function sync(){
+    var anyClosed = Array.prototype.some.call(all, function(d){ return !d.open; });
+    btn.textContent = anyClosed ? "Expand all" : "Collapse all";
+  }
+  btn.addEventListener("click", function(){
+    var anyClosed = Array.prototype.some.call(all, function(d){ return !d.open; });
+    all.forEach(function(d){ d.open = anyClosed; });
+    sync();
+  });
+  all.forEach(function(d){ d.addEventListener("toggle", sync); });
+  sync();
+})();
+</script>

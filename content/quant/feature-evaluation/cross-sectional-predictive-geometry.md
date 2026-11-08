@@ -395,7 +395,7 @@ $$C^{(d)}=\frac1{N_d}X_d^{\top}\Phi_d,$$
 
 a day with twice the usual cross-sectional dispersion contributes roughly
 twice the magnitude to $C$. It's stronger for the $\mathsf V$ and $\mathsf
-L$ blocks: $G_{\mathsf V}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$, $G_{\mathsf T}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$, so the
+L$ blocks: $G_{\mathsf V}\sim\|z\|^2$, $G_{\mathsf T}\sim\|z\|^2$, so the
 contribution is **four times** the magnitude.
 
 In other words, $Q^{\mathsf D}$ is an **average squared IC weighted by that
@@ -819,7 +819,7 @@ Also, from Section 6's daily demeaning, $\sum_iZ_{id,:}=0$.
 
 ### Overall Motivation
 
-Given a whitened future-return vector $> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.in\mathbb R^K$, we ask: which
+Given a whitened future-return vector $z\in\mathbb R^K$, we ask: which
 **functions** of $z$ might a cross-sectional signal plausibly relate to?
 
 In principle the answer is "any function of $z$," but that's an
@@ -926,12 +926,12 @@ horizons**.
 
 ### 9.4 Content of the Tail ($\mathsf T$) Block
 
-$G_{\mathsf T}(z)=\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|z$ and $G_{\mathsf D}(z)=z$ are obviously highly
-correlated (same direction, just reweighted by $\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|$). The Tail ($\mathsf T$)
+$G_{\mathsf T}(z)=\|z\|z$ and $G_{\mathsf D}(z)=z$ are obviously highly
+correlated (same direction, just reweighted by $\|z\|$). The Tail ($\mathsf T$)
 block's actual content is $G_{\mathsf T}$'s **residual** after projecting
 out $\mathsf D$ and $\mathsf V$, intuitively approximately
 
-$$R_{\mathsf T}\approx\big(\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|-\mathbb E\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|\big)\,> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$. \text{, orthogonalized},$$
+$$R_{\mathsf T}\approx\big(\|z\|-\mathbb E\|z\|\big)\,z\ \text{, orthogonalized},$$
 
 i.e. "**magnitude surprise × direction**."
 
@@ -1119,8 +1119,8 @@ OOS decay.
 ### Worked Example
 
 Research period 2022–2023, OOS is the first half of 2024. If 2024H1's
-market volatility is half the research period's, $\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|$ is systematically
-smaller; since $G_{\mathsf V}\sim\|> The third predictive-mechanism block is labeled $\mathsf T$ (Tail), with $G_{\mathsf T}(z) = \|z\|_2\,z$, typeset in sans-serif $\mathsf T$ to distinguish it from the scalar total period count $T$ and matrix transpose $^\top$.|^2$,
+market volatility is half the research period's, $\|z\|$ is systematically
+smaller; since $G_{\mathsf V}\sim\|z\|^2$,
 
 $$\Phi_{\mathsf V}^{\rm OOS\top}W\Phi_{\mathsf V}^{\rm OOS}\approx0.25\,I\ \Longrightarrow\ \delta^{\mathsf V}\approx0.75\sqrt{d_{\mathsf V}}\approx2.4\ (d_{\mathsf V}=10).$$
 

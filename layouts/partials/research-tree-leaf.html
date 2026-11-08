@@ -1,0 +1,24 @@
+{{- /*
+  One leaf of the research tree (see layouts/shortcodes/research-tree.html).
+  Context: a topic map from data/research_tree.yaml. Recurses into .children.
+*/ -}}
+{{- $pub := isset . "url" -}}
+<li class="rtree-leaf {{ if $pub }}is-pub{{ else }}is-plan{{ end }}">
+  {{- if $pub }}<a class="rtree-item" href="{{ .url | relURL }}">{{ else }}<div class="rtree-item">{{ end -}}
+    <span class="rtree-dot" aria-hidden="true"></span>
+    <span class="rtree-text">
+      <span class="rtree-title">
+        {{- with .id }}<span class="rtree-id">{{ . }}</span> {{ end -}}
+        {{ .title }}
+        {{- with .p }} <span class="rtree-p rtree-{{ lower . }}">{{ . }}</span>{{ end -}}
+        {{- if $pub }} <span class="rtree-badge">note</span>{{ end -}}
+      </span>
+      {{- with .q }}<span class="rtree-q">{{ . }}</span>{{ end -}}
+    </span>
+  {{- if $pub }}</a>{{ else }}</div>{{ end -}}
+  {{- with .children }}
+  <ul class="rtree-leaves">
+    {{- range . }}{{ partial "research-tree-leaf.html" . }}{{ end }}
+  </ul>
+  {{- end }}
+</li>
