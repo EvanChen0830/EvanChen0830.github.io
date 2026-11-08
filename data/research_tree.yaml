@@ -72,6 +72,7 @@ branches:
     label: "Factor"
     color: guide
     topics:
+      - {title: "Factor Research: Representation, Returns, Risk, and Neutralization", url: "/quant/factor/factor-research-framework/", q: "Notation, feature-side factor decomposition in Φ, signal- vs portfolio-level neutralization, factor-return identification."}
       - {id: IR-23, p: P1, title: "Factor ontology & taxonomy", q: "Market, sector, country, currency, style or latent, and meant to explain, predict or hedge?"}
       - {id: IR-24, p: P1, title: "Factor discovery, number & selection", q: "What factor basis is useful, and how many dimensions are actually estimable?"}
       - {id: IR-25, p: P1, title: "Exposure estimation", q: "Characteristics, trailing betas, conditional states or hierarchical model outputs?"}
