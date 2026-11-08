@@ -1,17 +1,19 @@
 ---
 title: "Factor"
-description: "Factor research as its own pillar on top of the Universe layer: exposures, factor returns, factor and specific risk, and the decision role of each factor, kept as separate research objects."
+description: "How the factor set used across the pipeline is defined and evaluated: centered point-in-time exposures, characteristic factors, PCA factors and their rotation, alignment, and the checks a factor set must pass before Universe, Feature and Alpha research rely on it."
 ---
 
 {{< pipeline highlight="factor" >}}
 
-A factor model is a shared, point-in-time service that the feature, alpha,
-covariance and portfolio layers all consume. This section treats its pieces
-(exposures, factor returns, factor and specific risk, and whether a factor is
-there to explain, to earn premium, or to be constrained) as separate research
-questions, each with its own estimator, null and acceptance criterion.
+Universe, Feature and Alpha research each ask a factor question in their own
+chapter: is this sub-universe a factor tilt, which factor does this feature
+predict, on which factor does this alpha have predictive power. This section
+defines the factor set those answers are measured against, and how to tell
+whether it is stable enough to use. Statistical (PCA) factors get particular
+attention: their columns rotate between windows, so only some quantities can
+use them directly.
 
 ## Guides in this section
 
-- **[Factor Research: Representation, Returns, Risk, and Neutralization](/quant/factor/factor-research-framework/)**  
-  Notation compatible with the D/V/T geometry, an exact feature-side factor decomposition in $\Phi$, signal- vs portfolio-level neutralization, factor-return identification under demeaned labels, and research tracks IR-23 to IR-29.
+- **[Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/)**  
+  Centered point-in-time exposures, characteristic factors and their returns, why PCA factors rotate and what stays stable (the subspace), eigengap blocks and Procrustes alignment, choosing the number of factors, the five evaluation checks, and which numbers each later chapter may take from a factor set.

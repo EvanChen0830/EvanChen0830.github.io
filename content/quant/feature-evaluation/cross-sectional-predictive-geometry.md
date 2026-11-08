@@ -140,7 +140,7 @@ $$
 | $\Theta_{\mathsf V},\Theta_{\mathsf T}$ | orthogonalization matrices (Section 10) |
 | $\Gamma_{\mathsf{DV}},\Gamma_{\mathsf{DT}},\Gamma_{\mathsf{VT}}$ | Gram–Schmidt projection coefficients (Section 10) |
 | $\Phi=[\Phi_{\mathsf D}\,|\,\Phi_{\mathsf V}\,|\,\Phi_{\mathsf T}]$ | label-mechanism basis, $\Phi^\top W\Phi=I_{d_\Phi}$ |
-| $F_d$ | point-in-time factor exposures, within-date centered (Section 35; symbols as in [Factor Research §1](/quant/factor/factor-research-framework/#1-notation)) |
+| $F_d$ | point-in-time factor exposures, within-date centered (Section 35; built as in [Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/)) |
 | $P_{F_d},M_{F_d}$ | unweighted factor projector and its complement (Section 35) |
 
 ### 1.3 Core statistics
@@ -169,7 +169,10 @@ $$
 | $\varepsilon_\alpha$ | OOS linear-surrogate residual (Alpha Evaluation Section 18) |
 | $\nu_s$ | novelty fraction (Alpha Evaluation Section 3) |
 | $\rho^2_{F,p},\ \kappa_p$ | factor share of feature $p$, factor/idiosyncratic cross term (Section 35) |
-| $\tilde x^M_p$ | globally normalized idiosyncratic part of feature $p$ (Section 35.3) |
+| $\tilde x^M_p$ | globally normalized specific part of feature $p$ (Section 35.3) |
+| $\hat\Psi_d,\ \hat U_d$ | factor returns and specific part of the band labels on date $d$ (Section 35.7) |
+| $\bar e_{d,p,k},\ g_{d,k}$ | feature $p$'s daily lean on factor $k$; factor $k$'s realized return along $r_{\mathsf D}$ (Section 35.7) |
+| $A_{p,k},\ A_{p,\rm spec}$ | factor-$k$ and specific contributions to $A^{\rm tgt,full}_p$ (Section 35.7) |
 | $\epsilon$ | pure numerical floor (denominator protection), default $10^{-12}$ |
 
 ### 1.4 Correspondence to earlier notation
@@ -2688,87 +2691,84 @@ value), but it should be a conscious decision, not a mistaken belief that
 ### Motivation
 
 A feature with a respectable $Q^{\mathsf D}$ may simply be a noisy proxy for a
-known exposure: beta, size, a sector, a funding-rate bucket. Every quantity in
-this book is measured against $\Phi$, which knows nothing about factors, so
-the question "how much of this feature's predictive geometry is a known
-factor?" needs its own definition.
+known exposure: beta, size, a sector, a funding-rate bucket. Two questions
+follow, and they need different tools:
 
-There are two ways to bring factors in, and only one keeps the ruler fixed:
+1. **How much** of the feature's predictive geometry runs through known
+   factors, and how much is specific? (Sections 35.2–35.6)
+2. **Which** factor does the feature predict, and is that real timing or just
+   a standing tilt that collects the factor's average return? (Section 35.7)
 
-| Approach | What changes | Can raw and factor-neutral numbers be compared? |
-|---|---|---|
-| Label-side: $Y\to M_FY$, rebuild $\Phi$ (as in [Universe §21.2](/quant/universe/multi-sub-universe-directional-coupling-geometry/#212-the-factor-neutral-variant)) | the coordinate system | no: $\Phi^{idio}$ is a different basis, so $Q^{raw}-Q^{idio}$ is not a factor contribution |
-| **Feature-side**: keep $\Phi$, split $x$ | only the signal | **yes**: every piece lives in the same $\Phi$ |
+Both are measured in the same $\Phi$ as everything else in this book, so the
+answers are on the same IC scale as $Q$ and $A^{\rm tgt}$.
 
-This section defines the feature-side version as the primary one. The
-label-side version stays as a robustness check.
+### 35.1 Inputs
 
-### 35.1 Definition
-
-Notation follows [Factor Research §1](/quant/factor/factor-research-framework/#1-notation):
-$F_d\in\mathbb R^{N_d\times m}$ are point-in-time exposures known at $d$,
-**within-date centered** ($\mathbf1^\top F_d=0$). Per date,
+The factor set comes from
+[Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/):
+exposures $F_d\in\mathbb R^{N_d\times m}$ known at $d$, **within-date
+centered**, with a published `factor_basis_id`. Per date,
 
 $$
 P_{F_d}=F_d\big(F_d^\top F_d\big)^{+}F_d^\top,\qquad M_{F_d}=I-P_{F_d}.
 $$
 
-For feature $p$ (the standardized $X^{XS}_{\cdot p}$ of Section 5, with
-$\|X_p\|_W=1$), split it date by date:
+**Analysis cross-section.** On a date where feature $p$ is zero-filled for
+missing names (Section 5.2), every factor computation for that feature uses
+the valid names only: restrict $F_d$ to them, re-center it there, and leave
+the zero-filled entries at zero. Projecting the full cross-section would give
+missing names a factor-implied value they were never observed to have. Dates
+in the absence set $\mathcal D^c_p$ are skipped, as for the raw feature.
+
+### 35.2 Factor share and the factor / specific split
+
+Split the standardized feature ($\|X_p\|_W=1$, Section 5) date by date:
 
 $$
-x^{P}_p=P_{F_d}X_{d,p},\qquad x^{M}_p=M_{F_d}X_{d,p}.
+x^{P}_p=P_{F_d}X_{d,p},\qquad x^{M}_p=M_{F_d}X_{d,p},
+\qquad
+\boxed{\rho^2_{F,p}=\|x^P_p\|_W^2,\qquad \|x^M_p\|_W^2=1-\rho^2_{F,p}.}
 $$
 
-Both pieces stay within-date demeaned (centered $F_d$), so Lemma 4.1 still
-applies to each.
-
-**Missing values.** On a date where some names are zero-filled (Section 5.2),
-project on the valid names only: restrict $F_d$ to them, re-center it there,
-and leave the zero-filled entries at zero in both $x^P_p$ and $x^M_p$.
-Projecting the full cross-section would give missing names a factor-implied
-value they were never observed to have. The restricted map is still a
-per-date orthogonal projector, so everything below holds unchanged. Dates in
-the absence set $\mathcal D^c_p$ are skipped, as for the raw feature.
-
-### 35.2 Proposition 35.1 (exact decomposition in the fixed basis)
+$\rho^2_{F,p}$ is the share of the feature's cross-sectional variance that is
+explained by exposures. Both pieces stay within-date demeaned, so Lemma 4.1
+applies to each, and because $c_s=s^\top W\Phi$ is linear the representation
+splits exactly:
 
 $$
 \boxed{
 c^{\rm full}_p=c^{\rm full}_{x^P_p}+c^{\rm full}_{x^M_p},
 \qquad
-\|x^P_p\|_W^2+\|x^M_p\|_W^2=1,
-}
-\qquad
-\rho^2_{F,p}:=\|x^P_p\|_W^2,
-$$
-
-$$
 Q^{\rm full}_p
 =Q^{\rm full}_{x^P_p}+Q^{\rm full}_{x^M_p}
-+\underbrace{2\big\langle c^{\rm full}_{x^P_p},c^{\rm full}_{x^M_p}\big\rangle}_{\kappa_p},
++\underbrace{2\big\langle c^{\rm full}_{x^P_p},c^{\rm full}_{x^M_p}\big\rangle}_{\kappa_p}.
+}
 $$
 
-and the same identities hold block by block ($\mathsf D,\mathsf V,\mathsf T$)
-and after projection onto $V_r$.
+The same holds block by block ($\mathsf D,\mathsf V,\mathsf T$) and after
+projection onto $V_r$.
 
-**Proof**: $c_s=s^\top W\Phi$ is linear in $s$. Within each date $W$ is a
-scalar multiple of $I$, so $P_{F_d}$ is $W$-self-adjoint and Pythagoras holds
-date by date. Expanding $\|a+b\|^2$ gives the energy identity. The full proof
-is [Factor Proposition F.2](/quant/factor/factor-research-framework/#proposition-f2-exact-feature-side-decomposition). $\blacksquare$
+**Why the feature is split, not the labels.** An alternative is to
+residualize the labels, $Y\to M_FY$, and rebuild the whole basis, as the
+Universe chapter does for its factor-neutral variant
+([Universe §21.2](/quant/universe/multi-sub-universe-directional-coupling-geometry/#212-the-factor-neutral-variant)).
+That gives a different coordinate system: $Q^{raw}-Q^{idio}$ is then not a
+factor contribution, because the two numbers are measured with different
+rulers. Splitting the feature keeps $\Phi$ fixed, so every piece is
+comparable with every other number in this book. The label-side variant stays
+as a robustness check.
 
-**The cross term $\kappa_p$ is not a rounding error.** It is generally
-nonzero, and it can be negative: the factor and idiosyncratic parts of the
-same feature can point in opposite directions in mechanism space, so the
-feature's total $Q$ is *smaller* than its parts. Reporting $Q_{x^P}$ and
-$Q_{x^M}$ without $\kappa_p$ hides exactly that cancellation.
+**Why $\kappa_p$ is reported.** The cross term is generally nonzero and can be
+negative: the factor and specific parts of one feature can point in opposite
+directions in mechanism space, so the feature's total $Q$ is smaller than its
+parts. Reporting $Q_{x^P}$ and $Q_{x^M}$ alone hides that cancellation.
 
-### 35.3 The idiosyncratic quality on the IC scale
+### 35.3 The specific part on the IC scale
 
-$Q^{\rm full}_{x^M_p}$ is bounded by $1-\rho^2_{F,p}$, for the same reason
-residual alpha's raw energy is bounded by $1-R^2$
+$Q^{\rm full}_{x^M_p}$ is at most $1-\rho^2_{F,p}$, for the same reason
+residual alpha's raw energy is at most $1-R^2$
 ([Label–Alpha §18](/quant/alpha-evaluation/label-alpha-geometry/#18-residual-alpha)).
-To compare quality on the IC scale, normalize globally:
+To judge its quality on the IC scale, normalize once, globally:
 
 $$
 \tilde x^{M}_p=\frac{x^M_p}{\|x^M_p\|_W},
@@ -2776,51 +2776,43 @@ $$
 \boxed{Q^{\rm full}_{\tilde x^M_p}=\frac{Q^{\rm full}_{x^M_p}}{1-\rho^2_{F,p}}.}
 $$
 
-Use one global normalization, not a per-date restandardization: re-scaling
-each date separately changes the weight of each date and breaks the exact
-relation above. Report both numbers:
+A per-date restandardization would change the weight of each date and break
+this relation. Report both numbers:
 
-- $Q^{\rm full}_{\tilde x^M_p}$: **how good** the idiosyncratic part is;
-- $(1-\rho^2_{F,p})\,Q^{\rm full}_{\tilde x^M_p}=Q^{\rm full}_{x^M_p}$: **how much**
-  of the feature it accounts for.
+- $Q^{\rm full}_{\tilde x^M_p}$: **how good** the specific part is;
+- $Q^{\rm full}_{x^M_p}$: **how much** of the feature it accounts for.
 
 ### 35.4 Significance
 
 Test $\tilde x^M_p$ with the same circular-shift null as the raw feature
-(Section 14). The pair $(X_{d,p},F_d)$ always stays together: the projection
-uses the exposures of the feature's own date, and only the pairing with
-$\Phi$ is shifted. Under matched thinning (Section 14.3), recompute
-$P_{F_d}$ **on the analysis cross-section**, with $F_d$ re-centered there,
-exactly as $X$ is re-standardized there, and do this for the observed
-statistic as well (Specification 13.1). On a subset $\mathbf1^\top F_d\neq0$,
-and Lemma 4.1 would otherwise fail for $x^P$ and $x^M$.
+(Section 14). The pair $(X_{d,p},F_d)$ always moves together: the split uses
+the exposures of the feature's own date, and only the pairing with $\Phi$ is
+shifted. Under matched thinning (Section 14.3), recompute the split on the
+analysis cross-section, with $F_d$ re-centered there, for the observed
+statistic as well as the null (Specification 13.1); on a subset
+$\mathbf1^\top F_d\neq0$, and Lemma 4.1 would otherwise fail. With the same
+normalization convention on the observed and permuted statistics, the
+p-value is the same for $x^M_p$ and $\tilde x^M_p$.
 
-Apply the same normalization convention to the observed and the permuted
-statistics; then the p-value of $Q^{\mathsf D}_{\tilde x^M_p}$ is the same
-whether computed on $x^M_p$ or on $\tilde x^M_p$.
-
-### 35.5 Reading the decomposition
+### 35.5 Reading the split
 
 | $\rho^2_{F,p}$ | $Q^{\mathsf D}_{\tilde x^M_p}$ significant? | Reading |
 |---|---|---|
-| high | no | **factor proxy**: the feature's directional content is a known exposure. Its value depends on whether that factor is priced (IR-26) and whether the mandate neutralizes it (IR-28). |
-| high | yes | a factor-loaded feature that **also** carries idiosyncratic signal; the idiosyncratic part is small in variance but real |
-| low | yes | an idiosyncratic feature; the factor split changes little |
-| low | no | the feature is weak either way; if the raw feature is nevertheless significant, the difference sits in the small factor part or in $\kappa_p$, so read those before trusting the raw result |
+| high | no | **factor proxy**: the feature's directional content is a known exposure. Section 35.7 tells whether it times that factor or only leans on it. |
+| high | yes | factor-loaded, **and** carries real specific signal that is small in variance |
+| low | yes | a specific feature; the factor split changes little |
+| low | no | weak either way; if the raw feature is nevertheless significant, the difference sits in the small factor part or in $\kappa_p$, so read those first |
 
 Two cautions:
 
-- **Neutralization in the portfolio is not the same projection.** $P_{F_d}$
-  here is unweighted. A dollar-neutral portfolio with hard factor neutrality
-  acts through the $(\Sigma^u)^{-1}$-weighted projector onto
-  $\operatorname{span}[F_d\ \mathbf1]$
-  ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)).
-  A signal that is "idiosyncratic" in this section can still carry factor
-  exposure after a dollar-neutral optimizer without factor constraints; the
-  exposure is exactly zero when specific variances are equal across names,
-  and generally nonzero otherwise.
-- **The split depends on the basis.** A different legitimate $F_d$ gives a
-  different $\rho^2_{F,p}$. Report `factor_basis_id` with every number.
+- **The portfolio removes a different projection.** $P_{F_d}$ here is
+  unweighted. A dollar-neutral optimizer that hard-neutralizes the factors
+  removes the specific-variance-weighted projection onto $[F_d\ \mathbf1]$
+  ([Label–Alpha §28.3](/quant/alpha-evaluation/label-alpha-geometry/#283-the-alpha-that-reaches-the-portfolio)).
+  The two agree when specific variances are equal across names.
+- **Safe for PCA factors.** Everything in 35.2–35.6 depends only on the span
+  of $F_d$, so it is unaffected by the sign flips and rotations of
+  statistical factors. Section 35.7 is not.
 
 ### 35.6 Library level
 
@@ -2832,9 +2824,181 @@ C=C^{P}+C^{M},\qquad
 C^{P}_{p,:}=c^{\rm full}_{x^P_p},\quad C^{M}_{p,:}=c^{\rm full}_{x^M_p}.
 $$
 
-The SVD of $C^{M}$ answers "which mechanism directions does the library
-illuminate **after** known exposures are removed from every feature". If the
-top right-singular vector of $C$ disappears from $C^{M}$, the library's
-dominant mode (Section 13: often the momentum/reversal axis) is a known
-factor rather than a discovered mechanism. Significance of the modes of
-$C^{M}$ uses the same permutation scheme (Section 15), applied to $C^{M}$.
+The SVD of $C^{M}$ shows which mechanism directions the library illuminates
+**after** known exposures are removed from every feature. If the top
+right-singular vector of $C$ is absent from $C^{M}$, the library's dominant
+mode (Section 13: often the momentum/reversal axis) is a known factor rather
+than a discovered mechanism. Significance of the modes of $C^{M}$ uses the same
+permutation scheme (Section 15).
+
+### 35.7 Which factor does a feature predict?
+
+#### Motivation
+
+Section 35.2 says how much of a feature runs through factor directions. It
+does not say **which** factor, and it cannot tell apart two very different
+situations:
+
+- the feature **leans** on a factor all the time, and simply collects that
+  factor's average return (a standing tilt: the factor premium, not a
+  prediction);
+- the feature's lean on a factor **changes** ahead of that factor's moves
+  (timing: a genuine forecast of the factor).
+
+The answer is computed on the **target alignment** $A^{\rm tgt}$ of
+Section 22, because its contributions add up exactly, factor by factor.
+
+#### Step 1: factor returns of the labels
+
+On each date, on the feature's analysis cross-section, regress the band
+labels on the exposures:
+
+$$
+\hat\Psi_d=\big(F_d^\top F_d\big)^{+}F_d^\top Y^{(\beta)}_d\in\mathbb R^{m\times K},
+\qquad
+\hat U_d=Y^{(\beta)}_d-F_d\hat\Psi_d .
+$$
+
+Row $k$ of $\hat\Psi_d$ is factor $k$'s realized return at every horizon of the
+band; $\hat U_d$ is what the factors leave unexplained.
+
+#### Step 2: the feature's daily lean on each factor
+
+$$
+\boxed{\bar e_{d,p,k}=\frac1{N_d}\sum_iF_{d,ik}\,X_{id,p}}
+$$
+
+the cross-sectional covariance between the feature and exposure $k$ on date
+$d$: how strongly a portfolio built from the feature is tilted toward factor
+$k$ that day.
+
+#### Step 3: what each factor did, along the target
+
+Since $\Phi_{\mathsf D}=Z=Y^{(\beta)}B_Y$, map each factor's realized return
+into the target direction $r_{\mathsf D}$ of Section 21:
+
+$$
+\boxed{g_{d,k}=\hat\Psi_{d,k,:}\,B_Y\,r_{\mathsf D},
+\qquad
+\sigma_{d,p}=\frac1{N_d}X_{d,p}^\top\hat U_d\,B_Y\,r_{\mathsf D}.}
+$$
+
+$g_{d,k}$ is factor $k$'s realized return on the target, in the same whitened
+units as every IC in this book; $\sigma_{d,p}$ is the feature's specific
+contribution on that date.
+
+#### Step 4: attribution
+
+$$
+\boxed{
+A^{\rm tgt,full}_p=\sum_{k=1}^m A_{p,k}+A_{p,\rm spec},
+\qquad
+A_{p,k}=\frac1{T_p}\sum_{d\in\mathcal D_p}\bar e_{d,p,k}\,g_{d,k},
+\qquad
+A_{p,\rm spec}=\frac1{T_p}\sum_{d\in\mathcal D_p}\sigma_{d,p}.
+}
+$$
+
+This holds exactly, because the $\mathsf D$ block is linear in the labels and
+the labels split exactly into factor and specific parts. It also ties back
+to Section 35.2: $\sum_kA_{p,k}$ is the target alignment of $x^P_p$, and
+$A_{p,\rm spec}$ is the target alignment of $x^M_p$ (both computed on the same
+cross-section with the same exposures).
+
+$A^{\rm tgt,full}_p=\big(c^{{\rm full},\mathsf D}_p\big)^\top r_{\mathsf D}$ uses the
+**unprojected** representation. The projected $A^{\rm tgt}_p$ used for
+eligibility mixes in $\mathsf V$ and $\mathsf T$ coordinates through
+$P_V$, and those have no factor split; report both, and attribute only the
+unprojected one.
+
+#### Step 5: tilt or timing
+
+Each factor's contribution splits exactly into a standing part and a timing
+part:
+
+$$
+\boxed{
+A_{p,k}
+=\underbrace{\bar e_{p,k}\;\bar g_k}_{\text{static}}
++\underbrace{\operatorname{cov}_d\big(\bar e_{d,p,k},\,g_{d,k}\big)}_{\text{timing}},
+}
+$$
+
+with averages and covariance over $d\in\mathcal D_p$.
+
+- **Static**: average lean × the factor's average return. The feature earns
+  factor $k$'s premium by being tilted toward it. This is not a prediction,
+  and it disappears if the factor is neutralized.
+- **Timing**: the lean is larger before the factor does well. **Only this
+  part means the feature predicts factor $k$.**
+
+#### Step 6: significance
+
+The three parts need different tests:
+
+| Part | Test | Why |
+|---|---|---|
+| timing, $\operatorname{cov}(\bar e_k,g_k)$ | circular-shift null of Section 14, with $(X_{d,p},F_d)$ held together so the lean shifts against the factor's returns; Westfall–Young max-T over the $m$ factors | this is the predictive claim |
+| specific, $A_{p,\rm spec}$ | the same shift null | same as any feature statistic |
+| static, $\bar e_{p,k}\bar g_k$ | **not** testable by the shift null: a circular shift leaves both averages unchanged. Test the premium $\bar g_k$ with a block bootstrap (a property of the factor, shared by all features), and report the sign persistence of $\bar e_{d,p,k}$ | it is a premium bet, not a forecast |
+
+#### Reading
+
+| Dominant significant part | The feature is a… | What to do with it |
+|---|---|---|
+| $A_{p,\rm spec}$ | **specific predictor** | the ordinary case; survives any neutrality rule |
+| timing on factor $k$ | **timer of factor $k$** | valuable only if the mandate allows exposure to $k$; consider using it as an explicit factor forecast (Factor IR-26) |
+| static on factor $k$ | **premium harvester** of $k$ | equivalent to holding factor $k$; worth exactly the factor's premium, and nothing under neutrality |
+| none, but $\rho^2_{F,p}$ high | **proxy without payoff** | the factor exposure neither times nor earns anything over the sample |
+
+#### Which factors can be named
+
+$A_{p,k}$ is defined per factor, so it depends on how the factor set is
+parameterized; the total $\sum_kA_{p,k}$ does not.
+
+- **Characteristic factors** can be named one by one. If two are strongly
+  correlated (beta and volatility, say), the split between them is not
+  well-defined: report their **sum** as a group, which is unaffected by any
+  re-parameterization inside the group.
+- **PCA factors** rotate between windows
+  ([Factor Definition §5.2](/quant/factor/factor-definition-and-evaluation/#52-why-pca-factors-rotate)).
+  Name only factors in the set's `usable_per_factor` list (aligned and
+  column-stable); report every other component at eigengap-block level.
+
+#### Boundary
+
+Only the $\mathsf D$ block splits by factor this way. $\mathsf V$ and
+$\mathsf T$ are nonlinear in the labels, so a factor's return does not enter
+them additively. The factor / specific split of Section 35.2 still applies to
+those blocks; the factor-by-factor attribution does not.
+
+For exploratory research without a target, replace $r_{\mathsf D}$ by the
+identity: $A_{p,k}$ becomes a $K$-vector, one entry per whitened horizon
+coordinate, and the same static / timing split holds entry by entry.
+
+### 35.8 Library level: the factor timing map
+
+Collect the timing parts into a matrix with one row per feature and one column
+per nameable factor (or factor group), each entry the timing contribution
+with its adjusted p-value. It shows:
+
+- which factors the library can time at all, and with how many independent
+  features (a column with one significant entry is fragile);
+- whether a feature's apparent timing is just factor momentum: add the
+  factor's own lagged return as a feature and check whether the column
+  survives;
+- candidate inputs for an explicit factor-return forecast (Factor IR-26).
+
+### 35.9 Report fields
+
+| Field | Description |
+|---|---|
+| `factor_basis_id` | which factor set |
+| `rho2_F` | $\rho^2_{F,p}$ (35.2) |
+| `Q_full_P`, `Q_full_M`, `kappa` | 35.2 |
+| `Q_D_Mtilde`, `p_D_Mtilde` | 35.3, 35.4 |
+| `A_tgt_full` | $\big(c^{{\rm full},\mathsf D}_p\big)^\top r_{\mathsf D}$ |
+| `A_k_static`, `A_k_timing`, `p_k_timing` | per nameable factor or group (35.7) |
+| `A_spec`, `p_spec` | 35.7 |
+| `premium_k`, `p_premium_k`, `lean_sign_persistence_k` | inputs to the static part |
+| `feature_type` | specific / timer($k$) / premium harvester($k$) / proxy without payoff |
