@@ -32,7 +32,7 @@ branches:
       - {id: IR-05, p: P1, title: "Universe eligibility & selection", q: "Does universe selection itself create apparent predictability or concentration?"}
       - {id: IR-06, p: P1, title: "Group, sector & hierarchy", q: "What is a meaningful group across equities, futures, FX and crypto: nested, overlapping, time-varying?"}
       - {id: IR-07, p: P1, title: "Covariance geometry & effective breadth", q: "How many genuinely independent sources of risk and opportunity does the universe contain?"}
-      - {id: IR-08, p: P1, title: "Factor-aware sub-universe discovery", q: "Is a sub-universe's structure driven by common factors or by residual opportunity?"}
+      - {id: IR-08, p: P1, url: "/quant/universe/multi-sub-universe-directional-coupling-geometry/#21-beta-demeaning-and-the-factor-neutral-variant", url: "/quant/universe/multi-sub-universe-directional-coupling-geometry/#21-beta-demeaning-and-the-factor-neutral-variant", title: "Factor-aware sub-universe discovery", q: "Is a sub-universe's structure driven by common factors or by residual opportunity?"}
 
   - slug: feature
     label: "Target & Feature"
@@ -43,8 +43,8 @@ branches:
       - {title: "Selection Bridge: Eligibility, Grouping, Coverage", url: "/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/", q: "Eligibility gates, mechanism grouping and submodular coverage."}
       - {id: IR-09, p: P0, title: "Label & estimand design", q: "Is the model predicting expected return, rank, distribution, tail, factor or specific return?"}
       - {id: IR-10, p: P1, title: "Feature definition & normalization", q: "Which transformations preserve information without silently changing the investment problem?"}
-      - {id: IR-11, p: P1, title: "Conditional predictive geometry", q: "Is predictive power factor-mediated, idiosyncratic, group-local, horizon- or regime-specific?"}
-      - {id: IR-12, p: P1, title: "Redundancy, interaction & selection", q: "Do apparently distinct features add information conditional on those already selected?"}
+      - {id: IR-11, p: P1, url: "/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature", url: "/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature", title: "Conditional predictive geometry", q: "Is predictive power factor-mediated, idiosyncratic, group-local, horizon- or regime-specific?"}
+      - {id: IR-12, p: P1, url: "/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility", url: "/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility", title: "Redundancy, interaction & selection", q: "Do apparently distinct features add information conditional on those already selected?"}
       - {id: IR-13, p: P2, title: "Coverage & transportability", q: "Does a feature generalize across instruments, sectors, volatility states and horizons?"}
 
   - slug: model
@@ -65,13 +65,14 @@ branches:
       - {id: IR-18, p: P1, title: "Score → expected return", q: "How is a relative score converted into a calibrated asset-level expected return?"}
       - {id: IR-19, p: P1, title: "Alpha combination & pool", q: "What is the independent information breadth of multiple alpha sources?"}
       - {id: IR-20, p: P1, title: "Horizon & temporal dependence", q: "Signal decay, persistence, lead–lag and cross-horizon coherence."}
-      - {id: IR-21, p: P1, title: "Factor vs specific return forecast", q: "Which part of expected return predicts factor premia versus asset-specific variation?"}
+      - {id: IR-21, p: P1, url: "/quant/alpha-evaluation/label-alpha-geometry/#28-factor-aligned-and-specific-alpha", url: "/quant/alpha-evaluation/label-alpha-geometry/#28-factor-aligned-and-specific-alpha", title: "Factor vs specific return forecast", q: "Which part of expected return predicts factor premia versus asset-specific variation?"}
       - {id: IR-22, p: P2, title: "Idea capacity & fragility", q: "How sensitive is performance to concentrated adoption, without modelling costs?"}
 
   - slug: factor
     label: "Factor"
     color: guide
     topics:
+      - {title: "Factor Research: Representation, Returns, Risk, and Neutralization", url: "/quant/factor/factor-research-framework/", q: "Notation, feature-side factor decomposition in Φ, signal- vs portfolio-level neutralization, factor-return identification."}
       - {id: IR-23, p: P1, title: "Factor ontology & taxonomy", q: "Market, sector, country, currency, style or latent, and meant to explain, predict or hedge?"}
       - {id: IR-24, p: P1, title: "Factor discovery, number & selection", q: "What factor basis is useful, and how many dimensions are actually estimable?"}
       - {id: IR-25, p: P1, title: "Exposure estimation", q: "Characteristics, trailing betas, conditional states or hierarchical model outputs?"}

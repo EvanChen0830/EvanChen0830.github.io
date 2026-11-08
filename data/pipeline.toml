@@ -9,6 +9,11 @@ label = "Universe"
 desc = "Which assets are eligible, tested as a geometric object."
 
 [[stages]]
+slug = "factor"
+label = "Factor"
+desc = "Exposures, factor returns, factor and specific risk, and neutralization."
+
+[[stages]]
 slug = "feature-evaluation"
 label = "Feature Evaluation"
 desc = "Which features carry real signal, and selecting among them."

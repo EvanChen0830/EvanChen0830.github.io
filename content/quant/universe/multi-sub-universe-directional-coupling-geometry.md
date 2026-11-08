@@ -1146,6 +1146,24 @@ This lets you retain, simultaneously:
 - different D directions;
 - different enrichment levels within the same direction.
 
+### 13.5 Within-group family
+
+Given point-in-time group memberships $H_d$ (sector, industry, or a
+cross-asset taxonomy such as asset class or crypto sector), run the 13.1
+ladder **inside each group**:
+
+$$
+\mathcal S_{k,j}
+=\operatorname{TopM_j}\big(u_i^D\mid i\in\text{group }k\big).
+$$
+
+Comparing a within-group candidate with the cross-group ladder of the same
+size separates two explanations of D-enrichment: concentration *between*
+groups (a sector effect) versus concentration *within* a group (ticker-level
+structure that a sector factor cannot explain). The taxonomy must be the one
+known at $d$; a reconstituted classification applied to past dates is
+look-ahead. Sector-driven candidates are also caught by Section 21.3–21.4.
+
 ### Rule 80.1 (No arbitrary subset search)
 
 Genetic search, beam search, or greedily maximizing evaluation-period $Q$ ticker by ticker are not permitted, unless the entire optimizer is fully embedded inside a permutation null with an independent OOS test. The baseline specification does not allow it.
@@ -1222,6 +1240,11 @@ For every date $d$:
    $$
 
 You cannot just permute $G_{VD}$ alone, because the canonical normalizers $G_{VV}, G_{DD}$ also change with membership.
+
+When a factor model is available, also run the exposure-matched version of
+this permutation (Section 21.4). The size-matched null asks whether
+membership is special; the exposure-matched null asks whether it is special
+**beyond its exposure profile**.
 
 ### 15.3 Primary test statistics
 
@@ -1677,18 +1700,50 @@ $$
 
 So a subset with high beta dispersion can inflate $q_D$ or produce V-D coupling purely through that mechanism.
 
-### The factor-neutral variant
+Notation for the rest of this section follows
+[Factor Research §1](/quant/factor/factor-research-framework/#1-notation):
+$F_d\in\mathbb R^{N_d\times m}$ are point-in-time exposures known at $d$,
+$m$ is the number of factors, and $P_{F_d}$, $M_{F_d}=I-P_{F_d}$ are the
+factor projectors.
+
+### 21.1 Exposures must be centered
+
+The labels here are already demeaned, so the exposures must be too:
+
+$$
+\boxed{
+F_d\leftarrow\Big(I-\tfrac1{N_d}\mathbf1\mathbf1^\top\Big)F_d^{raw},
+\qquad
+\mathbf1^\top F_d=0.
+}
+$$
+
+- The market factor enters as $\beta-\bar\beta$, which is exactly the
+  heterogeneous-beta term above. A pure intercept column becomes zero and is
+  dropped.
+- With centered $F_d$, $M_{F_d}Y_d$ stays within-date demeaned
+  ([Factor Lemma F.1](/quant/factor/factor-research-framework/#lemma-f1-centered-exposures-keep-residuals-centered)),
+  so the residualized labels can enter the whitening chain unchanged.
+- For dollar-neutral portfolios nothing is lost by centering
+  ([Factor Lemma F.0](/quant/factor/factor-research-framework/#lemma-f0-centering-is-lossless-for-dollar-neutral-portfolios)).
+
+Non-overlapping sector dummies lose one rank after centering
+([Factor Lemma F.4](/quant/factor/factor-research-framework/#lemma-f4-centered-group-dummies-lose-one-rank)).
+That does not affect anything in this chapter, because $P_{F_d}$ and
+$M_{F_d}$ depend only on $\operatorname{span}(F_d)$. It matters only if
+sector factor returns are reported, which then need a stated identification
+restriction.
+
+### 21.2 The factor-neutral variant
 
 If the goal is to study idiosyncratic geometry specifically, first apply
 
 $$
 Y_d^{idio}
 =M_{F_d}Y_d,
-$$
-
-$$
+\qquad
 M_{F_d}
-=I-F_d(F_d^\top F_d)^{-1}F_d^\top,
+=I-F_d(F_d^\top F_d)^{+}F_d^\top,
 $$
 
 then rebuild the entire chain:
@@ -1701,21 +1756,102 @@ G_g^{idio},
 R_{VD,g}^{idio}.
 $$
 
-Mixing blocks from the raw basis and the idiosyncratic basis in the same calculation is not permitted.
+This is the unweighted projector ($\Pi^{\rm geom}=I$), applied on the
+**parent** cross-section $\mathcal U_d$ before any restriction; within a date
+$W_{\mathcal U}$ is a scalar multiple of $I$, so the projector is
+$W_{\mathcal U}$-self-adjoint. The pseudo-inverse makes the projector
+well-defined for a rank-deficient basis (Section 21.1); log $\operatorname{rank}F_d$
+anyway, since an unexpected drop usually means a data problem.
 
-### Reporting
+Universe geometry is a property of the labels, so here the residualization is
+**label-side** and $\Phi^{idio}_{\mathcal U}$ is a different coordinate system.
+Mixing blocks from the raw basis and the idiosyncratic basis in the same
+calculation is not permitted, and $q_D^{raw}-q_D^{idio}$ is **not** a factor
+contribution: the two numbers are measured with different rulers. (Feature
+and alpha research instead keep the raw $\Phi$ and decompose the signal; see
+[Predictive Geometry §35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature).)
 
-When a factor-neutral variant exists, report both sets side by side:
+### 21.3 Is the candidate just a factor tilt?
+
+A ladder built on $u_i^D$ can select, in effect, "the top-beta names" or
+"one sector". Before any geometry is interpreted, measure how much of the
+membership itself is explained by exposures. For each date, center the
+membership indicator
+
+$$
+\tilde m_{g,d}=\Big(I-\tfrac1{N_d}\mathbf1\mathbf1^\top\Big)\mathbf1_{\mathcal S_{g,d}}\in\mathbb R^{N_d},
+$$
+
+and define the **membership factor share**
+
+$$
+\boxed{
+\rho^2_F(g)
+=\frac1{T_g}\sum_{d\in\mathcal D_g}
+\frac{\|P_{F_d}\tilde m_{g,d}\|^2}{\|\tilde m_{g,d}\|^2}
+\in[0,1].
+}
+$$
+
+$\rho^2_F(g)$ is the average $R^2$ of a cross-sectional regression of
+membership on an intercept and the exposures (with centered $F_d$ the
+intercept is absorbed by centering $\tilde m$). It is undefined on dates where
+$\mathcal S_{g,d}$ is empty or equals $\mathcal U_d$; skip those dates. It is a
+descriptive quantity, computed on the discovery period only.
+
+| $\rho^2_F(g)$ | Reading |
+|---|---|
+| near 0 | membership is not a linear function of known exposures |
+| intermediate | membership is partly a tilt; the exposure-matched null (21.4) decides whether the rest is special |
+| near 1 | the candidate is essentially a factor portfolio. A factor model already describes it, and the universe adds a new object only if the exposure-matched null still rejects |
+
+### 21.4 Exposure-matched membership null
+
+Section 15.2 stratifies the membership permutation by liquidity, size or
+listing age. The factor-aware version adds **pre-locked exposure strata**:
+on each date, bucket the parent universe by quantiles of at most two
+exposures (or by sector), cross them with the liquidity strata, and draw the
+same count per cell as the real candidate.
+
+The p-value then answers a narrower question:
+
+> **Given its exposure profile, is this membership still special?**
+
+| Size-matched null (15.2) | Exposure-matched null | Reading |
+|---|---|---|
+| rejects | rejects | structure beyond known exposures |
+| rejects | does not reject | the structure is carried by the exposure profile: a factor tilt, better handled by the factor model than by a separate universe |
+| does not reject | — | nothing special about membership |
+
+Rules:
+
+- Strata come from $F_d$ at date $d$ only, and the bucket edges are fixed
+  on the discovery period.
+- Merge cells with fewer than $2\times$ the candidate's per-cell count; log
+  every merge. A cell that cannot be filled means the candidate cannot be
+  matched on that exposure, and the test is reported as not available rather
+  than run on a thinned null.
+- Max-T calibration (Section 15.4) runs over the exposure-matched draws
+  exactly as over the size-matched ones.
+
+### 21.5 Reporting
+
+When a factor model exists, report side by side:
 
 $$
 q_D^{raw},Q_{VD}^{raw},\rho_1^{raw},
+\qquad
+q_D^{idio},Q_{VD}^{idio},\rho_1^{idio},
+\qquad
+\rho^2_F(g),
+\qquad
+p^{\rm size}_g,\ p^{\rm expo}_g.
 $$
 
-$$
-q_D^{idio},Q_{VD}^{idio},\rho_1^{idio}.
-$$
-
-Strong raw / weak idio means the structure is driven mainly by known common exposures. Both strong means the structure survives factor neutralization.
+Strong raw / weak idio means the structure is driven mainly by known common
+exposures. Both strong means the structure survives factor neutralization.
+The exposure-matched p-value is the formal version of the same question at
+the level of membership.
 
 ---
 
@@ -1908,8 +2044,12 @@ Every candidate — accepted or rejected — gets a row. Only saving the winners
 |---|---|
 | `breadth_D_median` | D contributor breadth |
 | `breadth_can_median` | canonical contribution breadth |
-| `qD_idio` | if a factor-neutral variant exists |
+| `factor_basis_id` | which $F_d$ (version, factors, identification restriction) |
+| `rho2_F_membership` | $\rho^2_F(g)$, Section 21.3 |
+| `qD_idio`, `Q_VD_idio` | if a factor-neutral variant exists (Section 21.2) |
 | `rho1_idio` | if a factor-neutral variant exists |
+| `p_qD_expo`, `p_rho1_expo` | exposure-matched null, Section 21.4 (`n/a` if cells cannot be filled) |
+| `generator_group` | group $k$ for within-group candidates (Section 13.5) |
 
 ### G. Decision
 
@@ -2023,6 +2163,8 @@ The following can be used directly as a pipeline checklist.
 | frozen canonical coefficients $a_g,b_g$ | pre-OOS | OOS | no |
 | local $\Phi_g$ | accepted-universe model train | downstream model OOS | per each model's own fold specification |
 | factor-neutral basis | its corresponding train window | its corresponding evaluation | kept separate from the raw basis |
+| exposures $F_d$, groups $H_d$ | data available at $d$ only | date $d$ | recomputed per date from point-in-time inputs; never back-filled |
+| exposure-strata bucket edges | discovery | evaluation / OOS | no |
 
 ---
 
@@ -2045,6 +2187,9 @@ All of the following must be automated in the production implementation.
 | Top concentration monotonic | $C_1\le C_2\le\cdots\le1$ |
 | Sign invariance | flipping singular-vector signs leaves every scalar metric unchanged |
 | Membership identity | $\mathcal S_g=\mathcal U\Rightarrow G_g=I$ |
+| Centered exposures | $\|\mathbf1^\top F_d\|<10^{-10}$ for every $d$ |
+| Idio labels stay demeaned | $\|\mathbf1^\top M_{F_d}Y_d\|<10^{-10}$ |
+| Membership factor share | $0\le\rho^2_F(g)\le1$; $\rho^2_F=1$ when the centered membership lies in $\operatorname{span}(F_d)$, e.g. a sector included in $F_d$ (also the dropped reference sector) |
 
 ---
 
@@ -2134,7 +2279,7 @@ $$
 
 and give the candidate a larger $\operatorname{Var}(\beta)$.
 
-Expected: raw $q_D$ rises; the factor-neutral variant's enrichment disappears or drops sharply.
+Expected: raw $q_D$ rises; the factor-neutral variant's enrichment disappears or drops sharply; the exposure-matched null (bucketed on $\beta$) does not reject while the size-matched null does.
 
 ### T9: Dynamic universe
 
@@ -2147,6 +2292,31 @@ Criterion: $W_g$'s total weight per date is exactly $1/T_g$; null calibration is
 Plant one extreme ticker that produces most of the coupling.
 
 Expected: $\rho_1$ can be very high, but canonical breadth drops sharply. This verifies the breadth diagnostic can actually detect concentration.
+
+### T11: Sector-tilt subset
+
+Give one sector a common sector-level return shock.
+
+- **Candidate = the whole sector.** Expected: $\rho^2_F(g)=1$ exactly when the
+  sector is in $F_d$; the size-matched null rejects; the sector-stratified
+  exposure-matched null is degenerate (the candidate *is* the cell) and is
+  reported `n/a` by the Section 21.4 rule. $\rho^2_F(g)=1$ together with `n/a`
+  is the correct signature of a pure factor tilt.
+- **Candidate = a random half of the sector.** Expected: the size-matched null
+  rejects; the sector-stratified exposure-matched null does not, because
+  every same-sector draw carries the same shock; a within-group candidate
+  (Section 13.5) from that sector shows no extra enrichment over random
+  same-sector draws.
+
+### T12: Planted structure beyond exposures
+
+Plant D-enrichment in a random set of names that is balanced across the
+exposure buckets.
+
+Expected: $\rho^2_F(g)\approx0$, and both the size-matched and the
+exposure-matched nulls reject. Together with T8 and T11 this checks that the
+two nulls separate "factor tilt" from "structure beyond exposures" in both
+directions.
 
 ---
 
@@ -2173,6 +2343,9 @@ Expected: $\rho_1$ can be very high, but canonical breadth drops sharply. This v
 | Jaccard redundancy | $>0.80$ | used jointly with D similarity |
 | D-subspace redundancy | $>0.90$ | used jointly with Jaccard |
 | dynamic update | weekly / monthly | reduces membership churn |
+| exposure strata | $\le2$ exposures × 5 quantile buckets, or sector | crossed with liquidity strata, edges locked on discovery |
+| minimum cell size | $2\times$ candidate per-cell count | merge or report `n/a` |
+| $\rho^2_F(g)$ flag | $>0.8$ | descriptive; interpretation needs the exposure-matched null |
 | numerical $\epsilon$ | $10^{-12}$ | denominator protection |
 
 All of these thresholds are operating/screening parameters, not statistical criteria. Formal significance comes from the Section 15 null; stability comes from Section 16-84; actual feature learnability comes from the downstream pipeline starting at Section 20.
