@@ -1030,13 +1030,15 @@ One row per model × horizon band.
 
 | Field | Description |
 |---|---|
-| `factor_basis_id`, `mandate` | which $F_d$; unconstrained / soft / hard-neutral |
-| `rho2_F_alpha` | $\rho^2_{F,\alpha}$ |
-| `Q_alpha_P`, `Q_alpha_M`, `kappa_alpha` | Section 28.1 (absolute scale) |
+| `factor_basis_id`, `mandate` | which factor set; unconstrained / soft / hard-neutral |
+| `rho2_F_alpha` | $\rho^2_{F,\alpha}$ (28.2) |
+| `Q_alpha_P`, `Q_alpha_M`, `kappa_alpha` | 28.2, absolute scale |
 | `Q_alpha_Mtilde`, `p_alpha_Mtilde_D` | quality of the specific part and its p-value |
-| `Q_cell_i..iv`, `Q_cell_cross` | Section 28.2 four-cell energies and total cross term |
-| `p_cell_iv_D` | significance of cell (iv) |
-| `Q_alpha_dec`, `gap_dec_vs_M` | Section 28.3, if a specific-risk model is available |
+| `Q_alpha_dec` | 28.3, if a specific-risk model is available |
+| `A_alpha_spec`, `p_alpha_spec` | specific contribution to $A^{\rm tgt}_\alpha$ (28.4) |
+| `factor_table` | the factor attribution table of 28.4, one row per nameable factor or group: lean, static, timing, $p$, share, linear / nonlinear split |
+| `cell_i..iv` | 28.5 four-cell contributions to $A^{\rm tgt}_\alpha$; energies and total cross term |
+| `implied_forecast_oos_k` | 28.6 OOS test of the implied factor forecast, for every factor with significant timing |
 
 **Coordinate-system health**
 
@@ -1168,13 +1170,17 @@ sections.
 44. Residual: s2_resid, Q_resid (post-standardization), Q_resid_abs,
     nu_tilde_resid, p_resid                                           [Section 18]
 45. Determine Case A-E                                                [Section 20]
-46. Output the model report and feature-alpha report                  [Section 21,Section 22]
+46. Factor split rho2_F, Q_P/Q_M/kappa, specific quality; decision
+    alpha if a specific-risk model exists                             [Section 28.2,28.3]
+47. Factor attribution table: per-factor static/timing, specific,
+    significance, linear/nonlinear split, implied-forecast test       [Section 28.4-28.6]
+48. Output the model report and feature-alpha report                  [Section 21,Section 22]
 ```
 
 **Stage 5 (optional): production refit**
 
 ```text
-47. Refit the label basis and V_r on D union E, for production use
+49. Refit the label basis and V_r on D union E, for production use
     only. No new decisions may be made after refitting.               [§15.4]
 ```
 
@@ -1245,6 +1251,7 @@ groups must pass.
 | Factor split (vector) | $\|c^{\rm full}_s-c^{\rm full}_{P_Fs}-c^{\rm full}_{M_Fs}\|<10^{-10}$ |
 | Factor split (norm) | $\big\lvert\|P_Fs\|_W^2+\|M_Fs\|_W^2-1\big\rvert<10^{-10}$ |
 | Four-cell sum | (i)+(ii)+(iii)+(iv) $=c^{\rm full}_\alpha$ to $10^{-10}$ |
+| Factor attribution | $\big\lvert A^{\rm tgt}_\alpha-\sum_kA_{\alpha,k}-A_{\alpha,\rm spec}\big\rvert<10^{-10}$; static + timing $=A_{\alpha,k}$ |
 | Centered exposures | $\|\mathbf1^\top F_d\|<10^{-10}$ for every $d$ |
 | Efficiency bound | $0\le\eta^{\mathsf D}\le1+\epsilon$ |
 | Sign flip | $X_q=-X_p\Rightarrow S^{\rm mech}_{pq}=1,\ A^{\rm mech}_{pq}=-1$ |
@@ -1464,132 +1471,281 @@ left over once the model's output has the features subtracted out.**
 
 ### Motivation
 
-Sections 3–18 ask whether the model's output is real, what mechanism it
-predicts, and what it learned beyond its features. None of them asks how much
-of the output is a **known common exposure**: a model can reach a good
-$Q^{\mathsf D}_\alpha$ by tilting toward beta or a sector, and that tilt is
-removed downstream whenever the mandate neutralizes the factor. This section
-adds that question, in the same fixed coordinate system $\Phi$.
+Sections 3–20 establish whether the model's output is real, what mechanism it
+predicts, and what it learned beyond its features. They do not say whether
+that predictive power is about **known common factors**, and if so, which
+ones. That matters because the same $A^{\rm tgt}_\alpha$ can mean three very
+different things:
 
-Notation follows [Factor Research §1](/quant/factor/factor-research-framework/#1-notation):
-$F_d$ are point-in-time exposures known at $d$, within-date centered, and
-$P_{F_d}$, $M_{F_d}$ are the unweighted per-date projectors of
-[Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature).
+- the model predicts **specific** returns: who beats their factor-implied
+  return;
+- the model **times a factor**: it leans toward beta, a sector or a style
+  before that factor does well;
+- the model simply **leans** on a factor all the time and collects its average
+  return, which is holding the factor, not predicting it.
 
-### 28.1 The decomposition
+They also fare differently in the portfolio: a mandate that neutralizes a
+factor removes the second and third entirely. This section answers, for a
+finished model:
 
-Apply Predictive Geometry Proposition 35.1 to the standardized alpha
-$\tilde\alpha$ (Section 2):
+> **On which factors does this alpha have predictive power, is it timing or
+> just a tilt, where in the model did it come from, and how much of it
+> reaches the portfolio?**
+
+Everything is computed in the same OOS window and the same $\Phi$ as the rest
+of this chapter (Section 10).
+
+### 28.1 Inputs
+
+- A factor set built as in
+  [Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/):
+  exposures $F_d\in\mathbb R^{N_d\times m}$ known at $d$, within-date centered,
+  with its `factor_basis_id` and its `usable_per_factor` list.
+- The standardized alpha $\tilde\alpha$ (Section 2, $\|\tilde\alpha\|_W=1$), its
+  OOS linear surrogate $\hat\alpha^{\rm lin}$ and residual $\varepsilon_\alpha$
+  (Sections 15–18).
+- Per date, the unweighted projectors
+  $P_{F_d}=F_d(F_d^\top F_d)^{+}F_d^\top$, $M_{F_d}=I-P_{F_d}$, computed on the
+  alpha's analysis cross-section (missing names and matched thinning as in
+  [Predictive Geometry §35.1 and §35.4](/quant/feature-evaluation/cross-sectional-predictive-geometry/#351-inputs)).
+
+### 28.2 How much of the alpha runs through factors
+
+Split the alpha date by date into its factor-aligned and specific parts:
 
 $$
 \alpha^{P}=P_{F_d}\tilde\alpha_d,\qquad \alpha^{M}=M_{F_d}\tilde\alpha_d,\qquad
-\rho^2_{F,\alpha}=\|\alpha^P\|_W^2,
+\boxed{\rho^2_{F,\alpha}=\|\alpha^P\|_W^2,\qquad
+c^{\rm full}_\alpha=c^{\rm full}_{\alpha^P}+c^{\rm full}_{\alpha^M}.}
 $$
 
-$$
-\boxed{
-c^{\rm full}_\alpha=c^{\rm full}_{\alpha^P}+c^{\rm full}_{\alpha^M},
-\qquad
-Q^{\rm full}_\alpha=Q^{\rm full}_{\alpha^P}+Q^{\rm full}_{\alpha^M}+\kappa_\alpha .
-}
-$$
+$\rho^2_{F,\alpha}$ is the share of the alpha's cross-sectional variance that is
+a factor tilt. The representation splits exactly because $c_s=s^\top W\Phi$ is
+linear; the energies add up only with their cross term,
+$Q^{\rm full}_\alpha=Q^{\rm full}_{\alpha^P}+Q^{\rm full}_{\alpha^M}+\kappa_\alpha$,
+and $\kappa_\alpha$ is reported because it can be negative (the two parts can
+cancel).
 
-As with residual alpha (Section 18), record two scales for the specific part:
+As with residual alpha (Section 18), record the specific part on two scales:
+**quality** $Q^{\rm full}_{\tilde\alpha^M}=Q^{\rm full}_{\alpha^M}/(1-\rho^2_{F,\alpha})$
+with $\tilde\alpha^M=\alpha^M/\|\alpha^M\|_W$, and **absolute contribution**
+$Q^{\rm full}_{\alpha^M}$. Significance uses the Section 6 permutation set with
+$(\tilde\alpha_d,F_d)$ held together, so only the pairing with $\Phi$ moves.
 
-- **quality**: $Q^{\rm full}_{\tilde\alpha^M}=Q^{\rm full}_{\alpha^M}/(1-\rho^2_{F,\alpha})$, with $\tilde\alpha^M=\alpha^M/\|\alpha^M\|_W$;
-- **absolute contribution**: $Q^{\rm full}_{\alpha^M}$.
-
-Significance uses the same permutation set as Section 6. The pair
-$(\tilde\alpha_d,F_d)$ always stays together; only its pairing with $\Phi$ is
-shifted. Missing names and matched thinning follow Predictive Geometry
-§35.1 and §35.4.
-
-### 28.2 Two residuals, two questions
-
-Section 18's residual and this section's residual are different objects:
-
-| Residual | Removes | Asks |
-|---|---|---|
-| $\varepsilon_\alpha=\tilde\alpha-\hat\alpha^{\rm lin}$ (Section 18) | the OOS linear surrogate of the **features** | did the model learn anything beyond a linear recombination of its inputs? |
-| $\alpha^M=M_F\tilde\alpha$ (this section) | the span of known **exposures** | is the output anything beyond a factor tilt? |
-
-Both splits are linear, so they combine into four pieces whose
-representations add up exactly:
-
-$$
-c^{\rm full}_\alpha
-=\underbrace{c^{\rm full}_{P_F\hat\alpha^{\rm lin}}}_{\text{(i)}}
-+\underbrace{c^{\rm full}_{M_F\hat\alpha^{\rm lin}}}_{\text{(ii)}}
-+\underbrace{c^{\rm full}_{P_F\varepsilon_\alpha}}_{\text{(iii)}}
-+\underbrace{c^{\rm full}_{M_F\varepsilon_\alpha}}_{\text{(iv)}} .
-$$
-
-| Cell | Content | Typical reading |
-|---|---|---|
-| (i) linear × factor | the features' own factor tilt, passed through linearly | inherited exposure; usually the least interesting part |
-| (ii) linear × specific | the features' idiosyncratic signal, recombined linearly | inherited specific alpha (Case A/D material) |
-| (iii) nonlinear × factor | what the nonlinearity adds **along exposures**: state-dependent tilts, factor timing | treat with the IR-21 caution below |
-| (iv) nonlinear × specific | what the nonlinearity adds **outside exposures** | the most genuinely new part of the model |
-
-The energies of the four cells do not add up: there are six cross terms.
-Report the four cell energies and their total cross term
-$Q^{\rm full}_\alpha-\sum_{k}Q^{\rm full}_{(k)}$; a large negative total means
-the cells cancel each other, and the cell energies overstate what the model
-delivers.
+This split depends only on the span of $F_d$, so it is safe with PCA
+factors without any alignment.
 
 ### 28.3 The alpha that reaches the portfolio
 
-If the mandate hard-neutralizes $F$ (in a dollar-neutral book, which the
-demeaned risk model requires), the optimizer acts on the expected return only
-through the $(\Sigma^u)^{-1}$-weighted residual on $\bar F_d=[F_d\ \mathbf1]$
-([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)):
+The geometry above uses the unweighted projector. The portfolio does
+something related but different. With demeaned labels and centered
+exposures, the risk model $F_d\Sigma^{\psi}_dF_d^\top+\Sigma^u_d$ describes
+dollar-neutral books, so the optimizer always carries $\mathbf1^\top\omega=0$.
+If the mandate also hard-neutralizes the factors, the optimal weights are
 
 $$
-\alpha^{\rm dec}_d=M^{\rm GLS}_{\bar F_d}\,\mu_d,\qquad
+\boxed{
+\omega^*_d=\gamma^{-1}\big(\Sigma^u_d\big)^{-1}\alpha^{\rm dec}_d,
+\qquad
+\alpha^{\rm dec}_d=M^{\rm GLS}_{\bar F_d}\,\mu_d,
+}
+$$
+
+$$
 M^{\rm GLS}_{\bar F_d}=I-\bar F_d\big(\bar F_d^\top(\Sigma^u_d)^{-1}\bar F_d\big)^{+}\bar F_d^\top(\Sigma^u_d)^{-1},
+\qquad \bar F_d=[F_d\ \mathbf1].
 $$
 
-and the optimal weights are $\omega^*_d=\gamma^{-1}(\Sigma^u_d)^{-1}\alpha^{\rm dec}_d$.
-Because $\mathbf1$ is in the basis, the common shift that demeaned labels
-cannot identify drops out automatically.
+The optimizer sees $\mu_d$ only through $\alpha^{\rm dec}_d$: whatever lies along
+the exposures or along $\mathbf1$ is removed, weighted by inverse specific
+variance. Three practical consequences:
 
-Two consequences for alpha evaluation:
+- **The common shift is harmless.** A model trained on demeaned labels
+  identifies $\mu$ only up to a constant; the constant lies along $\mathbf1$
+  and is removed.
+- **Pre-neutralizing the signal does not change the portfolio** under a hard
+  constraint: anything removed beforehand would have been removed anyway.
+- **Apply it to $\mu$, not to the score.** A per-date scale does not matter,
+  but a score-to-return map that scales names differently (by volatility,
+  say) does.
 
-- **Apply it to $\mu$, not to the score.** $M^{\rm GLS}_{\bar F}$ is linear, so a
-  per-date scale factor does not matter, but a score-to-expected-return map
-  that scales names differently (for example by volatility, IR-18) does. The
-  decision-relevant object is $M^{\rm GLS}_{\bar F}\mu$.
-- **Report it next to the geometry version.** $\alpha^M$ (unweighted, on
-  $F_d$) is the geometry quantity; $\alpha^{\rm dec}$ is the decision quantity.
-  They coincide up to a per-date scale when specific variances are equal
-  across names **and** $\mu_d$ is a per-date multiple of $\tilde\alpha_d$
-  (then $M^{I}_{\bar F}\tilde\alpha=M^{I}_{F}\tilde\alpha$, since $\tilde\alpha$
-  is centered and $F_d$ is centered). Otherwise they differ, because the
-  optimizer removes a different component than the geometry does. When they disagree,
-  the decision version is the one that describes what is traded.
+Report $Q$ of $\alpha^{\rm dec}$ next to $Q$ of $\alpha^M$. They agree up to a
+per-date scale when specific variances are equal across names and $\mu_d$ is a
+per-date multiple of $\tilde\alpha_d$. When they disagree, the decision version
+describes what is traded. $\Sigma^u_d$ must come from a risk model fitted on
+data strictly before $d$.
 
-$\Sigma^u_d$ must come from a risk model fitted on data strictly before $d$.
+Without hard neutrality (a dollar-neutral book with factor risk priced
+through $\Sigma^{\psi}$), an alpha that is neutral only in the unweighted
+sense still produces factor exposure unless specific variances are equal
+across names. To avoid that, neutralize the signal with the same weighted
+projector before it enters the optimizer.
 
-### 28.4 Factor timing is not a free by-product
+### 28.4 Which factor does the alpha predict?
 
-$c^{\rm full}_{\alpha^P}$ describes the score's exposure along factors **after
-the fact**. It is not a factor-return forecast, and calling it "factor timing"
-double counts whenever the factor premium is also forecast elsewhere
-(Factor IR-21, IR-26). A model's factor component is a factor forecast only if
-it is evaluated as one: against realized factor returns $\hat\psi_{d,h}$, out
-of sample, against a factor-momentum baseline. Also note that a model trained
-on demeaned labels identifies $\mu$ only up to a common shift; in a
-dollar-neutral book the shift is irrelevant (28.3), and any other book needs
-the common component from a separate model.
+This is the alpha-level version of
+[Predictive Geometry §35.7](/quant/feature-evaluation/cross-sectional-predictive-geometry/#357-which-factor-does-a-feature-predict),
+applied to $\tilde\alpha$ in the OOS window. Each step is one line.
 
-### 28.5 Reading with the five cases
+**Step 1 — what each factor did.** On each date, regress the band labels on
+the exposures and map each factor's realized return onto the target
+direction $r_{\mathsf D}$ (Section 5):
+
+$$
+\hat\Psi_d=\big(F_d^\top F_d\big)^{+}F_d^\top Y^{(\beta)}_d,\qquad
+\hat U_d=Y^{(\beta)}_d-F_d\hat\Psi_d,\qquad
+g_{d,k}=\hat\Psi_{d,k,:}\,B_Y\,r_{\mathsf D}.
+$$
+
+**Step 2 — how the alpha leaned.**
+
+$$
+\bar e_{d,\alpha,k}=\frac1{N_d}\sum_iF_{d,ik}\,\tilde\alpha_{id},
+$$
+
+the alpha's tilt toward factor $k$ on date $d$.
+
+**Step 3 — attribution.** The alpha's target alignment splits exactly into
+one term per factor plus a specific term:
+
+$$
+\boxed{
+A^{\rm tgt}_\alpha=\sum_{k=1}^mA_{\alpha,k}+A_{\alpha,\rm spec},
+\qquad
+A_{\alpha,k}=\overline{\bar e_{d,\alpha,k}\,g_{d,k}},
+\qquad
+A_{\alpha,\rm spec}=\overline{\tfrac1{N_d}\tilde\alpha_d^\top\hat U_dB_Yr_{\mathsf D}},
+}
+$$
+
+with $\overline{\,\cdot\,}$ the average over OOS dates. $\sum_kA_{\alpha,k}$ is the
+target alignment of $\alpha^P$ and $A_{\alpha,\rm spec}$ that of $\alpha^M$, so this
+refines Section 28.2 rather than competing with it.
+
+**Step 4 — tilt or timing.**
+
+$$
+\boxed{
+A_{\alpha,k}=\underbrace{\overline{\bar e_{\alpha,k}}\;\overline{g_k}}_{\text{static}}
++\underbrace{\operatorname{cov}_d\big(\bar e_{d,\alpha,k},g_{d,k}\big)}_{\text{timing}}.
+}
+$$
+
+Only the timing part means the model **predicts** factor $k$. The static part
+is the factor's average return collected by a standing tilt.
+
+**Step 5 — significance.** Timing and specific parts use the Section 6
+permutation with $(\tilde\alpha_d,F_d)$ held together, max-T across factors.
+The static part is invariant under a circular date shift, so the shift null
+cannot test it: test the factor's premium $\overline{g_k}$ with a block
+bootstrap and report the sign persistence of the alpha's lean.
+
+**Step 6 — name only what can be named.** Per-factor numbers depend on how
+the factor set is parameterized; their sum does not. Report individually only
+the factors in `usable_per_factor`; report correlated characteristic factors
+as a group (their sum is unaffected by any re-parameterization inside the
+group), and PCA components outside the list at eigengap-block level.
+
+**Boundary.** This splits the $\mathsf D$ block only. $\mathsf V$ and
+$\mathsf T$ are nonlinear in the labels, so factor returns do not enter them
+additively; Section 28.2's split still applies to them.
+
+#### The factor attribution table
+
+The main output of this section is one table per model and band:
+
+| Factor (or group) | $\overline{\bar e}$ (avg lean) | static | timing | $p$ (timing) | share of $A^{\rm tgt}_\alpha$ | from features | from nonlinearity |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| factor 1 | | | | | | | |
+| … | | | | | | | |
+| specific | — | — | — | | | | |
+| **total** | | | | | 100% | | |
+
+The last two columns come from Section 28.5. Reading it is direct: the rows
+with a significant timing entry are the factors the model predicts; a large
+static entry with no timing is a factor the model merely holds; the specific
+row is the part that survives any neutrality rule.
+
+### 28.5 Where each factor's predictive power came from
+
+Both the linear surrogate split (Section 18) and the factor attribution are
+linear in the signal, so they combine exactly. With
+$\tilde\alpha=\hat\alpha^{\rm lin}+\varepsilon_\alpha$:
+
+$$
+A_{\alpha,k}=A_k\big(\hat\alpha^{\rm lin}\big)+A_k\big(\varepsilon_\alpha\big),
+\qquad
+A_{\alpha,\rm spec}=A_{\rm spec}\big(\hat\alpha^{\rm lin}\big)+A_{\rm spec}\big(\varepsilon_\alpha\big),
+$$
+
+and the static / timing split applies to each term. This places every factor
+row of the table in one of four cells:
+
+| | factor part | specific part |
+|---|---|---|
+| **linear in the features** ($\hat\alpha^{\rm lin}$) | (i) factor tilt or timing already present in the features | (ii) specific signal recombined linearly |
+| **beyond linear** ($\varepsilon_\alpha$) | (iii) factor tilt or timing created by the nonlinearity | (iv) specific signal created by the nonlinearity: the most genuinely new part |
+
+Cell (iii) needs care: a nonlinear model can produce a **state-dependent
+tilt** that looks like factor timing. The static / timing split decides it:
+only a significant timing term in (iii) means the nonlinearity learned to time
+the factor.
+
+Inside cell (i) the contribution can be traced to individual features. Within
+each walk-forward fold the surrogate is
+$\hat\alpha^{\rm lin}=\sum_p\hat\beta_pX_p$, and the attribution is linear, so
+
+$$
+A_k\big(\hat\alpha^{\rm lin}\big)=\sum_p\hat\beta_p\,A_{p,k}\qquad\text{(fold by fold)},
+$$
+
+with $A_{p,k}$ the feature attribution of
+[Predictive Geometry §35.7](/quant/feature-evaluation/cross-sectional-predictive-geometry/#357-which-factor-does-a-feature-predict)
+computed over that fold's OOS dates **on the alpha's analysis cross-section**
+(same names, same re-centered exposures, same $\hat\Psi_d$). With full
+coverage that is the feature's ordinary attribution; with missing names the
+feature terms must be recomputed on the alpha's names, or the sum does not
+hold. The static and timing parts are both linear in the signal, so each of
+them decomposes over features the same way. Summed over folds with their
+date shares, this answers "which features carried the model's timing of
+factor $k$".
+
+For the full representation (all three blocks), the same four cells are
+available as vectors that add up exactly,
+$c^{\rm full}_\alpha=c_{P_F\hat\alpha^{\rm lin}}+c_{M_F\hat\alpha^{\rm lin}}+c_{P_F\varepsilon_\alpha}+c_{M_F\varepsilon_\alpha}$;
+their energies do not add up (six cross terms), so report the four energies
+and their total cross term.
+
+### 28.6 From attribution to decision
+
+| What the table shows for factor $k$ | Hard-neutral on $k$ | Exposure to $k$ allowed |
+|---|---|---|
+| significant **timing** | removed by the portfolio; worth nothing as traded | real factor forecast; see the test below before sizing it |
+| large **static**, no timing | removed | a premium bet on $k$; size it as factor risk, not as alpha |
+| mostly **specific** | kept | kept |
+
+**Test a factor-timing claim as a forecast.** The alpha's daily lean
+$\bar e_{d,\alpha,k}$ is an implied forecast of factor $k$. Before treating it
+as one, evaluate it the way a factor forecast is evaluated (Factor IR-26):
+walk-forward predictive regression of $g_{d,k}$ on $\bar e_{d,\alpha,k}$, out of
+sample, against a factor-momentum baseline (the factor's own lagged return).
+If it beats the baseline, it is usually cleaner to forecast factor $k$
+explicitly and trade the pure factor portfolio than to carry it inside the
+alpha.
+
+**Use the table to set the mandate.** Neutralizing a factor that the model
+times well throws that timing away; leaving free a factor the model only
+leans on adds risk without forecast value. Factor IR-28 decides this per
+factor, and this table is its input.
+
+### 28.7 Reading with the five cases
 
 | Section 20 case | Add this check |
 |---|---|
-| A (equivalent to linear surrogate) | (i) vs (ii): is the inherited alpha mostly a factor tilt? |
-| B (valuable nonlinearity) | is the value in (iii) or (iv)? If (iii), apply 28.4 before calling it alpha. |
+| A (equivalent to linear surrogate) | is the inherited alpha mostly cell (i)? If so, which factors, and is it timing or tilt? |
+| B (valuable nonlinearity) | is the gain in cell (iii) or (iv)? In (iii), require a significant timing term before calling it alpha. |
 | C (nonlinearity is pure cost) | unchanged |
-| D (strong mechanism inheritance) | does the inherited mechanism survive in $\alpha^M$, or was it the factor component? |
+| D (strong mechanism inheritance) | does the inherited mechanism survive in $\alpha^M$, or was it a factor component? |
 | E (new mechanism) | require cell (iv) to be significant; a "new mechanism" that lives in (iii) is a state-dependent factor exposure |
 
 ---

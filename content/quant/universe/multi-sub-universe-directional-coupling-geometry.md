@@ -1700,11 +1700,13 @@ $$
 
 So a subset with high beta dispersion can inflate $q_D$ or produce V-D coupling purely through that mechanism.
 
-Notation for the rest of this section follows
-[Factor Research §1](/quant/factor/factor-research-framework/#1-notation):
+The rest of this section uses a factor set built as in
+[Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/):
 $F_d\in\mathbb R^{N_d\times m}$ are point-in-time exposures known at $d$,
-$m$ is the number of factors, and $P_{F_d}$, $M_{F_d}=I-P_{F_d}$ are the
-factor projectors.
+$m$ is the number of factors, and $P_{F_d}=F_d(F_d^\top F_d)^{+}F_d^\top$,
+$M_{F_d}=I-P_{F_d}$ project onto the exposures and onto what they leave
+unexplained. Every number below is reported with the set's
+`factor_basis_id`.
 
 ### 21.1 Exposures must be centered
 
@@ -1722,17 +1724,23 @@ $$
   heterogeneous-beta term above. A pure intercept column becomes zero and is
   dropped.
 - With centered $F_d$, $M_{F_d}Y_d$ stays within-date demeaned
-  ([Factor Lemma F.1](/quant/factor/factor-research-framework/#lemma-f1-centered-exposures-keep-residuals-centered)),
+  ($\mathbf1^\top M_{F_d}Y_d=\mathbf1^\top Y_d-\mathbf1^\top F_d(\cdots)=0$),
   so the residualized labels can enter the whitening chain unchanged.
-- For dollar-neutral portfolios nothing is lost by centering
-  ([Factor Lemma F.0](/quant/factor/factor-research-framework/#lemma-f0-centering-is-lossless-for-dollar-neutral-portfolios)).
+- For dollar-neutral portfolios nothing is lost by centering: their
+  exposures, returns and risk are the same with raw or centered exposures.
 
-Non-overlapping sector dummies lose one rank after centering
-([Factor Lemma F.4](/quant/factor/factor-research-framework/#lemma-f4-centered-group-dummies-lose-one-rank)).
-That does not affect anything in this chapter, because $P_{F_d}$ and
-$M_{F_d}$ depend only on $\operatorname{span}(F_d)$. It matters only if
-sector factor returns are reported, which then need a stated identification
-restriction.
+Non-overlapping sector dummies lose one rank after centering, because they
+sum to the constant vector. That does not affect anything in this chapter:
+$P_{F_d}$ and $M_{F_d}$ depend only on $\operatorname{span}(F_d)$. It matters
+only if sector factor returns are reported.
+
+**PCA factors.** Everything in Sections 21.2 and 21.3 depends only on
+$\operatorname{span}(F_d)$, so it is unaffected by the sign flips, swaps and
+rotations of statistical factors and can use raw PCA loadings. The
+exposure-matched null of Section 21.4 builds strata **factor by factor**, so
+with PCA factors it may only use factors that pass the column-stability gate
+of the factor-set report (aligned and listed in `usable_per_factor`), or
+characteristic exposures.
 
 ### 21.2 The factor-neutral variant
 

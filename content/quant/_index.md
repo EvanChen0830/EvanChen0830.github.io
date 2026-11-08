@@ -14,8 +14,8 @@ Tests whether an asset universe carries authentic geometric structure rather tha
 - **[Multi-Sub-Universe Directional Coupling Geometry](/quant/universe/multi-sub-universe-directional-coupling-geometry/)** — The restriction Gram operator, canonical $\mathsf V \leftrightarrow \mathsf D$ coupling, and size-matched membership null tests.
 
 ### 2. [Factor](/quant/factor/)
-Separates exposures, factor returns, factor and specific risk, and each factor's decision role into distinct research objects.
-- **[Factor Research: Representation, Returns, Risk, and Neutralization](/quant/factor/factor-research-framework/)** — Exact feature-side factor decomposition in the D/V/T basis, signal- vs portfolio-level neutralization, and factor-return identification under demeaned labels.
+Defines and evaluates the factor set every other stage measures against; the factor analysis itself lives inside each stage (Universe §21, Predictive Geometry §35, Label–Alpha §28).
+- **[Factor Definition and Evaluation](/quant/factor/factor-definition-and-evaluation/)** — Centered exposures, characteristic and PCA factors, why PCA factors rotate and how to align them, and the checks a factor set must pass.
 
 ### 3. [Feature Evaluation](/quant/feature-evaluation/)
 Disentangling raw predictive signal into orthogonal Direction, Activity, and Tail channels, calibrated against permutation nulls.

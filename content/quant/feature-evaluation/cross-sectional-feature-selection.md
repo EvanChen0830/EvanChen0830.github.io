@@ -170,6 +170,26 @@ are in [Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectiona
 and the [Selection Bridge](/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility).
 In the null (B6), permute $X^M$ (or $X^P$) as a block, $\Pi^{(b)}X^M$: the projection always uses the exposures of the feature's own date, so $(X_d,F_d)$ move together and only the pairing with $\Phi$ changes.
 
+### B5c. Which factor each feature predicts
+
+Three more per-date products give the factor attribution of
+[Predictive Geometry Section 35.7](/quant/feature-evaluation/cross-sectional-predictive-geometry/#357-which-factor-does-a-feature-predict):
+
+$$
+\hat\Psi_d=\big(F^{XS\top}_dF^{XS}_d\big)^{+}F^{XS\top}_dY^{(b)}_d,\qquad
+\bar E_d=\tfrac1{N_d}F^{XS\top}_dX^{XS}_d\in\mathbb R^{m\times P},\qquad
+g_d=\hat\Psi_dB_Yr_D\in\mathbb R^{m}.
+\tag{B5c}
+$$
+
+Column $p$ of $\bar E_d$ is feature $p$'s lean on each factor that day; $g_d$
+is each factor's realized return along the target. Over dates, for each
+feature $p$ and factor $k$: static $=\overline{\bar E_{k,p}}\cdot\overline{g_k}$,
+timing $=\operatorname{cov}_d(\bar E_{d,k,p},g_{d,k})$. These are $m\times P$
+numbers per band: the whole factor timing map is two small matrix products
+per date. (With missing names, compute column $p$ on that feature's valid
+names, as in B5b.)
+
 ### B6. Null calibration — block permutation matrix
 
 Represent the circular date shift as a permutation matrix $\Pi^{(b)}\in\{0,1\}^{L\times L}$ built to move entire date-blocks together (never splits a day):

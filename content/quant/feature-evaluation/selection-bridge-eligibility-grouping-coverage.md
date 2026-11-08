@@ -126,18 +126,25 @@ Every feature also gets the factor decomposition of
 [Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature):
 its factor share $\rho^2_{F,p}$ and its globally normalized idiosyncratic part
 $\tilde x^M_p$. How that enters eligibility depends on the mandate, which must
-be fixed before selection (Factor IR-28):
+be fixed before selection:
 
 | Mandate for factor $F$ | Eligibility runs on | Why |
 |---|---|---|
 | unconstrained or soft budget | the raw feature $x_p$, plus a soft flag | the factor component can be traded, so it is real signal |
-| hard-neutral | $\tilde x^M_p$ (E1–E5 recomputed) | under a hard constraint only the residual of the expected return reaches the portfolio ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)); the factor component is removed regardless of how strong it is |
+| hard-neutral | $\tilde x^M_p$ (E1–E5 recomputed) | under a hard constraint only the factor-free part of the expected return reaches the portfolio ([Label–Alpha §28.3](/quant/alpha-evaluation/label-alpha-geometry/#283-the-alpha-that-reaches-the-portfolio)); the factor component is removed however strong it is, and so is any factor timing |
 
-Under an unconstrained mandate, flag `FACTOR_PROXY` when
-$\rho^2_{F,p}\ge0.8$ **and** $Q^{\mathsf D}_{\tilde x^M_p}$ is not significant.
-Like breadth, this flags but does not exclude: the feature's value then rests
-entirely on that factor being priced (IR-26), which feature selection cannot
-establish.
+Under an unconstrained or soft mandate, use the factor attribution of
+[Predictive Geometry Section 35.7](/quant/feature-evaluation/cross-sectional-predictive-geometry/#357-which-factor-does-a-feature-predict)
+to tag the feature, without excluding it:
+
+| Tag | Condition | Meaning for selection |
+|---|---|---|
+| `FACTOR_TIMER(k)` | timing on factor $k$ significant | real predictive content, but only usable while exposure to $k$ is allowed |
+| `PREMIUM_HARVESTER(k)` | static part on $k$ dominant, timing not significant | worth exactly factor $k$'s premium; usually better held as the factor itself |
+| `FACTOR_PROXY` | $\rho^2_{F,p}\ge0.8$, nothing significant except through factors | the feature's value rests entirely on factors it does not time |
+
+Under a hard-neutral mandate, both the static and the timing parts are
+removed by the portfolio, so the tags are informational only.
 
 The hard-neutral row uses the unweighted projector of Section 35 as a proxy.
 The portfolio actually removes the $(\Sigma^u)^{-1}$-weighted projection onto
