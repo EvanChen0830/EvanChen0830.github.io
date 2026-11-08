@@ -66,6 +66,7 @@ Factor objects therefore use letters that are **not** already taken:
 | $\Sigma^{u}_{d,h}$ | $N_d\times N_d$ | conditional specific covariance (diagonal only if validated) |
 | $\Sigma^{r}_{d,h}$ | $N_d\times N_d$ | conditional asset-return covariance |
 | $\Pi_d$ | $N_d\times N_d$ | positive-definite weight for factor projections (Section 3) |
+| $\bar F_d$ | $N_d\times(m+1)$ | $[F_d\ \mathbf 1]$: exposures plus the dollar-neutrality direction (Sections 5–6) |
 | $P^{\Pi}_{F},\ M^{\Pi}_{F}$ | $N_d\times N_d$ | $\Pi$-orthogonal projector onto $\operatorname{span}(F_d)$ and its complement |
 | $\mu_{d,h}$ | $N_d$ | expected-return forecast |
 | $\omega_d$ | $N_d$ | portfolio weights |
@@ -128,10 +129,13 @@ $y$, $\mathbf 1^\top M^{\Pi}_{F}y=0$.
 
 *Proof.* $\mathbf 1^\top M^{\Pi}_{F}y=\mathbf 1^\top y-\mathbf 1^\top F(\cdots)=0-0$. $\blacksquare$
 
-The weaker condition "$\mathbf 1\in\operatorname{span}(F)$" is **not**
-enough once $\Pi\neq I$: it only gives $\mathbf 1^\top\Pi M^{\Pi}_{F}y=0$.
-That is why this chapter requires centered exposures rather than an
-intercept column.
+The alternative condition "$\mathbf 1\in\operatorname{span}(F)$" does
+**not** give this once $\Pi\neq I$: it only gives
+$\mathbf 1^\top\Pi M^{\Pi}_{F}y=0$, because $M^{\Pi}_F y$ is
+$\Pi$-orthogonal to $\operatorname{span}(F)$, not Euclidean-orthogonal. That
+is why the geometry uses centered exposures rather than an intercept column.
+(The decision side does add $\mathbf 1$ to the basis, deliberately, for a
+different reason: dollar neutrality, Section 5.)
 
 ---
 
@@ -155,9 +159,18 @@ $$
 +\langle M^{\Pi}_Fx,M^{\Pi}_Fz\rangle_{\Pi}.
 $$
 
-This is an **inner-product** identity. It is a covariance identity only for
-centered vectors, which Lemma F.1 guarantees here. It does **not** make IC,
-rank IC, squared geometry scores or nonlinear importance additive.
+*Proof.* With $G=F^\top\Pi F$: $P^2=FG^{+}GG^{+}F^\top\Pi=P$ because
+$G^{+}GG^{+}=G^{+}$; $\Pi P=\Pi FG^{+}F^\top\Pi$ is symmetric; and
+$PF=F$ because $G^{+}G$ projects onto the row space of $F$ ($\Pi\succ0$). The
+cross term $\langle Px,Mz\rangle_\Pi=x^\top\Pi P(I-P)z=0$. $\blacksquare$
+
+The projector depends only on $\operatorname{span}(F_d)$, so it is unchanged
+by rank deficiency or by any invertible re-parameterization $F\mapsto FA$.
+
+This is an **inner-product** identity. With $\Pi=I$ and centered vectors
+(Lemma F.1) it is a cross-sectional covariance identity; with $\Pi\neq I$ it
+is a weighted one. It does **not** make IC, rank IC, squared geometry scores
+or nonlinear importance additive.
 
 ### Two weights, two questions
 
@@ -218,6 +231,12 @@ squared norm of a sum gives the energy identity. $\blacksquare$
 - The cross term is generally nonzero. Its sign says whether the factor and
   idiosyncratic parts reinforce or cancel each other along the predictive
   directions. Reporting only $Q_{P_Fx}$ and $Q_{M_Fx}$ hides that cancellation.
+- **Missing values.** Where a feature is zero-filled for missing names
+  (Predictive Geometry §5.2), project on the valid names only, with $F_d$
+  restricted to them and re-centered there. Projecting the full cross-section
+  would assign factor-implied values to names that have no observation. The
+  restricted projector is still a per-date $W$-self-adjoint projector, so the
+  proposition is unchanged.
 - To compare idiosyncratic quality on the IC scale, standardize the residual
   exactly as Label–Alpha Geometry §18 does for residual alpha:
   $\tilde x^{M}=M_Fx/\|M_Fx\|_W$ and
@@ -234,67 +253,97 @@ question about $\psi$, not about $F$.
 
 ## 5. Signal-level versus portfolio-level neutralization
 
-With $\Sigma^{r}=F\Sigma^{\psi}F^\top+\Sigma^{u}$ and
-$\Pi^{\rm GLS}=(\Sigma^{u})^{-1}$:
+### Setting
+
+Labels are demeaned and exposures centered, so by Lemma F.0 the risk model
+
+$$
+\Sigma^{r}=F\Sigma^{\psi}F^\top+\Sigma^{u}
+$$
+
+describes the risk of **dollar-neutral** portfolios only. Every optimization
+below therefore includes $\mathbf 1^\top\omega=0$. Write
+
+$$
+\bar F_d=[\,F_d\ \ \mathbf 1\,],\qquad A=\Pi^{\rm GLS}=(\Sigma^{u})^{-1},\qquad S=(\Sigma^{\psi})^{-1},
+$$
+
+with $\Sigma^{u}\succ0$ and $\Sigma^{\psi}\succ0$.
 
 ### Proposition F.3
 
-**(a) Hard neutrality is a GLS residualization.** The solution of
+**(a) Hard neutrality is a GLS residualization on $[F,\mathbf 1]$.** The
+solution of
 
 $$
 \max_{\omega}\ \mu^\top\omega-\frac{\gamma}{2}\,\omega^\top\Sigma^{r}\omega
-\quad\text{s.t.}\quad F^\top\omega=0
+\quad\text{s.t.}\quad \bar F^\top\omega=0
 $$
 
 is
 
 $$
 \boxed{
-\omega^*=\gamma^{-1}\big(\Sigma^{u}\big)^{-1}M^{\Pi^{\rm GLS}}_{F}\,\mu .
+\omega^*=\gamma^{-1}A\,M^{A}_{\bar F}\,\mu,\qquad
+M^{A}_{\bar F}=I-\bar F\big(\bar F^\top A\bar F\big)^{+}\bar F^\top A .
 }
 $$
 
-**(b) Pre-neutralizing the signal is irrelevant under a hard constraint.**
-For any $\Pi$, replacing $\mu$ with $M^{\Pi}_{F}\mu$ leaves $\omega^*$
-unchanged.
+**(b) The portfolio is invariant to anything in $\operatorname{span}(\bar F)$.**
+For any $b$ and any weight $\Pi$, replacing $\mu$ with $\mu+\bar Fb$, with
+$M^{\Pi}_{F}\mu$, or with $M^{\Pi}_{\bar F}\mu$ leaves $\omega^*$ unchanged. In
+particular the common shift $c\,\mathbf 1$ that demeaned labels cannot
+identify (Section 6) has no effect, and neither does any signal-level
+pre-neutralization.
 
-**(c) Without the constraint, only GLS-neutral signals give neutral
-portfolios.** The unconstrained optimum $\omega^u=\gamma^{-1}(\Sigma^{r})^{-1}\mu$
-has exposure
+**(c) With dollar neutrality only, the factor exposure is**
 
 $$
-F^\top\omega^u
-=\gamma^{-1}\big(\Sigma^{\psi}\big)^{-1}
-\Big(\big(\Sigma^{\psi}\big)^{-1}+F^\top\Pi^{\rm GLS}F\Big)^{-1}
-F^\top\Pi^{\rm GLS}\mu,
+F^\top\omega^{\rm dn}
+=\gamma^{-1}S\big(S+F^\top AF\big)^{-1}F^\top A\,(\mu-\nu\mathbf 1),
+\qquad
+\nu=\frac{\mathbf 1^\top(\Sigma^{r})^{-1}\mu}{\mathbf 1^\top(\Sigma^{r})^{-1}\mathbf 1},
 $$
 
-which is zero if and only if $F^\top(\Sigma^{u})^{-1}\mu=0$. An
-OLS-neutralized signal ($\Pi=I$) therefore leaves a residual factor exposure
-unless $\Sigma^{u}\propto I$.
+which is zero if and only if $F^\top A(\mu-\nu\mathbf 1)=0$. It is zero when
+$\mu$ is $A$-orthogonal to $\operatorname{span}(\bar F)$ (i.e.
+$M^{A}_{\bar F}\mu=\mu$). It is **not** zero in general for an
+OLS-neutralized signal ($F^\top\mu=0$, $\mathbf 1^\top\mu=0$), unless
+$\Sigma^{u}\propto I$.
 
-*Proof.* (a) Under $F^\top\omega=0$ the factor term vanishes, so the
-objective is $\mu^\top\omega-\frac\gamma2\omega^\top\Sigma^{u}\omega$. The KKT
-conditions give $\gamma\Sigma^{u}\omega=\mu-F\nu$ with
-$\nu=(F^\top\Pi^{\rm GLS}F)^{-1}F^\top\Pi^{\rm GLS}\mu$, so
-$\mu-F\nu=M^{\Pi^{\rm GLS}}_F\mu$.
-(b) $M^{\Pi^{\rm GLS}}_FM^{\Pi}_F\mu=M^{\Pi^{\rm GLS}}_F\mu-M^{\Pi^{\rm GLS}}_FF(\cdots)=M^{\Pi^{\rm GLS}}_F\mu$,
-since $M^{\Pi^{\rm GLS}}_FF=0$.
-(c) Apply Woodbury to $(\Sigma^{r})^{-1}$ with $A=\Pi^{\rm GLS}$ and
-$S=(\Sigma^{\psi})^{-1}$: $F^\top(\Sigma^{r})^{-1}=\big[I-F^\top AF(S+F^\top AF)^{-1}\big]F^\top A=S(S+F^\top AF)^{-1}F^\top A$. $\blacksquare$
+*Proof.* (a) On $\bar F^\top\omega=0$ the factor term vanishes, so the
+objective is $\mu^\top\omega-\frac\gamma2\omega^\top\Sigma^{u}\omega$. KKT gives
+$\gamma\Sigma^{u}\omega=\mu-\bar F\lambda$ with $\bar F^\top\omega=0$, so
+$\bar F^\top A\bar F\lambda=\bar F^\top A\mu$ and
+$\mu-\bar F\lambda=M^{A}_{\bar F}\mu$ (the product $\bar F\lambda$ is the same
+for every solution $\lambda$).
+(b) $M^{A}_{\bar F}\bar F=0$, and $M^{\Pi}_F\mu$, $M^{\Pi}_{\bar F}\mu$ differ
+from $\mu$ by an element of $\operatorname{span}(\bar F)$.
+(c) The dollar-neutral solution is
+$\omega^{\rm dn}=\gamma^{-1}(\Sigma^{r})^{-1}(\mu-\nu\mathbf 1)$. Woodbury gives
+$F^\top(\Sigma^{r})^{-1}=\big[I-F^\top AF(S+F^\top AF)^{-1}\big]F^\top A=S(S+F^\top AF)^{-1}F^\top A$,
+and $S(S+F^\top AF)^{-1}$ is invertible. If $\bar F^\top A\mu=0$, then
+$\mathbf 1^\top(\Sigma^{r})^{-1}\mu=\mathbf 1^\top A\mu-\mathbf 1^\top AF(S+F^\top AF)^{-1}F^\top A\mu=0$,
+so $\nu=0$ and $F^\top A\mu=0$. If $A=aI$, then $F^\top A\mathbf 1=aF^\top\mathbf 1=0$
+and $F^\top A(\mu-\nu\mathbf 1)=aF^\top\mu$, which vanishes for an OLS-neutral
+$\mu$. $\blacksquare$
 
 **Consequences.**
 
-- A feature that looks factor-neutral in the geometry ($\Pi^{\rm geom}$) is
-  not automatically neutral after optimization. The gap grows with the
-  cross-sectional dispersion of specific variances.
-- If neutrality is enforced as a hard constraint, the choice of signal-level
-  neutralization does not change the portfolio; it only changes the
-  diagnostics. Effort should go into the constraint and $\Sigma^{u}$, not into
-  pre-processing.
-- If neutrality is a soft penalty or a budget (IR-28, IR-39), the signal-side
-  weight matters and must be $\Pi^{\rm GLS}$ for the signal-side and
-  portfolio-side definitions to agree.
+- A signal that looks factor-neutral in the geometry ($\Pi^{\rm geom}=I$)
+  is not automatically neutral after optimization. The two agree when
+  specific variances are equal across names.
+- Under a hard constraint the choice of signal-level neutralization does not
+  change the portfolio; it only changes the diagnostics. Effort belongs in the
+  constraint and in $\Sigma^{u}$.
+- Under a soft treatment (dollar-neutral optimization with a finite factor
+  covariance, a quadratic exposure penalty, which acts like a larger
+  $\Sigma^{\psi}$), the portfolio is factor-neutral whenever the signal is
+  $A$-orthogonal to $[F,\mathbf 1]$; that is sufficient, and the exact
+  condition is (c). An OLS-neutral signal generally does not satisfy it.
+  Signal-side neutralization must use that weight and that basis for the
+  signal-side and portfolio-side definitions to agree. (A signal that
+  satisfies it also leaves any exposure budget non-binding.)
 
 ---
 
@@ -302,16 +351,31 @@ $S=(\Sigma^{\psi})^{-1}$: $F^\top(\Sigma^{r})^{-1}=\big[I-F^\top AF(S+F^\top AF)
 
 ### Cross-sectional estimator
 
-For each $(d,h)$,
+For each $(d,h)$, regress on the augmented basis $\bar F_d=[F_d\ \mathbf 1]$
+and keep the first $m$ coefficients:
 
 $$
-\hat\psi_{d,h}=\big(F_d^\top\Pi_dF_d\big)^{+}F_d^\top\Pi_d\,y_{d,h}.
+\begin{bmatrix}\hat\psi_{d,h}\\ \hat a_{d,h}\end{bmatrix}
+=\big(\bar F_d^\top\Pi_d\bar F_d\big)^{+}\bar F_d^\top\Pi_d\,y_{d,h}.
 $$
 
-Row $k$ of $R_d=(F_d^\top\Pi_dF_d)^{-1}F_d^\top\Pi_d$ is a **pure factor
-portfolio**: since $R_dF_d=I_m$, it has unit exposure to factor $k$ and zero
-exposure to every other factor. $\hat\psi_{d,h,k}$ is that portfolio's return.
-Time-series summaries of $\hat\psi$ are the Fama–MacBeth estimates.
+Why the intercept column, when the exposures are already centered:
+
+- With $\Pi=I$ it makes no difference. By Frisch–Waugh–Lovell, regressing
+  demeaned $y$ on centered $F$ gives the same $\hat\psi$ as regressing raw $y$
+  on $[F^{raw},\mathbf 1]$.
+- With $\Pi\neq I$ (for example $\Pi^{\rm GLS}$) it does. Partialling out the
+  intercept under weight $\Pi$ removes the $\Pi$-weighted mean, not the equal
+  mean, so the centered regression is no longer the GLS estimator of the raw
+  model. With $\mathbf 1$ in the basis, demeaning $y$ only changes $\hat a$, so
+  $\hat\psi$ is the same for raw and demeaned labels.
+
+Row $k\le m$ of $R_d=(\bar F_d^\top\Pi_d\bar F_d)^{-1}\bar F_d^\top\Pi_d$ is a
+**pure factor portfolio**: since $R_d\bar F_d=I_{m+1}$, it has unit exposure to
+factor $k$, zero exposure to every other factor, and zero net weight
+($R_{d,k}\mathbf 1=0$). $\hat\psi_{d,h,k}$ is that portfolio's return.
+Time-series summaries of $\hat\psi$ under the chosen $\Pi$ are the
+Fama–MacBeth estimates.
 
 ### Lemma F.4 (centered group dummies lose one rank)
 
@@ -327,7 +391,11 @@ for example:
   (returns are then relative to the weighted average group).
 
 The restriction changes how individual group returns are read, but not the
-fitted values $F_d\hat\psi_{d,h}$. Overlapping or soft memberships (IR-06) do
+fitted values $F_d\hat\psi_{d,h}$, and not any projector $P^{\Pi}_F$ (which
+depends only on the span). Note that a pseudo-inverse silently picks the
+minimum-norm solution, which for centered dummies is the equal-weight
+restriction $\sum_g\psi_g=0$; if a different restriction is intended, impose
+it explicitly. Overlapping or soft memberships (IR-06) do
 not satisfy $H\mathbf 1=\mathbf 1$; their rank must be checked numerically
 rather than assumed.
 
@@ -341,9 +409,11 @@ where $\bar\psi_{d,h}$ is a **forecast** of factor returns and $\bar u_{d,h}$
 a **forecast** of specific returns. Two cautions:
 
 - **Identification.** Every model trained on demeaned labels identifies
-  $\mu_{d,h}$ only up to a common shift $c\,\mathbf 1$. The portfolio problem
-  must either impose $\mathbf 1^\top\omega=0$ (then $\mu^\top\omega$ is
-  shift-invariant) or supply the common component from a separate model.
+  $\mu_{d,h}$ only up to a common shift $c\,\mathbf 1$. Under
+  $\mathbf 1^\top\omega=0$, which the centered risk model requires anyway
+  (Section 5), the shift has no effect (Proposition F.3b). A portfolio that is
+  not dollar-neutral needs the common component from a separate model, and a
+  risk model with the market intercept.
 - **Ex-post is not ex-ante.** Regressing a model's score on $F_d$ after the
   fact gives a decomposition of the score, not two independent forecasts.
   Calling the projected part "factor timing" double counts whenever the factor
@@ -373,7 +443,8 @@ a modeling choice.
 
 ### Portfolio attribution (IR-44)
 
-With exposures fixed at $d$ and returns realized over $h$:
+With exposures fixed at $d$, returns realized over $h$, and a dollar-neutral
+portfolio ($\mathbf 1^\top\omega_d=0$):
 
 $$
 \omega_d^\top y_{d,h}
@@ -388,9 +459,12 @@ $$
 \quad\text{under A2.}
 $$
 
-The return identity holds by construction for any $\hat\psi$. The variance
-split holds only under A2, so a large realized cross term is a diagnostic
-signal, not noise to be allocated.
+The return identity holds by construction for any $\hat\psi$ once
+$\hat u=y-F\hat\psi$ is defined as the residual. The variance split holds
+only under A2, and only for dollar-neutral portfolios: the demeaned specific
+return is $C_Nu$, and $\omega^\top C_N\Sigma^{u}C_N\omega=\omega^\top\Sigma^{u}\omega$
+needs $C_N\omega=\omega$ (Lemma F.0). A large realized cross term is a
+diagnostic signal, not noise to be allocated.
 
 ---
 
@@ -514,11 +588,14 @@ tolerance on random inputs before any empirical result is reported.
 | Residual centering (Lemma F.1) | $\mathbf 1^\top M^{\Pi}_Fy=0$ for $\Pi=I$ and $\Pi=(\Sigma^u)^{-1}$ |
 | Projector | $P^2=P$ and $\Pi P=(\Pi P)^\top$ |
 | Feature decomposition (Prop. F.2) | $c_x=c_{P_Fx}+c_{M_Fx}$; norms sum to 1; energy identity including the cross term |
-| Hard neutrality (Prop. F.3a) | KKT solution equals $\gamma^{-1}(\Sigma^u)^{-1}M^{\Pi^{\rm GLS}}_F\mu$ |
-| Pre-neutralization (Prop. F.3b) | KKT solution unchanged when $\mu\to M^{I}_F\mu$ |
-| Unconstrained exposure (Prop. F.3c) | closed form matches $F^\top(\Sigma^r)^{-1}\mu/\gamma$; zero for GLS-neutral $\mu$, nonzero for OLS-neutral $\mu$ when $\Sigma^u\not\propto I$ |
+| Hard neutrality (Prop. F.3a) | KKT solution with $[F,\mathbf 1]^\top\omega=0$ equals $\gamma^{-1}AM^{A}_{\bar F}\mu$, and is dollar-neutral |
+| Invariance (Prop. F.3b) | KKT solution unchanged under $\mu\to\mu+c\mathbf 1$, $\mu\to M^{I}_F\mu$, $\mu\to M^{I}_{\bar F}\mu$ |
+| Dollar-neutral exposure (Prop. F.3c) | closed form matches $F^\top\omega^{\rm dn}$; zero for $\mu=M^{A}_{\bar F}\mu$; nonzero for OLS-neutral $\mu$ when $\Sigma^u\not\propto I$; zero for OLS-neutral $\mu$ when $\Sigma^u\propto I$ |
+| Intercept handling (Section 6) | $\Pi=I$: centered regression equals regression with intercept; $\Pi\neq I$: they differ, and the augmented regression is invariant to demeaning $y$ |
+| Missing values (Prop. F.2) | valid-only projection leaves zero-filled names at zero and keeps both pieces centered and orthogonal |
 | Group rank (Lemma F.4) | centered non-overlapping dummies have rank $G-1$ |
-| Pure factor portfolios | $R_dF_d=I_m$ |
+| Pure factor portfolios | $R_d\bar F_d=I_{m+1}$ and $R_{d,k}\mathbf 1=0$ for $k\le m$ |
+| Pseudo-inverse restriction | min-norm sector returns from centered dummies sum to zero |
 | Rotation invariance | $P^{\Pi}_F$, $\rho^2_F$ and Prop. F.2's split unchanged under $F\mapsto FA$ for invertible $A$ |
 
 ---

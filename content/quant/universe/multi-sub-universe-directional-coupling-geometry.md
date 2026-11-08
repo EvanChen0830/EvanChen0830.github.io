@@ -1728,8 +1728,11 @@ $$
   ([Factor Lemma F.0](/quant/factor/factor-research-framework/#lemma-f0-centering-is-lossless-for-dollar-neutral-portfolios)).
 
 Non-overlapping sector dummies lose one rank after centering
-([Factor Lemma F.4](/quant/factor/factor-research-framework/#lemma-f4-centered-group-dummies-lose-one-rank)):
-drop one sector, or impose a sum-to-zero restriction, and log which.
+([Factor Lemma F.4](/quant/factor/factor-research-framework/#lemma-f4-centered-group-dummies-lose-one-rank)).
+That does not affect anything in this chapter, because $P_{F_d}$ and
+$M_{F_d}$ depend only on $\operatorname{span}(F_d)$. It matters only if
+sector factor returns are reported, which then need a stated identification
+restriction.
 
 ### 21.2 The factor-neutral variant
 
@@ -1753,10 +1756,12 @@ G_g^{idio},
 R_{VD,g}^{idio}.
 $$
 
-This is the unweighted projector ($\Pi^{\rm geom}=I$). Within a date the row
-weights of $W_g$ are a scalar multiple of $I$, so it is compatible with the
-restriction measure. The pseudo-inverse is used so that a rank-deficient
-basis (Section 21.1) fails visibly in the rank log rather than numerically.
+This is the unweighted projector ($\Pi^{\rm geom}=I$), applied on the
+**parent** cross-section $\mathcal U_d$ before any restriction; within a date
+$W_{\mathcal U}$ is a scalar multiple of $I$, so the projector is
+$W_{\mathcal U}$-self-adjoint. The pseudo-inverse makes the projector
+well-defined for a rank-deficient basis (Section 21.1); log $\operatorname{rank}F_d$
+anyway, since an unexpected drop usually means a data problem.
 
 Universe geometry is a property of the labels, so here the residualization is
 **label-side** and $\Phi^{idio}_{\mathcal U}$ is a different coordinate system.
@@ -1789,8 +1794,10 @@ $$
 $$
 
 $\rho^2_F(g)$ is the average $R^2$ of a cross-sectional regression of
-membership on exposures. It is a descriptive quantity, computed on the
-discovery period only.
+membership on an intercept and the exposures (with centered $F_d$ the
+intercept is absorbed by centering $\tilde m$). It is undefined on dates where
+$\mathcal S_{g,d}$ is empty or equals $\mathcal U_d$; skip those dates. It is a
+descriptive quantity, computed on the discovery period only.
 
 | $\rho^2_F(g)$ | Reading |
 |---|---|
@@ -2182,7 +2189,7 @@ All of the following must be automated in the production implementation.
 | Membership identity | $\mathcal S_g=\mathcal U\Rightarrow G_g=I$ |
 | Centered exposures | $\|\mathbf1^\top F_d\|<10^{-10}$ for every $d$ |
 | Idio labels stay demeaned | $\|\mathbf1^\top M_{F_d}Y_d\|<10^{-10}$ |
-| Membership factor share | $0\le\rho^2_F(g)\le1$; $\rho^2_F=1$ when membership is a sector dummy that is also a column of $F_d$ |
+| Membership factor share | $0\le\rho^2_F(g)\le1$; $\rho^2_F=1$ when the centered membership lies in $\operatorname{span}(F_d)$, e.g. a sector included in $F_d$ (also the dropped reference sector) |
 
 ---
 
@@ -2288,13 +2295,18 @@ Expected: $\rho_1$ can be very high, but canonical breadth drops sharply. This v
 
 ### T11: Sector-tilt subset
 
-Give one sector a common sector-level return shock, and take that sector as
-the candidate.
+Give one sector a common sector-level return shock.
 
-Expected: $\rho^2_F(g)\approx1$ when the sector is a column of $F_d$; the
-size-matched null rejects, the sector-stratified exposure-matched null does
-not; a within-group candidate (Section 13.5) from the same sector shows no
-extra enrichment over random same-sector draws.
+- **Candidate = the whole sector.** Expected: $\rho^2_F(g)=1$ exactly when the
+  sector is in $F_d$; the size-matched null rejects; the sector-stratified
+  exposure-matched null is degenerate (the candidate *is* the cell) and is
+  reported `n/a` by the Section 21.4 rule. $\rho^2_F(g)=1$ together with `n/a`
+  is the correct signature of a pure factor tilt.
+- **Candidate = a random half of the sector.** Expected: the size-matched null
+  rejects; the sector-stratified exposure-matched null does not, because
+  every same-sector draw carries the same shock; a within-group candidate
+  (Section 13.5) from that sector shows no extra enrichment over random
+  same-sector draws.
 
 ### T12: Planted structure beyond exposures
 
