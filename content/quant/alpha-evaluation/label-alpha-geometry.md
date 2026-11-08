@@ -1499,8 +1499,10 @@ As with residual alpha (Section 18), record two scales for the specific part:
 - **quality**: $Q^{\rm full}_{\tilde\alpha^M}=Q^{\rm full}_{\alpha^M}/(1-\rho^2_{F,\alpha})$, with $\tilde\alpha^M=\alpha^M/\|\alpha^M\|_W$;
 - **absolute contribution**: $Q^{\rm full}_{\alpha^M}$.
 
-Significance uses the same permutation set as Section 6. Only $\Phi$ moves
-under the shift; $\tilde\alpha_d$ and $F_d$ stay at $d$.
+Significance uses the same permutation set as Section 6. The pair
+$(\tilde\alpha_d,F_d)$ always stays together; only its pairing with $\Phi$ is
+shifted. Missing names and matched thinning follow Predictive Geometry
+§35.1 and §35.4.
 
 ### 28.2 Two residuals, two questions
 
@@ -1537,26 +1539,34 @@ delivers.
 
 ### 28.3 The alpha that reaches the portfolio
 
-If the mandate hard-neutralizes $F$, the optimizer acts on the expected
-return only through the $(\Sigma^u)^{-1}$-weighted residual
+If the mandate hard-neutralizes $F$ (in a dollar-neutral book, which the
+demeaned risk model requires), the optimizer acts on the expected return only
+through the $(\Sigma^u)^{-1}$-weighted residual on $\bar F_d=[F_d\ \mathbf1]$
 ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)):
 
 $$
-\alpha^{\rm dec}_d=M^{\rm GLS}_{F_d}\,\mu_d,\qquad
-M^{\rm GLS}_{F_d}=I-F_d\big(F_d^\top(\Sigma^u_d)^{-1}F_d\big)^{-1}F_d^\top(\Sigma^u_d)^{-1}.
+\alpha^{\rm dec}_d=M^{\rm GLS}_{\bar F_d}\,\mu_d,\qquad
+M^{\rm GLS}_{\bar F_d}=I-\bar F_d\big(\bar F_d^\top(\Sigma^u_d)^{-1}\bar F_d\big)^{+}\bar F_d^\top(\Sigma^u_d)^{-1},
 $$
+
+and the optimal weights are $\omega^*_d=\gamma^{-1}(\Sigma^u_d)^{-1}\alpha^{\rm dec}_d$.
+Because $\mathbf1$ is in the basis, the common shift that demeaned labels
+cannot identify drops out automatically.
 
 Two consequences for alpha evaluation:
 
-- **Apply it to $\mu$, not to the score.** $M^{\rm GLS}$ is linear, so a
+- **Apply it to $\mu$, not to the score.** $M^{\rm GLS}_{\bar F}$ is linear, so a
   per-date scale factor does not matter, but a score-to-expected-return map
   that scales names differently (for example by volatility, IR-18) does. The
-  decision-relevant object is $M^{\rm GLS}_F\mu$.
-- **Report it next to the geometry version.** $\alpha^M$ (unweighted) is the
-  geometry quantity; $\alpha^{\rm dec}$ is the decision quantity. Their gap
-  grows with the cross-sectional dispersion of specific variances. A model
-  that looks specific in 28.1 but has a large gap here is relying on names
-  whose specific risk the optimizer will down-weight.
+  decision-relevant object is $M^{\rm GLS}_{\bar F}\mu$.
+- **Report it next to the geometry version.** $\alpha^M$ (unweighted, on
+  $F_d$) is the geometry quantity; $\alpha^{\rm dec}$ is the decision quantity.
+  They coincide up to a per-date scale when specific variances are equal
+  across names **and** $\mu_d$ is a per-date multiple of $\tilde\alpha_d$
+  (then $M^{I}_{\bar F}\tilde\alpha=M^{I}_{F}\tilde\alpha$, since $\tilde\alpha$
+  is centered and $F_d$ is centered). Otherwise they differ, because the
+  optimizer removes a different component than the geometry does. When they disagree,
+  the decision version is the one that describes what is traded.
 
 $\Sigma^u_d$ must come from a risk model fitted on data strictly before $d$.
 
@@ -1568,9 +1578,9 @@ double counts whenever the factor premium is also forecast elsewhere
 (Factor IR-21, IR-26). A model's factor component is a factor forecast only if
 it is evaluated as one: against realized factor returns $\hat\psi_{d,h}$, out
 of sample, against a factor-momentum baseline. Also note that a model trained
-on demeaned labels identifies $\mu$ only up to a common shift, so the
-portfolio must impose $\mathbf1^\top\omega=0$ or supply the common component
-separately.
+on demeaned labels identifies $\mu$ only up to a common shift; in a
+dollar-neutral book the shift is irrelevant (28.3), and any other book needs
+the common component from a separate model.
 
 ### 28.5 Reading with the five cases
 

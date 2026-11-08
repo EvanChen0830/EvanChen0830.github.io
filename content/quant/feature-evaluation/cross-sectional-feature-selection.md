@@ -160,14 +160,15 @@ $$
 
 Three things to carry forward:
 
-- $\rho^2_{F,p}=\frac1L\|X^P_{:,p}\|^2$ is feature $p$'s factor share; $\frac1L\|X^M_{:,p}\|^2=1-\rho^2_{F,p}$.
-- $Q_p=\|C^P_{p,:}\|^2+\|C^M_{p,:}\|^2+2\langle C^P_{p,:},C^M_{p,:}\rangle$: the cross term is part of the answer, not noise.
+- $\rho^2_{F,p}=\|X^P_{:,p}\|^2/\|X^{XS}_{:,p}\|^2$ is feature $p$'s factor share, and $\|X^P_{:,p}\|^2+\|X^M_{:,p}\|^2=\|X^{XS}_{:,p}\|^2$ (each date's block is an orthogonal projection).
+- Where a feature has missing names, run the per-date fit on the valid names only (restrict $F^{XS}_d$ to them and re-center), leaving filled entries at zero.
+- $Q_p=\|C^P_{p,:}\|^2+\|C^M_{p,:}\|^2+2\langle C^P_{p,:},C^M_{p,:}\rangle$, with the same convention on every term (all three rows taken from $C$, or all three projected onto the retained subspace of B7): the cross term is part of the answer, not noise.
 - Under a **hard-neutral** mandate, B8–B13 run on $X^{M}$ (eligibility on its globally normalized columns, Score on the unnormalized ones). Under an unconstrained mandate they run on $X^{XS}$, and $\rho^2_{F,p}$ only sets the `FACTOR_PROXY` flag.
 
 Formal statements, and why the label side is **not** residualized instead,
 are in [Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature)
 and the [Selection Bridge](/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility).
-In the null (B6), $X^P$ and $X^M$ are fixed; only $\Phi$'s date alignment moves.
+In the null (B6), permute $X^M$ (or $X^P$) as a block, $\Pi^{(b)}X^M$: the projection always uses the exposures of the feature's own date, so $(X_d,F_d)$ move together and only the pairing with $\Phi$ changes.
 
 ### B6. Null calibration — block permutation matrix
 

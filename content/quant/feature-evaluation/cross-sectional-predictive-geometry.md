@@ -2723,15 +2723,24 @@ $$
 Both pieces stay within-date demeaned (centered $F_d$), so Lemma 4.1 still
 applies to each.
 
+**Missing values.** On a date where some names are zero-filled (Section 5.2),
+project on the valid names only: restrict $F_d$ to them, re-center it there,
+and leave the zero-filled entries at zero in both $x^P_p$ and $x^M_p$.
+Projecting the full cross-section would give missing names a factor-implied
+value they were never observed to have. The restricted map is still a
+per-date orthogonal projector, so everything below holds unchanged. Dates in
+the absence set $\mathcal D^c_p$ are skipped, as for the raw feature.
+
 ### 35.2 Proposition 35.1 (exact decomposition in the fixed basis)
 
 $$
 \boxed{
 c^{\rm full}_p=c^{\rm full}_{x^P_p}+c^{\rm full}_{x^M_p},
 \qquad
-\rho^2_{F,p}+\big(1-\rho^2_{F,p}\big)=1,\quad
-\rho^2_{F,p}:=\|x^P_p\|_W^2,
+\|x^P_p\|_W^2+\|x^M_p\|_W^2=1,
 }
+\qquad
+\rho^2_{F,p}:=\|x^P_p\|_W^2,
 $$
 
 $$
@@ -2778,14 +2787,17 @@ relation above. Report both numbers:
 ### 35.4 Significance
 
 Test $\tilde x^M_p$ with the same circular-shift null as the raw feature
-(Section 14). Under the shift only $\Phi$ moves: $X_{d,p}$ and $F_d$ both stay
-at date $d$, so $x^M_p$ does not change across permutations. Under matched
-thinning (Section 14.3), recompute $P_{F_d}$ **on the thinned cross-section**,
-with $F_d$ re-centered there, exactly as $X$ is re-centered: on a subset,
-$\mathbf1^\top F_d\neq0$ and Lemma 4.1 would otherwise fail for $x^P$ and $x^M$.
+(Section 14). The pair $(X_{d,p},F_d)$ always stays together: the projection
+uses the exposures of the feature's own date, and only the pairing with
+$\Phi$ is shifted. Under matched thinning (Section 14.3), recompute
+$P_{F_d}$ **on the analysis cross-section**, with $F_d$ re-centered there,
+exactly as $X$ is re-standardized there, and do this for the observed
+statistic as well (Specification 13.1). On a subset $\mathbf1^\top F_d\neq0$,
+and Lemma 4.1 would otherwise fail for $x^P$ and $x^M$.
 
-The p-value of $Q^{\mathsf D}_{\tilde x^M_p}$ is scale-invariant, so it is the
-same whether computed on $x^M_p$ or $\tilde x^M_p$.
+Apply the same normalization convention to the observed and the permuted
+statistics; then the p-value of $Q^{\mathsf D}_{\tilde x^M_p}$ is the same
+whether computed on $x^M_p$ or on $\tilde x^M_p$.
 
 ### 35.5 Reading the decomposition
 
@@ -2794,17 +2806,19 @@ same whether computed on $x^M_p$ or $\tilde x^M_p$.
 | high | no | **factor proxy**: the feature's directional content is a known exposure. Its value depends on whether that factor is priced (IR-26) and whether the mandate neutralizes it (IR-28). |
 | high | yes | a factor-loaded feature that **also** carries idiosyncratic signal; the idiosyncratic part is small in variance but real |
 | low | yes | an idiosyncratic feature; the factor split changes little |
-| low | no | the raw $Q$ came from the cross term or from noise: check $\kappa_p$ and the raw p-value |
+| low | no | the feature is weak either way; if the raw feature is nevertheless significant, the difference sits in the small factor part or in $\kappa_p$, so read those before trusting the raw result |
 
 Two cautions:
 
 - **Neutralization in the portfolio is not the same projection.** $P_{F_d}$
-  here is unweighted. A factor risk model with hard neutrality acts through
-  the $(\Sigma^u)^{-1}$-weighted projector
+  here is unweighted. A dollar-neutral portfolio with hard factor neutrality
+  acts through the $(\Sigma^u)^{-1}$-weighted projector onto
+  $\operatorname{span}[F_d\ \mathbf1]$
   ([Factor Proposition F.3](/quant/factor/factor-research-framework/#proposition-f3)).
-  A feature that is "idiosyncratic" in this section can still carry factor
-  exposure after an unconstrained optimizer, unless specific variances are
-  roughly equal across names.
+  A signal that is "idiosyncratic" in this section can still carry factor
+  exposure after a dollar-neutral optimizer without factor constraints; the
+  exposure is exactly zero when specific variances are equal across names,
+  and generally nonzero otherwise.
 - **The split depends on the basis.** A different legitimate $F_d$ gives a
   different $\rho^2_{F,p}$. Report `factor_basis_id` with every number.
 

@@ -140,9 +140,10 @@ entirely on that factor being priced (IR-26), which feature selection cannot
 establish.
 
 The hard-neutral row uses the unweighted projector of Section 35 as a proxy.
-The portfolio actually removes the $(\Sigma^u)^{-1}$-weighted projection, so
-the two agree only when specific variances are roughly equal across names;
-report which one was used.
+The portfolio actually removes the $(\Sigma^u)^{-1}$-weighted projection onto
+$\operatorname{span}[F_d\ \mathbf1]$, so the two agree exactly when specific
+variances are equal across names and only approximately otherwise; report
+which one was used.
 
 ## 2. Mechanism grouping
 
