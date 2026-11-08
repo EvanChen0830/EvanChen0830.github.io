@@ -132,6 +132,43 @@ $$
 
 $C^{(d)}\in\mathbb R^{P\times d_\Phi}$ is a **pure, single-day, cross-sectional** covariance (who's ranked where today vs. who wins later); $\sum_dw_d(\cdot)$ is the **time-pooling** that gives you enough samples to estimate and test it. Cross-section defines what the number *means*; time is only there to make the estimate stable enough to trust. This decomposition is the basis for both the null calibration below and the diagnostic in B12.
 
+### B5b. Factor split of the operator (when a factor model is available)
+
+Let $F\in\mathbb R^{L\times m}$ hold the point-in-time exposures in the same
+long format, **centered within date** with the same B1 operation:
+
+$$
+F^{XS}=F-\mathbf D(\mathbf D^\top\mathbf D)^{-1}\mathbf D^\top F.
+$$
+
+The factor projection is block-diagonal by date. As with B1, it's never
+materialized: it's a per-date least-squares fit (`groupby(date)` then
+`lstsq`), algebraically
+
+$$
+X^{P}=\operatorname{blkdiag}_d\!\Big(F^{XS}_d\big(F^{XS\top}_dF^{XS}_d\big)^{+}F^{XS\top}_d\Big)\,X^{XS},
+\qquad
+X^{M}=X^{XS}-X^{P}.
+\tag{B5b}
+$$
+
+Then, by linearity of B5,
+
+$$
+\boxed{\,C=C^{P}+C^{M},\qquad C^{P}=\tfrac1LX^{P\top}\Phi,\quad C^{M}=\tfrac1LX^{M\top}\Phi.\,}
+$$
+
+Three things to carry forward:
+
+- $\rho^2_{F,p}=\frac1L\|X^P_{:,p}\|^2$ is feature $p$'s factor share; $\frac1L\|X^M_{:,p}\|^2=1-\rho^2_{F,p}$.
+- $Q_p=\|C^P_{p,:}\|^2+\|C^M_{p,:}\|^2+2\langle C^P_{p,:},C^M_{p,:}\rangle$: the cross term is part of the answer, not noise.
+- Under a **hard-neutral** mandate, B8–B13 run on $X^{M}$ (eligibility on its globally normalized columns, Score on the unnormalized ones). Under an unconstrained mandate they run on $X^{XS}$, and $\rho^2_{F,p}$ only sets the `FACTOR_PROXY` flag.
+
+Formal statements, and why the label side is **not** residualized instead,
+are in [Predictive Geometry Section 35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature)
+and the [Selection Bridge](/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility).
+In the null (B6), $X^P$ and $X^M$ are fixed; only $\Phi$'s date alignment moves.
+
 ### B6. Null calibration — block permutation matrix
 
 Represent the circular date shift as a permutation matrix $\Pi^{(b)}\in\{0,1\}^{L\times L}$ built to move entire date-blocks together (never splits a day):

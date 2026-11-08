@@ -490,14 +490,14 @@ tagged with the **role** it serves: *explain* (common variation), *premium*
 
 ### Interfaces with other layers
 
-| Layer | Track | What it consumes from this chapter | Contract |
-|---|---|---|---|
-| Universe | IR-06, IR-08 | $F_d$, group dummies $H_d$ | point-in-time membership; rank checked (Lemma F.4) |
-| Feature | IR-11 | $P^{\Pi^{\rm geom}}_F$ | Proposition F.2 on fixed raw $\Phi$; label-side variant only as robustness |
-| Alpha | IR-21 | $F_d$, $\bar\psi_{d,h}$ | demeaned $\mu$ identified up to a shift; ex-post split is not a forecast |
-| Covariance | IR-32 | $\Sigma^{\psi}$, $\Sigma^{u}$ | same horizon as $\mu$; PSD |
-| Portfolio | IR-28, IR-39 | $F_d$, $\Pi^{\rm GLS}$ | Proposition F.3; $\mathbf 1^\top\omega=0$ when labels are demeaned |
-| Attribution | IR-44 | $F_d$, $\hat\psi_{d,h}$ | exposures lagged to $d$; variance split only under A2 |
+| Layer | Track | What it consumes from this chapter | Contract | Where it is applied |
+|---|---|---|---|---|
+| Universe | IR-06, IR-08 | $F_d$, group dummies $H_d$ | point-in-time membership; rank checked (Lemma F.4) | [Universe §21](/quant/universe/multi-sub-universe-directional-coupling-geometry/#21-beta-demeaning-and-the-factor-neutral-variant): centered exposures, membership factor share, exposure-matched null; [§13.5](/quant/universe/multi-sub-universe-directional-coupling-geometry/#135-within-group-family) within-group candidates |
+| Feature | IR-11, IR-12 | $P^{\Pi^{\rm geom}}_F$ | Proposition F.2 on fixed raw $\Phi$; label-side variant only as robustness | [Predictive Geometry §35](/quant/feature-evaluation/cross-sectional-predictive-geometry/#35-factor-decomposition-of-a-feature); [Selection Bridge](/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/#factor-aware-eligibility) mandate-dependent eligibility, redundancy and Score; [Selection guide B5b](/quant/feature-evaluation/cross-sectional-feature-selection/#b5b-factor-split-of-the-operator-when-a-factor-model-is-available) |
+| Alpha | IR-21 | $F_d$, $\bar\psi_{d,h}$, $\Sigma^u$ | demeaned $\mu$ identified up to a shift; ex-post split is not a forecast | [Label–Alpha §28](/quant/alpha-evaluation/label-alpha-geometry/#28-factor-aligned-and-specific-alpha): factor/specific split, four-cell decomposition, decision alpha |
+| Covariance | IR-32 | $\Sigma^{\psi}$, $\Sigma^{u}$ | same horizon as $\mu$; PSD | planned | planned |
+| Portfolio | IR-28, IR-39 | $F_d$, $\Pi^{\rm GLS}$ | Proposition F.3; $\mathbf 1^\top\omega=0$ when labels are demeaned | planned | planned |
+| Attribution | IR-44 | $F_d$, $\hat\psi_{d,h}$ | exposures lagged to $d$; variance split only under A2 | planned | planned |
 
 ---
 
