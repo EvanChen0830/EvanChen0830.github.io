@@ -7,6 +7,12 @@ Hi, I'm **Tsung-Yu (Evan) Chen**. I am a **Quantitative Researcher** experienced
 
 This website serves as an open notebook documenting my quantitative research methodology and experiments — focusing on mathematically rigorous, reproducible implementations of cross-sectional asset return dynamics, continuous generative diffusion models, and high-dimensional signal selection.
 
+## Research Map
+
+The full research agenda, top-down from mandate to crowding. Each branch is one layer of the pipeline; each leaf is an independent research topic. Filled dots link to published notes; hollow dots are planned topics.
+
+{{< research-tree >}}
+
 ## Experience & Education
 
 - **Vatic Labs** — Quantitative Researcher *(Until October)*  

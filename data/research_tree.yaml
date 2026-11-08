@@ -1,0 +1,127 @@
+# Research map shown on the home page via {{< research-tree >}}.
+# Source: MFT Research Master Framework (v1.0, 2026-11-07).
+#
+# Each branch is one layer of the framework; each leaf is one research topic.
+#   id       short label shown before the title (IR-xx, or omit for notes)
+#   title    topic name
+#   q        one-line research question (shown on hover / tap)
+#   p        priority: P0 | P1 | P2 (dependency order, not expected PnL)
+#   url      set this once a note is published; the leaf becomes a link
+#            and is drawn as "published"
+#   children optional list of sub-topics, same fields
+#
+# To add a topic, add a leaf here. Nothing else needs to change.
+
+root: "MFT Quant Research"
+
+branches:
+  - slug: mandate
+    label: "Mandate & Horizon"
+    color: guide
+    topics:
+      - {id: IR-01, p: P0, title: "Benchmark, numeraire & risk budget", q: "Absolute, benchmark-, factor- or residual-relative: what return is the decision maximizing?"}
+      - {id: IR-02, p: P0, title: "Multi-horizon return semantics", q: "How do forecast, holding and risk horizons differ, and how are overlapping labels handled?"}
+      - {id: IR-03, p: P1, title: "Return-generating assumptions", q: "Which components are stationary enough to estimate, and can the target distribution change by regime?"}
+
+  - slug: universe
+    label: "Universe"
+    color: ticker
+    topics:
+      - {title: "Multi-Sub-Universe Directional Coupling Geometry", url: "/quant/universe/multi-sub-universe-directional-coupling-geometry/", q: "Restriction Gram operator, canonical V–D coupling and size-matched membership nulls."}
+      - {id: IR-04, p: P0, title: "Point-in-time data representation", q: "What was observable when the decision was made: missingness, identifiers, rolls, asynchronous markets."}
+      - {id: IR-05, p: P1, title: "Universe eligibility & selection", q: "Does universe selection itself create apparent predictability or concentration?"}
+      - {id: IR-06, p: P1, title: "Group, sector & hierarchy", q: "What is a meaningful group across equities, futures, FX and crypto: nested, overlapping, time-varying?"}
+      - {id: IR-07, p: P1, title: "Covariance geometry & effective breadth", q: "How many genuinely independent sources of risk and opportunity does the universe contain?"}
+      - {id: IR-08, p: P1, title: "Factor-aware sub-universe discovery", q: "Is a sub-universe's structure driven by common factors or by residual opportunity?"}
+
+  - slug: feature
+    label: "Target & Feature"
+    color: feat
+    topics:
+      - {title: "Cross-Sectional Predictive Geometry", url: "/quant/feature-evaluation/cross-sectional-predictive-geometry/", q: "Formal theory: whitened labels, D/V/T mechanism blocks, operator SVD, permutation nulls."}
+      - {title: "Cross-Sectional Feature Selection", url: "/quant/feature-evaluation/cross-sectional-feature-selection/", q: "Matrix pipeline from whitening to greedy coverage fill."}
+      - {title: "Selection Bridge: Eligibility, Grouping, Coverage", url: "/quant/feature-evaluation/selection-bridge-eligibility-grouping-coverage/", q: "Eligibility gates, mechanism grouping and submodular coverage."}
+      - {id: IR-09, p: P0, title: "Label & estimand design", q: "Is the model predicting expected return, rank, distribution, tail, factor or specific return?"}
+      - {id: IR-10, p: P1, title: "Feature definition & normalization", q: "Which transformations preserve information without silently changing the investment problem?"}
+      - {id: IR-11, p: P1, title: "Conditional predictive geometry", q: "Is predictive power factor-mediated, idiosyncratic, group-local, horizon- or regime-specific?"}
+      - {id: IR-12, p: P1, title: "Redundancy, interaction & selection", q: "Do apparently distinct features add information conditional on those already selected?"}
+      - {id: IR-13, p: P2, title: "Coverage & transportability", q: "Does a feature generalize across instruments, sectors, volatility states and horizons?"}
+
+  - slug: model
+    label: "Model"
+    color: time
+    topics:
+      - {title: "Diffusion Models for Statistical Arbitrage", url: "/quant/model/diffusion-statarb-implementation-guide/", q: "Conditional generative model of multi-ticker, multi-horizon return distributions."}
+      - {id: IR-14, p: P1, title: "Learning objective & architecture", q: "Which training objective aligns with the statistical estimand and the downstream decision?"}
+      - {id: IR-15, p: P1, title: "Conditional modeling & nonstationarity", q: "Which features work only conditional on market, risk, sector or volatility state?"}
+      - {id: IR-16, p: P1, title: "Uncertainty & calibration", q: "How much uncertainty is the return process versus the estimated prediction?"}
+      - {id: IR-17, p: P2, title: "Representation novelty & interpretability", q: "What does the model learn beyond a linear surrogate of the feature span?"}
+
+  - slug: alpha
+    label: "Alpha"
+    color: label
+    topics:
+      - {title: "Label–Alpha Geometry", url: "/quant/alpha-evaluation/label-alpha-geometry/", q: "Walk-forward linear surrogates, mechanism inheritance and residual novelty."}
+      - {id: IR-18, p: P1, title: "Score → expected return", q: "How is a relative score converted into a calibrated asset-level expected return?"}
+      - {id: IR-19, p: P1, title: "Alpha combination & pool", q: "What is the independent information breadth of multiple alpha sources?"}
+      - {id: IR-20, p: P1, title: "Horizon & temporal dependence", q: "Signal decay, persistence, lead–lag and cross-horizon coherence."}
+      - {id: IR-21, p: P1, title: "Factor vs specific return forecast", q: "Which part of expected return predicts factor premia versus asset-specific variation?"}
+      - {id: IR-22, p: P2, title: "Idea capacity & fragility", q: "How sensitive is performance to concentrated adoption, without modelling costs?"}
+
+  - slug: factor
+    label: "Factor"
+    color: guide
+    topics:
+      - {id: IR-23, p: P1, title: "Factor ontology & taxonomy", q: "Market, sector, country, currency, style or latent, and meant to explain, predict or hedge?"}
+      - {id: IR-24, p: P1, title: "Factor discovery, number & selection", q: "What factor basis is useful, and how many dimensions are actually estimable?"}
+      - {id: IR-25, p: P1, title: "Exposure estimation", q: "Characteristics, trailing betas, conditional states or hierarchical model outputs?"}
+      - {id: IR-26, p: P1, title: "Factor returns & premia", q: "Can cross-sectional factor returns be estimated reliably, and are premia predictable?"}
+      - {id: IR-27, p: P1, title: "Specific risk & omitted factors", q: "Is residual covariance diagonal, sparse, clustered or heavy-tailed? What was omitted?"}
+      - {id: IR-28, p: P1, title: "Neutralization & constraint choice", q: "Which exposures should be free, penalized, budgeted or hard-neutralized?"}
+      - {id: IR-29, p: P2, title: "Factor model uncertainty", q: "How sensitive are decisions to alternative legitimate factor bases and noisy exposures?"}
+
+  - slug: covariance
+    label: "Covariance & Distribution"
+    color: ticker
+    topics:
+      - {id: IR-30, p: P0, title: "Covariance estimand & horizon", q: "Next-bar, holding-period, conditional or long-run covariance?"}
+      - {id: IR-31, p: P1, title: "Estimator benchmark suite", q: "Which estimator wins under which N/T, breadth and volatility state?"}
+      - {id: IR-32, p: P1, title: "Dynamic factor & specific covariance", q: "Conditional calibration and stability of the factor/specific split."}
+      - {id: IR-33, p: P1, title: "High-dimensional covariance geometry", q: "How should eigenvalue error, rank and conditioning affect inference and PO?"}
+      - {id: IR-34, p: P2, title: "Tail risk & joint distribution", q: "Is covariance enough? How do co-crashes and tail dependence vary with state?"}
+      - {id: IR-35, p: P1, title: "Estimation-risk quantification", q: "How uncertain are the covariance and its eigenvectors, and how should that change decisions?"}
+      - {id: IR-36, p: P1, title: "Risk models compared by decision", q: "Does better statistical fit translate into better allocation?"}
+
+  - slug: portfolio
+    label: "Portfolio Optimization"
+    color: feat
+    topics:
+      - {id: IR-37, p: P0, title: "Forecast–risk semantic consistency", q: "Do mean, covariance, exposures and constraints share universe, dates, horizon and units?"}
+      - {id: IR-38, p: P1, title: "Objective & risk measure", q: "Mean-variance, benchmark-relative, variance-targeting, CVaR or scenario utility?"}
+      - {id: IR-39, p: P1, title: "Factor/sector risk budgeting", q: "How should group and factor exposures be regulated without destroying alpha?"}
+      - {id: IR-40, p: P1, title: "Optimizer robustness", q: "Why do weights swing when forecasts barely change?"}
+      - {id: IR-41, p: P2, title: "Multi-period construction", q: "How should forecast term structure and risk persistence shape the portfolio path?"}
+      - {id: IR-42, p: P1, title: "Feasible set & effective breadth", q: "How much alpha span survives neutrality and concentration constraints?"}
+
+  - slug: attribution
+    label: "Attribution & Validation"
+    color: time
+    topics:
+      - {id: IR-43, p: P1, title: "Predictive & alpha attribution", q: "Which feature, alpha family or mechanism contributes incremental information?"}
+      - {id: IR-44, p: P1, title: "Portfolio factor/specific attribution", q: "Factor versus specific contribution to portfolio return and risk."}
+      - {id: IR-45, p: P2, title: "Factor performance vs crowding", q: "Ordinary premium drawdown, exposure change, or crowded unwind?"}
+      - {id: IR-46, p: P0, title: "Research selection & inference", q: "Which improvements survive dependence, adaptive selection and multiple testing?"}
+
+  - slug: crowding
+    label: "Alpha Crowding"
+    color: label
+    topics:
+      - {id: IR-47, p: P1, title: "Crowding observability", q: "What does each data source actually identify, at which lag and frequency?"}
+      - {id: IR-48, p: P1, title: "Factor & signal crowding geometry", q: "Are our alpha portfolios aligned with popular directions, known factors or each other?"}
+      - {id: IR-49, p: P1, title: "Residual co-movement (comomentum)", q: "Abnormal same-direction co-movement among assets a common strategy favors?"}
+      - {id: IR-50, p: P1, title: "Positioning, concentration & flow", q: "Is demand unusually one-sided in the names our alpha wants to hold?"}
+      - {id: IR-51, p: P1, title: "Alpha decay vs adoption", q: "Does conditional alpha fall as inferred adoption rises, or is it regime confounding?"}
+      - {id: IR-52, p: P1, title: "Crowded unwind & correlation breakdown", q: "Which states signal simultaneous de-risking of similar exposures?"}
+      - {id: IR-53, p: P2, title: "Crowding-aware factor risk", q: "Do ordinary factor covariances understate common shock risk under concentrated positioning?"}
+      - {id: IR-54, p: P2, title: "Crowding-aware alpha & PO", q: "Should crowding change the mean, the risk, or the constraints, and only once?"}
+      - {id: IR-55, p: P2, title: "Endogeneity & imitation", q: "What can be inferred about others' latent strategies from market outcomes?"}
